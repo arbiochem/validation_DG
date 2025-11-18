@@ -2,7 +2,18 @@
 """Django's command-line utility for administrative tasks."""
 import os
 import sys
+import socket  # 🔹 Import nécessaire pour get_local_ip
 
+def get_local_ip():
+    try:
+        # Crée une socket UDP et se connecte à une IP externe
+        s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+        s.connect(("8.8.8.8", 80))  # Google DNS, ne va pas envoyer de données
+        ip = s.getsockname()[0]     # Récupère l'IP locale utilisée pour cette connexion
+        s.close()
+        return ip
+    except Exception as e:
+        return f"Erreur : {e}"
 
 def main():
     """Run administrative tasks."""
@@ -17,6 +28,10 @@ def main():
         ) from exc
     execute_from_command_line(sys.argv)
 
-
 if __name__ == '__main__':
+    local_ip = get_local_ip()
+    port = "8000"
+    print(f"Lancement de Django sur http://{local_ip}:{port}/")
+    import sys
+    sys.argv += [f"{local_ip}:{port}"] 
     main()

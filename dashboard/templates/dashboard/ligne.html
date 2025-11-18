@@ -1,0 +1,114 @@
+{% load l10n %}
+
+<style>
+.btn-action i {
+    font-size: 16px;
+}
+
+.text-center {
+    text-align: center;
+}
+</style>
+
+
+{% for ligne in lignes %}
+    <tr class="ligne" data-id="{{ ligne.cbMarq }}">
+        <td>{{ ligne.AR_Ref }}</td>
+        <td>{{ ligne.DL_DESIGN }}</td>
+        <td contenteditable="true" style="text-align: center; background-color: blue; color:white">{{ ligne.DL_QTE|floatformat:2|localize }}</td>
+        <td style="text-align: center;">{{ ligne.DL_PrixUnitaire|floatformat:2|localize }}</td>
+        <td style="text-align: center;">{{ ligne.DL_Frais|floatformat:2|localize }}</td>
+        <td style="text-align: center;">{{ ligne.DL_MontantTTC|floatformat:2|localize }}</td>
+        <td class="text-center">
+            <button class="btn btn-sm btn-success btn-save" title="Enregistrer">
+                💾
+            </button>
+            <a href="" class="btn btn-sm btn-danger btn-action" title="Supprimer">
+                <i class="bi bi-trash"></i>
+            </a>
+        </td>
+    </tr>
+{% endfor %}
+
+
+<script>
+
+document.addEventListener('DOMContentLoaded', () => {
+    document.querySelectorAll('tr.ligne').forEach(row => {
+        const qteCell = row.cells[2];
+        const prixCell = row.cells[3];
+        const fraisCell = row.cells[4];
+        const montantTTCcell = row.cells[5];
+        if(!qteCell || !prixCell || !fraisCell || !montantTTCcell) return;
+
+        const updateMontantTTC = () => {
+            let qte = parseFloat(qteCell.innerText.replace(/\s/g, '').replace(',', '.')) || 0;
+            let prix = parseFloat(prixCell.innerText.replace(/\s/g, '').replace(',', '.')) || 0;
+            let frais = parseFloat(fraisCell.innerText.replace(/\s/g, '').replace(',', '.')) || 0;
+            let montantTTC = (qte * prix) + frais;
+            montantTTCcell.innerText = montantTTC.toFixed(2).replace('.', ',');
+            console.log('Montant TTC recalculé:', montantTTCcell.innerText);
+        };
+
+        [qteCell, prixCell, fraisCell].forEach(cell => {
+            cell.addEventListener('input', updateMontantTTC);
+        });
+    });
+
+});
+
+document.querySelectorAll('.btn-save').forEach(btn => {
+    btn.addEventListener('click', function() {
+
+        const row = this.closest('tr');
+        const id = row.dataset.id;
+        // Récupérer les valeurs modifiées
+        const data = {
+            AR_Ref: row.cells[0].innerText,
+            DL_DESIGN: row.cells[1].innerText,
+            DL_QTE: parseFloat(row.cells[2].innerText.replace(',', '.')),
+            DL_PrixUnitaire: parseFloat(row.cells[3].innerText.replace(',', '.')),
+            DL_Frais: parseFloat(row.cells[4].innerText.replace(',', '.')),
+            DL_MontantTTC: parseFloat(row.cells[6].innerText.replace(',', '.')),
+        };
+
+        // Envoyer les données au serveur via fetch/AJAX
+        fetch(`/update-line/${id}/`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRFToken': getCookie('csrftoken')  // pour Django
+            },
+            body: JSON.stringify(data)
+        })
+        .then(res => res.json())
+        .then(res => {
+            if(res.success){
+                alert('Ligne mise à jour !');
+            } else {
+                alert('Erreur lors de la mise à jour');
+            }
+        });
+    });
+});
+
+// Fonction pour récupérer le cookie CSRF
+function getCookie(name) {
+    let cookieValue = null;
+    if (document.cookie && document.cookie !== '') {
+        const cookies = document.cookie.split(';');
+        for (let i = 0; i < cookies.length; i++) {
+            const cookie = cookies[i].trim();
+            if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                break;
+            }
+        }
+    }
+    return cookieValue;
+}
+
+</script>
+
+
+

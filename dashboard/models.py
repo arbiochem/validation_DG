@@ -18,11 +18,18 @@ class FDocentete(models.Model):
         managed = False
         db_table = 'F_DOCENTETE'
 
-class FDocligne(models.Model):
+class FDOCLIGNE(models.Model):
     do_piece = models.CharField(max_length=50)
-    dl_qte = models.DecimalField(max_digits=18, decimal_places=6, blank=True, null=True)
-    dl_prixunitaire = models.DecimalField(max_digits=18, decimal_places=6, blank=True, null=True)
+    cbMarq = models.AutoField(primary_key=True)
+    AR_Ref = models.CharField(max_length=100)
+    DL_DESIGN = models.CharField(max_length=255)
+    DL_QTE = models.DecimalField(max_digits=10, decimal_places=2)
+    DL_PrixUnitaire = models.DecimalField(max_digits=10, decimal_places=2)
+    DL_Frais = models.DecimalField(max_digits=10, decimal_places=2)
+    DL_MontantHT = models.DecimalField(max_digits=10, decimal_places=2)
+    DL_MontantTTC = models.DecimalField(max_digits=10, decimal_places=2)
 
     class Meta:
         managed = False
         db_table = 'F_DOCLIGNE'
+

@@ -25,7 +25,7 @@ SECRET_KEY = 'django-insecure-#r20+p0g$)ef6@)7vvsfd9gyvvx$s+k8-j07%i#=ful(@(5tur
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ['192.168.88.162', 'localhost', '127.0.0.1']
 
 
 # Application definition
@@ -39,6 +39,7 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'validation_DG',
     'dashboard',
+    'login',
 ]
 
 MIDDLEWARE = [
@@ -123,12 +124,20 @@ USE_I18N = True
 
 USE_TZ = True
 
+LANGUAGE_CODE = 'fr-fr'
+USE_L10N = True
+USE_THOUSAND_SEPARATOR = True
+DECIMAL_SEPARATOR = ','
+THOUSAND_SEPARATOR = ' '
+
 
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/4.2/howto/static-files/
 
 STATIC_URL = 'static/'
-dash_REDIRECT_URL = '/'
+
+LOGIN_REDIRECT_URL = '/'
+LOGOUT_REDIRECT_URL = '/login/'
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/4.2/ref/settings/#default-auto-field
