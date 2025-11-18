@@ -1,2 +1,2 @@
 python manage.py inspectdb F_DOCENTETE > models.py
- python manage.py inspectdb F_DOCLIGNE F_DOCENTETE > models.py
+ python manage.py inspectdb F_DOCLIGNE F_DOCENTETE F_COMPTET > dashboard/models.py
