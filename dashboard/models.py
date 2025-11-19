@@ -9,10 +9,12 @@ class FComptet(models.Model):
         db_table = 'F_COMPTET'
 
 class FDocentete(models.Model):
+    cbMarq = models.AutoField(primary_key=True)
     do_piece = models.CharField(max_length=50)
     do_ref = models.CharField(max_length=50, blank=True, null=True)
     do_tiers = models.ForeignKey(FComptet, models.DO_NOTHING, db_column='DO_Tiers')
     do_statut = models.IntegerField(blank=True, null=True)
+    do_type = models.IntegerField(blank=True, null=True)
 
     class Meta:
         managed = False

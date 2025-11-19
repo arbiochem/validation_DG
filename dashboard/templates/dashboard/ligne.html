@@ -10,105 +10,203 @@
 }
 </style>
 
-
 {% for ligne in lignes %}
-    <tr class="ligne" data-id="{{ ligne.cbMarq }}">
+    <tr class="ligne" data-id="{{ ligne.cbMarq }}" 
+        data-prix="{{ ligne.DL_PrixUnitaire|floatformat:2|localize }}" 
+        data-frais="{{ ligne.DL_Frais|floatformat:2|localize }}">
         <td>{{ ligne.AR_Ref }}</td>
         <td>{{ ligne.DL_DESIGN }}</td>
-        <td contenteditable="true" style="text-align: center; background-color: blue; color:white">{{ ligne.DL_QTE|floatformat:2|localize }}</td>
-        <td style="text-align: center;">{{ ligne.DL_PrixUnitaire|floatformat:2|localize }}</td>
-        <td style="text-align: center;">{{ ligne.DL_Frais|floatformat:2|localize }}</td>
-        <td style="text-align: center;">{{ ligne.DL_MontantTTC|floatformat:2|localize }}</td>
+        <td class="qte-cell" contenteditable="true" 
+            data-row-id="{{ ligne.cbMarq }}"
+            style="text-align: center; background-color: blue; color:white">{{ ligne.DL_QTE|floatformat:2|localize }}</td>
+        <td class="prix-cell" style="text-align: center;">{{ ligne.DL_PrixUnitaire|floatformat:2|localize }}</td>
+        <td class="frais-cell" style="text-align: center;">{{ ligne.DL_Frais|floatformat:2|localize }}</td>
+        <td class="montant-cell" data-row-id="{{ ligne.cbMarq }}" style="text-align: center;">{{ ligne.DL_MontantTTC|floatformat:2|localize }}</td>
         <td class="text-center">
-            <button class="btn btn-sm btn-success btn-save" title="Enregistrer">
+            <button class="btn btn-sm btn-success btn-save" data-row-id="{{ ligne.cbMarq }}" type="button" title="Enregistrer">
                 💾
             </button>
-            <a href="" class="btn btn-sm btn-danger btn-action" title="Supprimer">
+            <a href="#" class="btn btn-sm btn-danger btn-action btn-delete" data-row-id="{{ ligne.cbMarq }}" title="Supprimer">
                 <i class="bi bi-trash"></i>
             </a>
         </td>
     </tr>
 {% endfor %}
 
-
 <script>
+console.log('=== SCRIPT CHARGE ===');
 
-document.addEventListener('DOMContentLoaded', () => {
-    document.querySelectorAll('tr.ligne').forEach(row => {
-        const qteCell = row.cells[2];
-        const prixCell = row.cells[3];
-        const fraisCell = row.cells[4];
-        const montantTTCcell = row.cells[5];
-        if(!qteCell || !prixCell || !fraisCell || !montantTTCcell) return;
-
-        const updateMontantTTC = () => {
-            let qte = parseFloat(qteCell.innerText.replace(/\s/g, '').replace(',', '.')) || 0;
-            let prix = parseFloat(prixCell.innerText.replace(/\s/g, '').replace(',', '.')) || 0;
-            let frais = parseFloat(fraisCell.innerText.replace(/\s/g, '').replace(',', '.')) || 0;
-            let montantTTC = (qte * prix) + frais;
-            montantTTCcell.innerText = montantTTC.toFixed(2).replace('.', ',');
-            console.log('Montant TTC recalculé:', montantTTCcell.innerText);
-        };
-
-        [qteCell, prixCell, fraisCell].forEach(cell => {
-            cell.addEventListener('input', updateMontantTTC);
-        });
-    });
-
+// Utiliser la délégation d'événements sur le document
+document.addEventListener('input', function(e) {
+    // Vérifier si c'est une cellule de quantité
+    if (e.target && e.target.classList.contains('qte-cell')) {
+        //console.log('Modification de quantité détectée');
+        
+        const qteCell = e.target;
+        const row = qteCell.closest('tr');
+        
+        if (!row) {
+            console.error('Ligne parente non trouvée');
+            return;
+        }
+        
+        const prixCell = row.querySelector('.prix-cell');
+        const fraisCell = row.querySelector('.frais-cell');
+        const montantCell = row.querySelector('.montant-cell');
+        
+        if (!prixCell || !fraisCell || !montantCell) {
+            console.error('Cellules non trouvées');
+            return;
+        }
+        
+        // Récupérer les valeurs
+        const qteText = qteCell.textContent.trim();
+        const prixText = prixCell.textContent.trim();
+        const fraisText = fraisCell.textContent.trim();
+        
+        //console.log('Valeurs brutes:', { qte: qteText, prix: prixText, frais: fraisText });
+        
+        // Convertir en nombres
+        const qte = parseFloat(qteText.replace(/\s/g, '').replace(',', '.')) || 0;
+        const prix = parseFloat(prixText.replace(/\s/g, '').replace(',', '.')) || 0;
+        const frais = parseFloat(fraisText.replace(/\s/g, '').replace(',', '.')) || 0;
+        
+        //console.log('Valeurs numériques:', { qte, prix, frais });
+        
+        // Calculer le montant
+        const montant = (qte * prix) + frais;
+        //console.log('Montant calculé:', montant);
+        
+        // Afficher le résultat
+        montantCell.textContent = new Intl.NumberFormat('fr-FR', { 
+            minimumFractionDigits: 2, 
+            maximumFractionDigits: 2 
+        }).format(montant);
+        //console.log('Nouveau montant affiché:', montantCell.textContent);
+    }
 });
 
-document.querySelectorAll('.btn-save').forEach(btn => {
-    btn.addEventListener('click', function() {
-
-        const row = this.closest('tr');
+// Gestion des clics sur les boutons save avec délégation
+document.addEventListener('click', function(e) {
+    // Vérifier si c'est un bouton save
+    if (e.target && (e.target.classList.contains('btn-save') || e.target.closest('.btn-save'))) {
+        e.preventDefault();
+        
+        const btn = e.target.classList.contains('btn-save') ? e.target : e.target.closest('.btn-save');
+        const row = btn.closest('tr');
+        
+        if (!row) {
+            console.error('Ligne non trouvée');
+            return;
+        }
+        
         const id = row.dataset.id;
-        // Récupérer les valeurs modifiées
+        //console.log('Sauvegarde ligne ID:', id);
+        
         const data = {
-            AR_Ref: row.cells[0].innerText,
-            DL_DESIGN: row.cells[1].innerText,
-            DL_QTE: parseFloat(row.cells[2].innerText.replace(',', '.')),
-            DL_PrixUnitaire: parseFloat(row.cells[3].innerText.replace(',', '.')),
-            DL_Frais: parseFloat(row.cells[4].innerText.replace(',', '.')),
-            DL_MontantTTC: parseFloat(row.cells[6].innerText.replace(',', '.')),
+            do_piece: "{{do_piece}}",
+            AR_Ref: row.cells[0].textContent.trim(),
+            DL_DESIGN: row.cells[1].textContent.trim(),
+            DL_QTE: parseFloat(row.cells[2].textContent.replace(/\s/g, '').replace(',', '.')) || 0,
+            DL_PrixUnitaire: parseFloat(row.cells[3].textContent.replace(/\s/g, '').replace(',', '.')) || 0,
+            DL_Frais: parseFloat(row.cells[4].textContent.replace(/\s/g, '').replace(',', '.')) || 0,
+            DL_MontantTTC: parseFloat(row.cells[5].textContent.replace(/\s/g, '').replace(',', '.')) || 0
         };
+        
+        //console.log('Données à envoyer:', data);
+        
+        // Fonction pour récupérer le cookie CSRF
+        function getCookie(name) {
+            let cookieValue = null;
+            if (document.cookie && document.cookie !== '') {
+                const cookies = document.cookie.split(';');
+                for (let i = 0; i < cookies.length; i++) {
+                    const cookie = cookies[i].trim();
+                    if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                        cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                        break;
+                    }
+                }
+            }
+            return cookieValue;
+        }
 
-        // Envoyer les données au serveur via fetch/AJAX
-        fetch(`/update-line/${id}/`, {
+        ids = id.toString().trim();          // retire les espaces au début/fin
+        idss = ids.replace(/\s/g, '');
+
+        fetch(`/dashboard/modifier_ligne/${idss}/`, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
-                'X-CSRFToken': getCookie('csrftoken')  // pour Django
+                'X-CSRFToken': getCookie('csrftoken')
             },
             body: JSON.stringify(data)
         })
-        .then(res => res.json())
         .then(res => {
+            if (!res.ok) throw new Error('Erreur serveur: ' + res.status);
+            return res.json();
+        })
+        .then(res => {
+            console.log('Réponse:', res);
             if(res.success){
-                alert('Ligne mise à jour !');
+                alert('Ligne mise à jour avec succès !');
             } else {
-                alert('Erreur lors de la mise à jour');
+                alert('Erreur: ' + (res.message || 'Erreur inconnue'));
             }
+        })
+        .catch(error => {
+            console.error('Erreur:', error);
+            alert('Erreur: ' + error.message);
         });
-    });
-});
+    }
+    
+    // Gestion du bouton supprimer
+    if (e.target && (e.target.classList.contains('btn-delete') || e.target.closest('.btn-delete'))) {
+        e.preventDefault();
+        
+        if (confirm('Voulez-vous vraiment supprimer cette ligne ?')) {
+            const btn = e.target.classList.contains('btn-delete') ? e.target : e.target.closest('.btn-delete');
+            const row = btn.closest('tr');
+            const id = row.dataset.id;
+            console.log('Suppression ligne ID:', id);
 
-// Fonction pour récupérer le cookie CSRF
-function getCookie(name) {
-    let cookieValue = null;
-    if (document.cookie && document.cookie !== '') {
-        const cookies = document.cookie.split(';');
-        for (let i = 0; i < cookies.length; i++) {
-            const cookie = cookies[i].trim();
-            if (cookie.substring(0, name.length + 1) === (name + '=')) {
-                cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
-                break;
+            function getCookie(name) {
+                let cookieValue = null;
+                if (document.cookie && document.cookie !== '') {
+                    const cookies = document.cookie.split(';');
+                    for (let i = 0; i < cookies.length; i++) {
+                        const cookie = cookies[i].trim();
+                        // Vérifie si ce cookie commence par le nom
+                        if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                            cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                            break;
+                        }
+                    }
+                }
+                return cookieValue;
             }
+
+            ids = id.toString().trim();          // retire les espaces au début/fin
+            idss = ids.replace(/\s/g, '');
+
+            fetch(`/dashboard/modifier_ligne/${idss}/`, {
+                method: 'DELETE',
+                headers: {
+                    'X-CSRFToken': getCookie('csrftoken')
+                }
+            })
+            .then(res => res.json())
+            .then(res => {
+                if(res.success){
+                    alert("Ligne supprimée !");
+                    location.reload();
+                } else {
+                    alert("Erreur : " + res.message);
+                }
+            });
         }
     }
-    return cookieValue;
-}
+});
 
+console.log('=== SCRIPT CONFIGURE (délégation d\'événements) ===');
 </script>
-
-
-
