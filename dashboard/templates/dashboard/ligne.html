@@ -1,14 +1,64 @@
 {% load l10n %}
 
 <style>
-.btn-action i {
-    font-size: 16px;
-}
+    /* Table responsive */
+    .table-wrapper {
+        overflow-x: auto; /* Permet le scroll horizontal sur mobile */
+        width: 100%;
+    }
 
-.text-center {
-    text-align: center;
-}
+    table {
+        width: 100%;
+        border-collapse: collapse;
+    }
+
+    th, td {
+        padding: 8px 10px;
+        text-align: center;
+        border: 1px solid #ccc;
+        white-space: nowrap; /* Empêche le texte de casser en plusieurs lignes */
+    }
+
+    /* Couleurs pour la cellule editable */
+    .qte-cell {
+        background-color: #007BFF;
+        color: white;
+    }
+
+    /* Boutons */
+    .btn-action i, .btn-save {
+        font-size: 16px;
+    }
+
+    /* Centrage */
+    .text-center {
+        text-align: center;
+    }
+
+    /* Responsive : réduire police et padding sur petits écrans */
+    @media (max-width: 768px) {
+        th, td {
+            padding: 6px 4px;
+            font-size: 12px;
+        }
+
+        .btn-action i, .btn-save {
+            font-size: 14px;
+        }
+    }
+
+    @media (max-width: 480px) {
+        th, td {
+            padding: 4px 2px;
+            font-size: 10px;
+        }
+
+        .btn-action i, .btn-save {
+            font-size: 12px;
+        }
+    }
 </style>
+
 
 {% for ligne in lignes %}
     <tr class="ligne" data-id="{{ ligne.cbMarq }}" 
