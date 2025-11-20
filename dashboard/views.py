@@ -1,16 +1,23 @@
-from django.shortcuts import render
+from django.shortcuts import render, redirect
 from .models import FDocentete
 from .models import FDOCLIGNE
 from django.views.decorators.csrf import csrf_exempt
 import json
 from django.http import JsonResponse
 from django.db import connection
-
-
+from django.contrib.auth.decorators import login_required
 
 def logout_view(request):
     return redirect('/login/logout/')
 
+def require_login(view_func):
+    def wrapper(request, *args, **kwargs):
+        if not request.session.get('authenticated'):
+            return redirect(f'/login/?next={request.path}')
+        return view_func(request, *args, **kwargs)
+    return wrapper
+
+@require_login
 def dashboard_home(request):
     entete = FDocentete.objects.select_related('do_tiers').filter(
         do_statut=1,
@@ -22,7 +29,13 @@ def dashboard_home(request):
         'do_tiers__ct_intitule'
     )
 
-    return render(request, 'dashboard/dashboard.html', {'entete': entete})
+    username = request.session.get('username', 'Utilisateur')
+    
+    context = {
+        'username': username,
+        'entete':entete
+    }
+    return render(request, 'dashboard/dashboard.html', context)
 
 def lignes_view(request,do_piece):
     lignes = FDOCLIGNE.objects.filter(do_piece=do_piece)

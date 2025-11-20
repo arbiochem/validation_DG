@@ -11,10 +11,29 @@ https://docs.djangoproject.com/en/4.2/ref/settings/
 """
 
 from pathlib import Path
+import socket
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
+def get_local_ip():
+    try:
+        # Crée une connexion fictive pour connaître l’IP locale
+        s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+        s.connect(("8.8.8.8", 80))  # ne fait aucune vraie connexion
+        ip = s.getsockname()[0]
+        s.close()
+        return ip
+    except:
+        return "127.0.0.1"
+
+LOCAL_IP = get_local_ip()
+
+ALLOWED_HOSTS = [
+    "localhost",
+    "127.0.0.1",
+    LOCAL_IP,   # auto-détectée
+]
 
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/4.2/howto/deployment/checklist/
@@ -25,7 +44,7 @@ SECRET_KEY = 'django-insecure-#r20+p0g$)ef6@)7vvsfd9gyvvx$s+k8-j07%i#=ful(@(5tur
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = ['192.168.88.162', 'localhost', '127.0.0.1']
+ALLOWED_HOSTS = ['*']
 
 
 # Application definition
@@ -44,14 +63,23 @@ INSTALLED_APPS = [
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
-    'django.contrib.sessions.middleware.SessionMiddleware',
+    'django.contrib.sessions.middleware.SessionMiddleware',  # ✅ obligatoire
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
-    'django.contrib.auth.middleware.AuthenticationMiddleware',
+    'django.contrib.auth.middleware.AuthenticationMiddleware',  # doit venir après SessionMiddleware
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
 ]
+SESSION_ENGINE = 'django.contrib.sessions.backends.signed_cookies'
+# Configuration des cookies
+SESSION_COOKIE_NAME = 'sessionid'
+SESSION_COOKIE_AGE = 86400  # 24 heures en secondes
+SESSION_COOKIE_HTTPONLY = True
+SESSION_COOKIE_SECURE = False  # Mettre True si HTTPS
+SESSION_SAVE_EVERY_REQUEST = True
 
+# Clé secrète pour signer les cookies (très important!)
+SECRET_KEY = 'Mah@fr1245%ùùùsfrfr'
 ROOT_URLCONF = 'validation_DG.urls'
 
 TEMPLATES = [
@@ -92,7 +120,9 @@ DATABASES = {
     }
 }
 
-
+#SESSION_ENGINE = "django.contrib.sessions.backends.signed_cookies"
+#SESSION_COOKIE_HTTPONLY = True
+#SESSION_COOKIE_SECURE = False
 
 # Password validation
 # https://docs.djangoproject.com/en/4.2/ref/settings/#auth-password-validators
@@ -135,9 +165,8 @@ THOUSAND_SEPARATOR = ' '
 # https://docs.djangoproject.com/en/4.2/howto/static-files/
 
 STATIC_URL = 'static/'
-
-LOGIN_REDIRECT_URL = '/'
-LOGOUT_REDIRECT_URL = '/login/'
+LOGIN_URL = '/login/'
+LOGIN_REDIRECT_URL = '/dashboard/'
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/4.2/ref/settings/#default-auto-field
