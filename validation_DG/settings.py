@@ -59,6 +59,7 @@ INSTALLED_APPS = [
     'validation_DG',
     'dashboard',
     'login',
+    'django_extensions',
 ]
 
 MIDDLEWARE = [
