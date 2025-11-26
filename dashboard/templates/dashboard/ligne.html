@@ -57,7 +57,47 @@
             font-size: 12px;
         }
     }
+
+    .toast-success .toast-header { background-color: #e6f4ea; }
+    .toast-success .toast-title { color: #0f5132; }
+    .toast-error .toast-header { background-color: #f8d7da; }
+    .toast-error .toast-title { color: #842029; }
+    .toast-info .toast-header { background-color: #cff4fc; }
+    .toast-info .toast-title { color: #055160; }
 </style>
+
+<!-- CONFIRMATION MODALE -->
+<div class="modal fade" id="confirmModal" tabindex="-1" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content p-2">
+      <div class="modal-header border-0">
+        <h5 class="modal-title fw-bold" id="confirmModalTitle">Confirmation</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Fermer"></button>
+      </div>
+
+      <div class="modal-body">
+        <div class="d-flex align-items-start">
+          <div class="me-3">
+            <!-- Icône -->
+            <svg xmlns="http://www.w3.org/2000/svg" width="40" height="40" fill="#ff8800"
+                 class="bi bi-exclamation-triangle-fill">
+              <path d="M8.982 1.566a1.13 1.13 0 0 0-1.96 0L.165 13.233c-.457.778.091 1.767.98 1.767h13.71c.889 0 1.437-.99.98-1.767L8.982 1.566zM8 5c.535 0 .954.462.9.995l-.35 3.507a.552.552 0 0 1-1.1 0L7.1 5.995A.905.905 0 0 1 8 5zm0 7a1 1 0 1 1 0 2 1 1 0 0 1 0-2z"/>
+            </svg>
+          </div>
+
+          <div>
+            <p id="confirmModalMessage" class="mb-0 fs-5"></p>
+          </div>
+        </div>
+      </div>
+
+      <div class="modal-footer border-0">
+        <button type="button" class="btn btn-secondary" id="confirmModalCancel">Annuler</button>
+        <button type="button" class="btn btn-danger fw-bold" id="confirmModalOk">Confirmer</button>
+      </div>
+    </div>
+  </div>
+</div>
 
 
 {% for ligne in lignes %}
@@ -85,6 +125,108 @@
 
 <script>
 console.log('=== SCRIPT CHARGE ===');
+
+function showNotify(type, message, options = {}) {
+  const container = document.getElementById('toast-container');
+  const template = document.getElementById('toast-template');
+
+  const title = options.title || (type === 'success' ? 'Succès' : type === 'error' ? 'Erreur' : 'Info');
+  const delay = options.delay ?? 4500;
+  const autohide = options.autohide ?? true;
+  const showProgress = options.progress ?? true;
+
+  // clone template
+  const toastEl = template.cloneNode(true);
+  toastEl.id = ''; // remove id
+  toastEl.hidden = false;
+  toastEl.classList.add('toast-' + type);
+  toastEl.style.minWidth = '280px';
+  toastEl.style.marginBottom = '0.5rem';
+
+  // set texts
+  toastEl.querySelector('.toast-title').textContent = title;
+  toastEl.querySelector('.toast-time').textContent = new Date().toLocaleTimeString();
+  toastEl.querySelector('.toast-message').innerHTML = message;
+
+  // progress bar element
+  const progressBar = toastEl.querySelector('.toast-progress-bar');
+  if (!showProgress) {
+    progressBar.style.display = 'none';
+  } else {
+    progressBar.style.transition = `transform ${delay}ms linear`;
+    progressBar.style.transform = 'scaleX(1)';
+  }
+
+  // append
+  container.appendChild(toastEl);
+
+  // create bootstrap toast instance
+  const bsToast = new bootstrap.Toast(toastEl, { autohide: autohide, delay: delay });
+  bsToast.show();
+
+  // start progress animation shortly after showing
+  if (showProgress) {
+    // Force reflow then animate (transform: scaleX(0) to shrink left-to-right)
+    requestAnimationFrame(() => {
+      // set initial to full, then to 0
+      progressBar.style.transformOrigin = 'left';
+      // small timeout to ensure transition applies
+      setTimeout(() => progressBar.style.transform = 'scaleX(0)', 20);
+    });
+  }
+
+  // cleanup when hidden
+  toastEl.addEventListener('hidden.bs.toast', () => {
+    toastEl.remove();
+  });
+
+  return bsToast;
+}
+
+function notifyConfirm(message, options = {}) {
+  return new Promise((resolve, reject) => {
+
+    const modalEl = document.getElementById("confirmModal");
+
+    const title = options.title ?? "Confirmation";
+    const okText = options.okText ?? "Confirmer";
+    const cancelText = options.cancelText ?? "Annuler";
+    const okClass = options.okClass ?? "btn-danger";
+    const cancelClass = options.cancelClass ?? "btn-secondary";
+
+    modalEl.querySelector("#confirmModalTitle").textContent = title;
+    modalEl.querySelector("#confirmModalMessage").textContent = message;
+
+    const btnOk = modalEl.querySelector("#confirmModalOk");
+    const btnCancel = modalEl.querySelector("#confirmModalCancel");
+
+    // Reset classes
+    btnOk.className = "btn " + okClass + " fw-bold";
+    btnCancel.className = "btn " + cancelClass;
+
+    btnOk.textContent = okText;
+    btnCancel.textContent = cancelText;
+
+    const modal = new bootstrap.Modal(modalEl);
+
+    // Nettoyage des anciens events
+    btnOk.onclick = () => {
+      modal.hide();
+      resolve(true);
+    };
+
+    btnCancel.onclick = () => {
+      modal.hide();
+      reject(false);
+    };
+
+    modal.show();
+  });
+
+// helper for common types
+function notifySuccess(msg, opts) { return showNotify('success', msg, opts); }
+function notifyError(msg, opts) { return showNotify('error', msg, opts); }
+function notifyInfo(msg, opts) { return showNotify('info', msg, opts); }
 
 // Utiliser la délégation d'événements sur le document
 document.addEventListener('input', function(e) {
@@ -199,63 +341,68 @@ document.addEventListener('click', function(e) {
         .then(res => {
             console.log('Réponse:', res);
             if(res.success){
-                alert('Ligne mise à jour avec succès !');
+                notifySuccess('Ligne mise à jour avec succès !', { delay: 3500 });
             } else {
-                alert('Erreur: ' + (res.message || 'Erreur inconnue'));
+                notifyError('Erreur: ' + (res.message || 'Erreur inconnue'), { delay: 3500 });
             }
         })
         .catch(error => {
             console.error('Erreur:', error);
-            alert('Erreur: ' + error.message);
+            notifyError('Erreur: ' + error.message);
         });
     }
     
     // Gestion du bouton supprimer
     if (e.target && (e.target.classList.contains('btn-delete') || e.target.closest('.btn-delete'))) {
-        e.preventDefault();
-        
-        if (confirm('Voulez-vous vraiment supprimer cette ligne ?')) {
-            const btn = e.target.classList.contains('btn-delete') ? e.target : e.target.closest('.btn-delete');
-            const row = btn.closest('tr');
-            const id = row.dataset.id;
-            console.log('Suppression ligne ID:', id);
+    e.preventDefault();
 
+    notifyConfirm("Voulez-vous vraiment supprimer cette ligne ?")
+        .then(() => {
+
+            const btn = e.target.classList.contains('btn-delete') 
+                ? e.target 
+                : e.target.closest('.btn-delete');
+
+            const row = btn.closest('tr');
+            const id = row.dataset.id.trim().replace(/\s/g, '');
+
+            console.log("Suppression ligne ID:", id);
+
+            // Cookie CSRF
             function getCookie(name) {
-                let cookieValue = null;
-                if (document.cookie && document.cookie !== '') {
-                    const cookies = document.cookie.split(';');
-                    for (let i = 0; i < cookies.length; i++) {
-                        const cookie = cookies[i].trim();
-                        // Vérifie si ce cookie commence par le nom
-                        if (cookie.substring(0, name.length + 1) === (name + '=')) {
-                            cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
-                            break;
-                        }
+                const cookies = document.cookie.split(';');
+                for (let cookie of cookies) {
+                    cookie = cookie.trim();
+                    if (cookie.startsWith(name + "=")) {
+                        return decodeURIComponent(cookie.substring(name.length + 1));
                     }
                 }
-                return cookieValue;
+                return null;
             }
 
-            ids = id.toString().trim();          // retire les espaces au début/fin
-            idss = ids.replace(/\s/g, '');
-
-            fetch(`/dashboard/modifier_ligne/${idss}/`, {
-                method: 'DELETE',
+            // Suppression AJAX
+            fetch(`/dashboard/modifier_ligne/${id}/`, {
+                method: "DELETE",
                 headers: {
-                    'X-CSRFToken': getCookie('csrftoken')
+                    "X-CSRFToken": getCookie("csrftoken")
                 }
             })
             .then(res => res.json())
             .then(res => {
-                if(res.success){
-                    alert("Ligne supprimée !");
-                    location.reload();
+                if (res.success) {
+                    notifySuccess("Ligne supprimée !");
+                    row.remove(); // supprime directement la ligne du tableau
                 } else {
-                    alert("Erreur : " + res.message);
+                    notifyError("Erreur : " + res.message);
                 }
-            });
-        }
+            })
+            .catch(err => notifyError("Erreur réseau : " + err));
+        })
+        .catch(() => {
+            notifyInfo("Suppression annulée.");
+        });
     }
+
 });
 
 console.log('=== SCRIPT CONFIGURE (délégation d\'événements) ===');
