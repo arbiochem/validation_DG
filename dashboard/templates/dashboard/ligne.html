@@ -124,177 +124,25 @@
 {% endfor %}
 
 <script>
-console.log('=== SCRIPT CHARGE ===');
-
-function showNotify(type, message, options = {}) {
-  const container = document.getElementById('toast-container');
-  const template = document.getElementById('toast-template');
-
-  const title = options.title || (type === 'success' ? 'Succès' : type === 'error' ? 'Erreur' : 'Info');
-  const delay = options.delay ?? 4500;
-  const autohide = options.autohide ?? true;
-  const showProgress = options.progress ?? true;
-
-  // clone template
-  const toastEl = template.cloneNode(true);
-  toastEl.id = ''; // remove id
-  toastEl.hidden = false;
-  toastEl.classList.add('toast-' + type);
-  toastEl.style.minWidth = '280px';
-  toastEl.style.marginBottom = '0.5rem';
-
-  // set texts
-  toastEl.querySelector('.toast-title').textContent = title;
-  toastEl.querySelector('.toast-time').textContent = new Date().toLocaleTimeString();
-  toastEl.querySelector('.toast-message').innerHTML = message;
-
-  // progress bar element
-  const progressBar = toastEl.querySelector('.toast-progress-bar');
-  if (!showProgress) {
-    progressBar.style.display = 'none';
-  } else {
-    progressBar.style.transition = `transform ${delay}ms linear`;
-    progressBar.style.transform = 'scaleX(1)';
-  }
-
-  // append
-  container.appendChild(toastEl);
-
-  // create bootstrap toast instance
-  const bsToast = new bootstrap.Toast(toastEl, { autohide: autohide, delay: delay });
-  bsToast.show();
-
-  // start progress animation shortly after showing
-  if (showProgress) {
-    // Force reflow then animate (transform: scaleX(0) to shrink left-to-right)
-    requestAnimationFrame(() => {
-      // set initial to full, then to 0
-      progressBar.style.transformOrigin = 'left';
-      // small timeout to ensure transition applies
-      setTimeout(() => progressBar.style.transform = 'scaleX(0)', 20);
-    });
-  }
-
-  // cleanup when hidden
-  toastEl.addEventListener('hidden.bs.toast', () => {
-    toastEl.remove();
-  });
-
-  return bsToast;
-}
-
-function notifyConfirm(message, options = {}) {
-  return new Promise((resolve, reject) => {
-
-    const modalEl = document.getElementById("confirmModal");
-
-    const title = options.title ?? "Confirmation";
-    const okText = options.okText ?? "Confirmer";
-    const cancelText = options.cancelText ?? "Annuler";
-    const okClass = options.okClass ?? "btn-danger";
-    const cancelClass = options.cancelClass ?? "btn-secondary";
-
-    modalEl.querySelector("#confirmModalTitle").textContent = title;
-    modalEl.querySelector("#confirmModalMessage").textContent = message;
-
-    const btnOk = modalEl.querySelector("#confirmModalOk");
-    const btnCancel = modalEl.querySelector("#confirmModalCancel");
-
-    // Reset classes
-    btnOk.className = "btn " + okClass + " fw-bold";
-    btnCancel.className = "btn " + cancelClass;
-
-    btnOk.textContent = okText;
-    btnCancel.textContent = cancelText;
-
-    const modal = new bootstrap.Modal(modalEl);
-
-    // Nettoyage des anciens events
-    btnOk.onclick = () => {
-      modal.hide();
-      resolve(true);
-    };
-
-    btnCancel.onclick = () => {
-      modal.hide();
-      reject(false);
-    };
-
-    modal.show();
-  });
-
-// helper for common types
-function notifySuccess(msg, opts) { return showNotify('success', msg, opts); }
-function notifyError(msg, opts) { return showNotify('error', msg, opts); }
-function notifyInfo(msg, opts) { return showNotify('info', msg, opts); }
-
 // Utiliser la délégation d'événements sur le document
 document.addEventListener('input', function(e) {
-    // Vérifier si c'est une cellule de quantité
     if (e.target && e.target.classList.contains('qte-cell')) {
-        //console.log('Modification de quantité détectée');
-        
-        const qteCell = e.target;
-        const row = qteCell.closest('tr');
-        
-        if (!row) {
-            console.error('Ligne parente non trouvée');
-            return;
-        }
-        
-        const prixCell = row.querySelector('.prix-cell');
-        const fraisCell = row.querySelector('.frais-cell');
-        const montantCell = row.querySelector('.montant-cell');
-        
-        if (!prixCell || !fraisCell || !montantCell) {
-            console.error('Cellules non trouvées');
-            return;
-        }
-        
-        // Récupérer les valeurs
-        const qteText = qteCell.textContent.trim();
-        const prixText = prixCell.textContent.trim();
-        const fraisText = fraisCell.textContent.trim();
-        
-        //console.log('Valeurs brutes:', { qte: qteText, prix: prixText, frais: fraisText });
-        
-        // Convertir en nombres
-        const qte = parseFloat(qteText.replace(/\s/g, '').replace(',', '.')) || 0;
-        const prix = parseFloat(prixText.replace(/\s/g, '').replace(',', '.')) || 0;
-        const frais = parseFloat(fraisText.replace(/\s/g, '').replace(',', '.')) || 0;
-        
-        //console.log('Valeurs numériques:', { qte, prix, frais });
-        
-        // Calculer le montant
-        const montant = (qte * prix) + frais;
-        //console.log('Montant calculé:', montant);
-        
-        // Afficher le résultat
-        montantCell.textContent = new Intl.NumberFormat('fr-FR', { 
-            minimumFractionDigits: 2, 
-            maximumFractionDigits: 2 
-        }).format(montant);
-        //console.log('Nouveau montant affiché:', montantCell.textContent);
+        updateMontant(e.target);
     }
-});
+}, true); // true = capture
 
-// Gestion des clics sur les boutons save avec délégation
 document.addEventListener('click', function(e) {
-    // Vérifier si c'est un bouton save
+    // -----------------------
+    // Bouton SAVE
+    // -----------------------
     if (e.target && (e.target.classList.contains('btn-save') || e.target.closest('.btn-save'))) {
         e.preventDefault();
-        
+
         const btn = e.target.classList.contains('btn-save') ? e.target : e.target.closest('.btn-save');
         const row = btn.closest('tr');
-        
-        if (!row) {
-            console.error('Ligne non trouvée');
-            return;
-        }
-        
+        if (!row) return;
+
         const id = row.dataset.id;
-        //console.log('Sauvegarde ligne ID:', id);
-        
         const data = {
             do_piece: "{{do_piece}}",
             AR_Ref: row.cells[0].textContent.trim(),
@@ -304,23 +152,16 @@ document.addEventListener('click', function(e) {
             DL_Frais: parseFloat(row.cells[4].textContent.replace(/\s/g, '').replace(',', '.')) || 0,
             DL_MontantTTC: parseFloat(row.cells[5].textContent.replace(/\s/g, '').replace(',', '.')) || 0
         };
-        
-        //console.log('Données à envoyer:', data);
-        
-        // Fonction pour récupérer le cookie CSRF
+
         function getCookie(name) {
-            let cookieValue = null;
-            if (document.cookie && document.cookie !== '') {
-                const cookies = document.cookie.split(';');
-                for (let i = 0; i < cookies.length; i++) {
-                    const cookie = cookies[i].trim();
-                    if (cookie.substring(0, name.length + 1) === (name + '=')) {
-                        cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
-                        break;
-                    }
+            const cookies = document.cookie.split(';');
+            for (let cookie of cookies) {
+                cookie = cookie.trim();
+                if (cookie.startsWith(name + "=")) {
+                    return decodeURIComponent(cookie.substring(name.length + 1));
                 }
             }
-            return cookieValue;
+            return null;
         }
 
         ids = id.toString().trim();          // retire les espaces au début/fin
@@ -339,36 +180,32 @@ document.addEventListener('click', function(e) {
             return res.json();
         })
         .then(res => {
-            console.log('Réponse:', res);
             if(res.success){
-                notifySuccess('Ligne mise à jour avec succès !', { delay: 3500 });
+                alert('Ligne mise à jour avec succès !');
             } else {
-                notifyError('Erreur: ' + (res.message || 'Erreur inconnue'), { delay: 3500 });
+                alert('Erreur: ' + (res.message || 'Erreur inconnue'));
             }
         })
         .catch(error => {
             console.error('Erreur:', error);
-            notifyError('Erreur: ' + error.message);
+            alert('Erreur: ' + error.message);
         });
     }
-    
-    // Gestion du bouton supprimer
+
+    // -----------------------
+    // Bouton DELETE
+    // -----------------------
     if (e.target && (e.target.classList.contains('btn-delete') || e.target.closest('.btn-delete'))) {
-    e.preventDefault();
+        e.preventDefault();
 
-    notifyConfirm("Voulez-vous vraiment supprimer cette ligne ?")
-        .then(() => {
+        const btn = e.target.classList.contains('btn-delete') ? e.target : e.target.closest('.btn-delete');
+        const row = btn.closest('tr');
+        if (!row) return;
 
-            const btn = e.target.classList.contains('btn-delete') 
-                ? e.target 
-                : e.target.closest('.btn-delete');
+        const id = row.dataset.id.trim().replace(/\s/g, '');
+        console.log("Suppression ligne ID:", id);
 
-            const row = btn.closest('tr');
-            const id = row.dataset.id.trim().replace(/\s/g, '');
-
-            console.log("Suppression ligne ID:", id);
-
-            // Cookie CSRF
+        if (confirm("Voulez-vous vraiment supprimer cette ligne ?")) {
             function getCookie(name) {
                 const cookies = document.cookie.split(';');
                 for (let cookie of cookies) {
@@ -380,7 +217,6 @@ document.addEventListener('click', function(e) {
                 return null;
             }
 
-            // Suppression AJAX
             fetch(`/dashboard/modifier_ligne/${id}/`, {
                 method: "DELETE",
                 headers: {
@@ -390,20 +226,41 @@ document.addEventListener('click', function(e) {
             .then(res => res.json())
             .then(res => {
                 if (res.success) {
-                    notifySuccess("Ligne supprimée !");
-                    row.remove(); // supprime directement la ligne du tableau
+                    alert("Ligne supprimée !");
+                    row.remove();
                 } else {
-                    notifyError("Erreur : " + res.message);
+                    alert("Erreur : " + res.message);
                 }
             })
-            .catch(err => notifyError("Erreur réseau : " + err));
-        })
-        .catch(() => {
-            notifyInfo("Suppression annulée.");
-        });
+            .catch(err => alert("Erreur réseau : " + err));
+        } else {
+            console.log("Suppression annulée.");
+        }
     }
-  });
+});
+
+function updateMontant(qteCell) {
+    const row = qteCell.closest('tr');
+    if (!row) return;
+
+    const prixCell = row.querySelector('.prix-cell');
+    const fraisCell = row.querySelector('.frais-cell');
+    const montantCell = row.querySelector('.montant-cell');
+    if (!prixCell || !fraisCell || !montantCell) return;
+
+    const qte = parseFloat(qteCell.textContent.replace(/\s/g, '').replace(',', '.')) || 0;
+    const prix = parseFloat(prixCell.textContent.replace(/\s/g, '').replace(',', '.')) || 0;
+    const frais = parseFloat(fraisCell.textContent.replace(/\s/g, '').replace(',', '.')) || 0;
+
+    const montant = (qte * prix) + frais;
+
+    // Méthode de secours pour tester si Intl est le problème
+    montantCell.textContent = new Intl.NumberFormat('fr-FR', {
+        minimumFractionDigits: 2, // Assure qu'il y a toujours 2 décimales (ex: 123,00)
+        maximumFractionDigits: 2  // Limite à 2 décimales
+    }).format(montant);
 }
+
 
 console.log('=== SCRIPT CONFIGURE (délégation d\'événements) ===');
 </script>
