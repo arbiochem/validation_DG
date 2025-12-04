@@ -35,11 +35,11 @@ def connect(request):
             next_url = request.GET.get('next', '/dashboard/')
             return redirect(next_url)
         else:
-            return render(request, 'login/login.html', {
-                'error': 'Identifiants incorrects'
+            return render(request, 'accounts/login.html', {
+                'error': 'Utilisateur ou mot de passe incorrect !!!!'
             })
     
-    return render(request, 'login/login.html')
+    return render(request, 'accounts/login.html')
 
 def dashboard(request):
     return render(request, 'dashboard/dashboard.html')
