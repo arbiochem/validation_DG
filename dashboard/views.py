@@ -8,7 +8,7 @@ from django.db import connection
 from django.contrib.auth.decorators import login_required
 
 def logout_view(request):
-    return redirect('/login/logout/')
+    return redirect('/login')
 
 def require_login(view_func):
     def wrapper(request, *args, **kwargs):
