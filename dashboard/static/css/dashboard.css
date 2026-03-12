@@ -1,0 +1,18 @@
+/* Transitions pour les filtres */
+#filtersSection {
+    max-height: 500px;
+    transition: max-height 0.3s ease, padding 0.3s ease;
+}
+
+#filtersSection.hidden {
+    max-height: 0;
+    padding: 0;
+    overflow: hidden;
+}
+
+/* Amélioration responsive */
+@media (max-width: 640px) {
+    .text-2xl {
+        font-size: 1.25rem;
+    }
+}

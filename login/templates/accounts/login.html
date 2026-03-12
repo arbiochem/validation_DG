@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Connexion</title>
+    
+    <!-- Materialize CSS -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/css/materialize.min.css" rel="stylesheet">
+    <!-- Material Icons -->
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+
+    <style>
+        /* Body centré verticalement et horizontalement */
+        body {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            background: linear-gradient(to right, #2196F3, #21CBF3);
+            margin: 0;
+            font-family: 'Roboto', sans-serif;
+        }
+
+        /* Carte de connexion */
+        .card {
+            padding: 30px;
+            width: 100%;
+            max-width: 400px;
+            box-sizing: border-box;
+            border-radius: 10px;
+        }
+
+        /* Titres */
+        h5 {
+            margin-bottom: 30px;
+            color: #333;
+        }
+
+        /* Bouton */
+        .btn {
+            width: 100%;
+        }
+
+        /* Messages d'erreur */
+        .message {
+            margin-bottom: 20px;
+        }
+
+        /* Icônes dans les champs */
+        .input-field .material-icons.prefix {
+            color: #2196F3;
+        }
+
+        /* Responsive padding sur petits écrans */
+        @media (max-width: 600px) {
+            .card {
+                padding: 20px;
+                margin: 10px;
+            }
+        }
+
+        /* Animation focus sur input */
+        input:focus + label {
+            color: #2196F3 !important;
+        }
+
+        input:focus {
+            border-bottom: 1px solid #2196F3 !important;
+            box-shadow: 0 1px 0 0 #2196F3 !important;
+        }
+
+        /* Lien mot de passe oublié */
+        .forgot-password {
+            display: block;
+            margin-top: 10px;
+            text-align: right;
+            font-size: 0.9rem;
+        }
+
+        .forgot-password a {
+            color: #2196F3;
+            text-decoration: none;
+        }
+
+        .forgot-password a:hover {
+            text-decoration: underline;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="row">
+            <div class="col s12 m8 l6 offset-m2 offset-l3">
+                <div class="card z-depth-3">
+                    <h5 class="center-align">Connexion</h5>
+
+                    <!-- Messages d'erreur -->
+                    {% if messages %}
+                        <div class="message">
+                            {% for message in messages %}
+                                <p class="red-text">{{ message }}</p>
+                            {% endfor %}
+                        </div>
+                    {% endif %}
+
+                    <!-- Formulaire -->
+                    <form method="post" action="{% url 'connect' %}">
+                        {% csrf_token %}
+                        {% if error %}
+                            <p style="color: red;">{{ error }}</p>
+                        {% endif %}
+                        <div class="input-field">
+                            <i class="material-icons prefix">person</i>
+                            <input id="username" type="text" name="username" required>
+                            <label for="username">Nom d’utilisateur</label>
+                        </div>
+
+                        <div class="input-field">
+                            <i class="material-icons prefix">lock</i>
+                            <input id="password" type="password" name="password" required>
+                            <label for="password">Mot de passe</label>
+                        </div>
+
+                        <div class="center-align" style="margin-top: 20px;">
+                            <button class="btn waves-effect waves-light" type="submit">
+                                Se connecter
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Materialize JS -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/js/materialize.min.js"></script>
+</body>
+</html>
