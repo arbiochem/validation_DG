@@ -5,2604 +5,1101 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Menu Horizontal - Validation & Etat</title>
-    <!-- Material Icons -->
-    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
-    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
-    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
-    <link rel="stylesheet" href="{% static 'css/dashboard.css' %}">
+    <title>Arbiochem — État Global</title>
+
+    <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:ital,wght@0,300;0,400;0,500;1,400&display=swap" rel="stylesheet">
     <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2.2.0/dist/chartjs-plugin-datalabels.min.js"></script>
+
     <style>
-        .ca-epic {
-            font-weight: 900;
-            font-size: 1.5rem;
-            background: linear-gradient(
-                90deg,
-                #ffffff 0%,
-                #ffffff 30%,
-                #f5d27a 45%,
-                #bc823f 50%,
-                #f5d27a 55%,
-                #ffffff 70%,
-                #ffffff 100%
-            );
-            background-size: 300% auto;
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            background-clip: text;
-            filter: 
-                drop-shadow(0 0 8px rgba(188,130,63,0.8))
-                drop-shadow(0 0 25px rgba(245,210,122,0.5))
-                drop-shadow(0 4px 14px rgba(0,0,0,0.35));
-            animation: shimmerCA 3s linear infinite;
-            letter-spacing: 0.04em;
-        }
-
-        .ca-epics1 {
-            font-weight: 900;
-            font-size: 2rem;
-            background: linear-gradient(
-                90deg,
-                #ffffff 0%,
-                #ffffff 30%,
-                #1565c0 45%,
-                #bc823f 50%,
-                #1565c0 55%,
-                #ffffff 70%,
-                #ffffff 100%
-            );
-            background-size: 300% auto;
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            background-clip: text;
-            filter: 
-                drop-shadow(0 0 8px rgba(188,130,63,0.8))
-                drop-shadow(0 0 25px rgba(245,210,122,0.5))
-                drop-shadow(0 4px 14px rgba(0,0,0,0.35));
-            animation: shimmerCA 3s linear infinite;
-            letter-spacing: 0.04em;
-        }
-
-        .ca-epics {
-            font-weight: 900;
-            font-size: 2rem;
-            background: linear-gradient(
-                90deg,
-                #ffffff 0%,
-                #ffffff 30%,
-                #f5d27a 45%,
-                #bc823f 50%,
-                #f5d27a 55%,
-                #ffffff 70%,
-                #ffffff 100%
-            );
-            background-size: 300% auto;
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            background-clip: text;
-            filter: 
-                drop-shadow(0 0 8px rgba(188,130,63,0.8))
-                drop-shadow(0 0 25px rgba(245,210,122,0.5))
-                drop-shadow(0 4px 14px rgba(0,0,0,0.35));
-            animation: shimmerCA 3s linear infinite;
-            letter-spacing: 0.04em;
-        }
-
-        @keyframes shimmerCA {
-            0%   { background-position: 0% center; }
-            100% { background-position: 200% center; }
-        }
+        /* ─── TOKENS ─────────────────────────────────────── */
         :root {
-            --primary: #0a0f1e;
-            --accent: #00d4aa;
-            --accent2: #ff6b35;
-            --surface: #111827;
-            --surface2: #1f2937;
-            --text: #f0f4f8;
-            --muted: #6b7280;
-            --glow: rgba(0, 212, 170, 0.35);
+            --gold:        #bc823f;
+            --gold-dark:   #8f5f27;
+            --gold-light:  #e8d9bf;
+            --gold-bg:     #fdf8f2;
+            --green:       #099646;
+            --green-dark:  #066e32;
+            --green-light: #d4f0e1;
+            --cream:       #f5f1e8;
+            --cream-deep:  #e8dfc8;
+            --ink:         #1a1208;
+            --ink-mid:     #4a3720;
+            --ink-muted:   #8a7560;
+            --white:       #ffffff;
+            --danger:      #c0392b;
+            --danger-bg:   #fdf2f2;
+            --danger-light:#f5c6c2;
+            --nav-h:       72px;
+            --r-sm:  6px;
+            --r-md:  12px;
+            --r-lg:  20px;
+            --r-xl:  28px;
+            --r-pill:100px;
         }
 
-        * { box-sizing: border-box; margin: 0; padding: 0; }
+        *, *::before, *::after { margin:0; padding:0; box-sizing:border-box; }
+        html { scroll-behavior:smooth; }
 
-        /* ── WRAPPER ── */
-        .tabs-wrapper {
-            max-width: 1100px;
-            margin: 0 auto;
+        body {
+            font-family:'DM Sans',sans-serif;
+            background:var(--cream);
+            color:var(--ink);
+            min-height:100vh;
+            display:flex; flex-direction:column;
+            overflow-x:hidden;
         }
 
-        /* ── TABS CONTAINER ── */
-        .tabs {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 8px;
-            padding: 16px;
-            margin: 1rem;
-            background: #ece4c5;
-            border-radius: 16px;
-            border: 1px solid rgba(255,255,255,0.06);
-            box-shadow:
-                0 0 0 1px rgba(0,212,170,0.08),
-                0 20px 60px rgba(0,0,0,0.5),
-                inset 0 1px 0 rgba(255,255,255,0.05);
-            position: relative;
+        /* ─── BACKGROUND ─────────────────────────────────── */
+        body::before {
+            content:'';
+            position:fixed; inset:0;
+            background-image:
+                radial-gradient(circle at 18% 80%, rgba(188,130,63,.07) 0%, transparent 55%),
+                radial-gradient(circle at 82% 12%, rgba(9,150,70,.05) 0%, transparent 55%),
+                url("data:image/svg+xml,%3Csvg width='60' height='60' xmlns='http://www.w3.org/2000/svg'%3E%3Ccircle cx='30' cy='30' r='1' fill='%23bc823f' fill-opacity='.05'/%3E%3C/svg%3E");
+            pointer-events:none; z-index:0;
+            animation:bgShift 18s ease-in-out infinite;
+        }
+        @keyframes bgShift {
+            0%,100%{ opacity:.6; transform:scale(1); }
+            50%{ opacity:1; transform:scale(1.04); }
+        }
+
+        /* Floating orbs */
+        .floating-orb { position:fixed; border-radius:50%; pointer-events:none; z-index:1; opacity:.25; animation:orbFloat 22s ease-in-out infinite; }
+        .orb1 { width:280px;height:280px; background:radial-gradient(circle,rgba(188,130,63,.25),transparent); top:-100px;left:-100px; }
+        .orb2 { width:180px;height:180px; background:radial-gradient(circle,rgba(9,150,70,.2),transparent); bottom:-60px;right:-60px; animation-delay:7s; }
+        .orb3 { width:220px;height:220px; background:radial-gradient(circle,rgba(188,130,63,.15),transparent); top:45%;right:-80px; animation-delay:13s; }
+        @keyframes orbFloat {
+            0%,100%{ transform:translate(0,0) scale(1); }
+            25%{ transform:translate(40px,-40px) scale(1.08); }
+            50%{ transform:translate(-25px,25px) scale(.93); }
+            75%{ transform:translate(30px,15px) scale(1.04); }
+        }
+
+        /* ─── HEADER ─────────────────────────────────────── */
+        .header {
+            position:fixed; top:0;left:0;right:0;
+            height:var(--nav-h);
+            background:rgba(255,255,255,.97);
+            backdrop-filter:blur(24px);
+            border-bottom:1.5px solid var(--gold-light);
+            z-index:1000;
+            transition:box-shadow .3s ease;
+        }
+        .header.scrolled { box-shadow:0 4px 28px rgba(188,130,63,.16); }
+
+        .header::after {
+            content:'';
+            position:absolute; bottom:-1.5px;left:0;
+            width:0; height:3px;
+            background:linear-gradient(90deg,var(--gold),var(--green),var(--gold));
+            background-size:200% 100%;
+            animation:gradSlide 5s linear infinite;
+            transition:width .9s cubic-bezier(.4,0,.2,1);
+        }
+        .header:hover::after { width:100%; }
+        @keyframes gradSlide { 0%{background-position:0%} 100%{background-position:200%} }
+
+        .header-container {
+            max-width:1440px; height:100%;
+            margin:0 auto; padding:0 36px;
+            display:flex; align-items:center; justify-content:space-between; gap:20px;
+        }
+
+        /* Logo */
+        .logo-img-box {
+            position:relative;
+            width: 135px;
+            height: 115px;
+            top:40px;
+            border-radius: var(--r-md);
             overflow: hidden;
+            transition: transform .4s cubic-bezier(.34,1.56,.64,1);
+            flex-shrink:0;
+        }
+        .logo-img-box:hover { transform: rotate(-4deg) scale(1.08); }
+        .logo-img-box img { width:100%; height:100%; object-fit:cover; }
+
+        /* Nav */
+        .nav { display:flex;align-items:center;gap:8px; }
+
+        .menu-item {
+            position:relative; display:inline-flex; align-items:center; gap:9px;
+            padding:10px 22px; border-radius:var(--r-pill);
+            background:var(--cream-deep); color:var(--ink-mid);
+            text-decoration:none; font-family:'DM Sans',sans-serif;
+            font-size:13.5px; font-weight:500; letter-spacing:.2px;
+            border:1.5px solid transparent; cursor:pointer; white-space:nowrap;
+            overflow:hidden; transition:all .25s cubic-bezier(.4,0,.2,1);
+        }
+        .menu-item::before {
+            content:''; position:absolute; top:0;left:-100%; width:60%;height:100%;
+            background:linear-gradient(90deg,transparent,rgba(255,255,255,.55),transparent);
+            transition:left .5s ease; pointer-events:none;
+        }
+        .menu-item:hover::before { left:150%; }
+        .menu-item:hover {
+            background:var(--gold-light); border-color:var(--gold);
+            color:var(--gold-dark); transform:translateY(-2px);
+            box-shadow:0 6px 20px rgba(188,130,63,.2);
+        }
+        .menu-item.active {
+            background:var(--gold); color:var(--white);
+            border-color:var(--gold-dark);
+            box-shadow:0 6px 24px rgba(188,130,63,.4);
+        }
+        .menu-item.active:hover { background:var(--gold-dark); color:var(--white); }
+
+        .menu-icon-nav { font-size:16px;line-height:1; transition:transform .3s cubic-bezier(.34,1.56,.64,1); }
+        .menu-item:hover .menu-icon-nav { transform:rotate(15deg) scale(1.2); }
+
+        .menu-count {
+            display:inline-flex; align-items:center; justify-content:center;
+            min-width:20px; height:20px; padding:0 6px;
+            border-radius:var(--r-pill);
+            background:rgba(255,255,255,.25); color:inherit;
+            font-size:11px; font-weight:600;
+            transition:all .3s ease;
+        }
+        .menu-item.active .menu-count { background:rgba(255,255,255,.3); color:var(--white); }
+
+        /* User / logout */
+        .user-area { display:flex;align-items:center;gap:10px;flex-shrink:0; }
+        .user-chip {
+            display:flex;align-items:center;gap:8px;
+            padding:5px 12px 5px 5px;
+            border-radius:var(--r-pill);
+            background:var(--cream-deep); border:1.5px solid var(--gold-light);
+        }
+        .user-avatar {
+            width:30px;height:30px;border-radius:50%;
+            background:linear-gradient(135deg,var(--gold),var(--gold-dark));
+            display:flex;align-items:center;justify-content:center;
+            font-family:'Syne',sans-serif;font-size:11px;font-weight:700;color:var(--white);
+        }
+        .user-name { font-size:13px;font-weight:500;color:var(--ink-mid);letter-spacing:.3px; }
+
+        .logout-btn {
+            display:inline-flex;align-items:center;gap:7px;
+            padding:8px 16px; border-radius:var(--r-pill);
+            background:transparent; border:1.5px solid var(--gold-light);
+            color:var(--ink-mid); font-family:'DM Sans',sans-serif;
+            font-size:13px;font-weight:500; text-decoration:none;cursor:pointer;
+            transition:all .25s ease;
+        }
+        .logout-btn .material-icons { font-size:17px; transition:transform .4s cubic-bezier(.34,1.56,.64,1); }
+        .logout-btn:hover {
+            background:var(--danger-bg); border-color:var(--danger);
+            color:var(--danger); transform:translateY(-1px);
+            box-shadow:0 4px 14px rgba(192,57,43,.14);
+        }
+        .logout-btn:hover .material-icons { transform:translateX(4px) rotate(20deg); }
+
+        /* Hamburger */
+        .hamburger {
+            display:none; flex-direction:column; gap:5px;
+            background:none; border:1.5px solid var(--gold-light);
+            border-radius:var(--r-sm); padding:8px 10px; cursor:pointer;
+        }
+        .hamburger span {
+            display:block;width:22px;height:1.5px;background:var(--ink-mid);
+            border-radius:2px; transition:all .35s cubic-bezier(.4,0,.2,1); transform-origin:center;
+        }
+        .hamburger.open span:nth-child(1){ transform:translateY(6.5px) rotate(45deg); }
+        .hamburger.open span:nth-child(2){ opacity:0;transform:scaleX(0); }
+        .hamburger.open span:nth-child(3){ transform:translateY(-6.5px) rotate(-45deg); }
+
+        /* Mobile drawer */
+        .mobile-drawer {
+            position:fixed; top:var(--nav-h);left:0;right:0;
+            background:rgba(255,255,255,.98); backdrop-filter:blur(24px);
+            border-bottom:1.5px solid var(--gold-light);
+            padding:20px 24px 28px;
+            z-index:999;
+            transform:translateY(-110%);
+            transition:transform .45s cubic-bezier(.4,0,.2,1);
+            display:flex;flex-direction:column;gap:10px;
+            box-shadow:0 20px 50px rgba(0,0,0,.1);
+        }
+        .mobile-drawer.open { transform:translateY(0); }
+        .mobile-drawer .menu-item { justify-content:flex-start;border-radius:var(--r-md);font-size:15px;padding:13px 18px; }
+
+        /* ─── MAIN ───────────────────────────────────────── */
+        .main-content { flex:1;position:relative;z-index:2;padding-top:var(--nav-h); }
+
+        /* ─── FOOTER ─────────────────────────────────────── */
+        .footer {
+            background:var(--white); border-top:1.5px solid var(--cream-deep);
+            position:relative;z-index:2;
+        }
+        .footer::before {
+            content:'';position:absolute;top:-1.5px;left:0;right:0;height:3px;
+            background:linear-gradient(90deg,var(--gold),var(--green),var(--gold));
+            background-size:200% 100%;
+            animation:gradSlide 6s linear infinite;
+        }
+        .footer p { text-align:center;padding:14px;font-size:12.5px;color:var(--ink-muted);letter-spacing:.2px; }
+        .footer strong { color:var(--gold-dark);font-weight:600; }
+
+        /* ─── RESPONSIVE HEADER ──────────────────────────── */
+        @media(max-width:900px){
+            .nav{display:none} .hamburger{display:flex} .user-name{display:none}
+        }
+        @media(max-width:640px){
+            .header-container{padding:0 18px}
+            .main-content{padding-top:var(--nav-h)}
         }
 
-        /* Subtle noise texture overlay */
-        .tabs::before {
-            content: '';
-            position: absolute;
-            inset: 0;
-            background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.04'/%3E%3C/svg%3E");
-            pointer-events: none;
-            opacity: 0.4;
-            border-radius: 16px;
+        /* ─── FILTRE FORM ────────────────────────────────── */
+        #filtersSection {
+            position:relative;
+            text-align:center;
+            padding: 32px 36px 0;
         }
 
-        /* Moving gradient ambient light */
-        .tabs::after {
-            content: '';
-            position: absolute;
-            width: 300px;
-            height: 300px;
-            background: radial-gradient(circle, var(--glow) 0%, transparent 70%);
-            border-radius: 50%;
-            top: -100px;
-            left: -100px;
-            animation: ambientMove 8s ease-in-out infinite alternate;
-            pointer-events: none;
+        #filterForm {
+            display:inline-block;
+            background:var(--white);
+            padding:20px 28px;
+            border-radius:var(--r-xl);
+            border:1.5px solid var(--cream-deep);
+            box-shadow:0 4px 20px rgba(188,130,63,.08);
+            transition:all .3s ease;
+        }
+        #filterForm:hover {
+            border-color:var(--gold-light);
+            box-shadow:0 8px 32px rgba(188,130,63,.14);
         }
 
-        @keyframes ambientMove {
-            0%   { transform: translate(0, 0); opacity: 0.6; }
-            50%  { transform: translate(200px, 80px); opacity: 0.3; }
-            100% { transform: translate(600px, 20px); opacity: 0.6; }
+        #filterForm label {
+            display:flex; align-items:center; gap:6px;
+            font-size:12px; font-weight:500; color:var(--ink-muted);
+            text-transform:uppercase; letter-spacing:.6px; margin-bottom:6px;
         }
 
-        /* ── TAB BUTTON ── */
-        .tab {
-            position: relative;
-            z-index: 1;
-            font-family: 'DM Sans', sans-serif;
-            font-weight: 500;
-            font-size: 12px;
-            letter-spacing: 0.06em;
-            text-transform: uppercase;
-            color: var(--muted);
-            background: transparent;
-            border: 1px solid rgba(255,255,255,0.07);
-            border-radius: 10px;
-            padding: 10px 18px;
-            cursor: pointer;
-            transition:
-                color 0.3s ease,
-                background 0.3s ease,
-                border-color 0.3s ease,
-                box-shadow 0.3s ease,
-                transform 0.2s ease;
-            white-space: nowrap;
-            overflow: hidden;
-
-            /* Staggered entrance animation */
-            opacity: 0;
-            animation: tabAppear 0.5s ease forwards;
+        #filterForm input[type="date"] {
+            padding:10px 16px;
+            border:1.5px solid var(--gold-light); border-radius:var(--r-pill);
+            font-family:'DM Sans',sans-serif; font-size:13px; color:var(--ink);
+            background:var(--white); outline:none;
+            transition:all .25s ease; min-width:160px;
+        }
+        #filterForm input[type="date"]:focus {
+            border-color:var(--gold);
+            box-shadow:0 0 0 4px rgba(188,130,63,.1);
         }
 
-        /* Shimmer layer */
-        .tab::before {
-            content: '';
-            position: absolute;
-            inset: 0;
-            background: linear-gradient(
-                105deg,
-                transparent 30%,
-                rgba(255,255,255,0.08) 50%,
-                transparent 70%
-            );
-            transform: translateX(-100%);
-            transition: transform 0s;
-            border-radius: inherit;
+        #filterForm button[type="submit"] {
+            padding:10px 28px;
+            background:var(--green); color:var(--white);
+            border:none; border-radius:var(--r-pill);
+            font-family:'DM Sans',sans-serif; font-size:13px; font-weight:600;
+            cursor:pointer; transition:all .25s ease;
+            box-shadow:0 4px 16px rgba(9,150,70,.3);
+        }
+        #filterForm button[type="submit"]:hover {
+            background:var(--green-dark);
+            transform:translateY(-2px);
+            box-shadow:0 8px 22px rgba(9,150,70,.4);
         }
 
-        .tab:hover::before {
-            transform: translateX(200%);
-            transition: transform 0.6s ease;
+        /* ─── CARDS / CONTENT ────────────────────────────── */
+        .etat-body {
+            padding: 24px 36px 48px;
         }
 
-        /* Staggered delays */
-        .tab:nth-child(1)  { animation-delay: 0.05s; }
-        .tab:nth-child(2)  { animation-delay: 0.10s; }
-        .tab:nth-child(3)  { animation-delay: 0.15s; }
-        .tab:nth-child(4)  { animation-delay: 0.20s; }
-        .tab:nth-child(5)  { animation-delay: 0.25s; }
-        .tab:nth-child(6)  { animation-delay: 0.30s; }
-        .tab:nth-child(7)  { animation-delay: 0.35s; }
-        .tab:nth-child(8)  { animation-delay: 0.40s; }
-        .tab:nth-child(9)  { animation-delay: 0.45s; }
-
-        @keyframes tabAppear {
-            from { opacity: 0; transform: translateY(12px) scale(0.95); }
-            to   { opacity: 1; transform: translateY(0)    scale(1); }
+        .card {
+            border:1.5px solid var(--cream-deep) !important;
+            border-radius:var(--r-xl) !important;
+            overflow:hidden;
+            transition:all .3s ease;
+            background:var(--white) !important;
+            box-shadow:0 4px 20px rgba(0,0,0,.05) !important;
+        }
+        .card:hover {
+            border-color:var(--gold-light) !important;
+            box-shadow:0 8px 32px rgba(188,130,63,.1) !important;
+            transform:translateY(-2px);
         }
 
-        /* ── HOVER ── */
-        .tab:hover {
-            color: var(--text);
-            background: var(--surface2);
-            border-color: rgba(255,255,255,0.15);
-            transform: translateY(-2px);
-            box-shadow: 0 6px 20px rgba(0,0,0,0.3);
+        .card-header {
+            border-bottom:1.5px solid var(--cream-deep) !important;
+            padding:14px 20px !important;
+        }
+        .card-header.bg-success {
+            background:linear-gradient(135deg,var(--green),var(--green-dark)) !important;
+            border-bottom:none !important;
+        }
+        .card-header.bg-primary {
+            background:linear-gradient(135deg,var(--gold),var(--gold-dark)) !important;
+            border-bottom:none !important;
+        }
+        .card-header h5 {
+            font-family:'Syne',verdana;
+            font-size:16px; font-weight:500;
+            color:var(--white); margin:0;
         }
 
-        /* ── ACTIVE ── */
-        .tab.active {
-            color: var(--primary);
-            background: linear-gradient(135deg, var(--accent) 0%, #00b894 100%);
-            border-color: var(--accent);
-            box-shadow:
-                0 0 20px var(--glow),
-                0 0 40px rgba(0,212,170,0.15),
-                0 4px 15px rgba(0,0,0,0.3),
-                inset 0 1px 0 rgba(255,255,255,0.25);
-            transform: translateY(-2px);
-            font-weight: 600;
-            animation: tabAppear 0.5s ease forwards, activePulse 3s ease-in-out infinite;
+        /* KPI cards dans le graphique global */
+        #filtersSection ~ .etat-body .col-12 > .card > div > .d-flex > div,
+        .kpi-inline-card {
+            background:var(--white) !important;
+            border:1.5px solid var(--cream-deep) !important;
+            border-radius:var(--r-lg) !important;
+            box-shadow:0 2px 10px rgba(0,0,0,.05) !important;
         }
 
-        @keyframes activePulse {
-            0%, 100% { box-shadow: 0 0 20px var(--glow), 0 0 40px rgba(0,212,170,0.15), 0 4px 15px rgba(0,0,0,0.3), inset 0 1px 0 rgba(255,255,255,0.25); }
-            50%       { box-shadow: 0 0 30px var(--glow), 0 0 60px rgba(0,212,170,0.25), 0 4px 15px rgba(0,0,0,0.3), inset 0 1px 0 rgba(255,255,255,0.25); }
+        /* montant styling */
+        .montant {
+            font-family:'Syne',sans-serif;
+            font-weight:700;
+            color:var(--green-dark);
+            background:var(--green-light);
+            padding:2px 7px;
+            border-radius:var(--r-sm);
+            font-size:1em;
         }
 
-        .tab.active::before { display: none; }
-
-        /* ── TAB CONTENT PANELS ── */
-        .tab-content-wrapper {
-            margin-top: 20px;
+        /* shimmer CA */
+        .ca-epic {
+            font-weight:400;
+            font-size:1.3rem;
+            background:linear-gradient(90deg,#fff 0%,#fff 25%,#f5d27a 45%,#bc823f 50%,#f5d27a 55%,#fff 70%,#fff 100%);
+            background-size:300% auto;
+            -webkit-background-clip:text;
+            -webkit-text-fill-color:transparent;
+            background-clip:text;
+            filter:drop-shadow(0 0 6px rgba(188,130,63,.6));
+            animation:shimmerCA 3s linear infinite;
+        }
+        .ca-epics {
+            font-weight:400;
+            font-size:1.6rem;
+            background:linear-gradient(90deg,#fff 0%,#fff 25%,#f5d27a 45%,#bc823f 50%,#f5d27a 55%,#fff 70%,#fff 100%);
+            background-size:300% auto;
+            -webkit-background-clip:text;
+            -webkit-text-fill-color:transparent;
+            background-clip:text;
+            filter:drop-shadow(0 0 6px rgba(188,130,63,.6));
+            animation:shimmerCA 3s linear infinite;
+        }
+        .ca-epics1 {
+            font-weight:900;
+            font-size:1.4rem;
+            background:linear-gradient(90deg,#fff 0%,#fff 25%,#1565c0 45%,#bc823f 50%,#1565c0 55%,#fff 70%,#fff 100%);
+            background-size:300% auto;
+            -webkit-background-clip:text;
+            -webkit-text-fill-color:transparent;
+            background-clip:text;
+            filter:drop-shadow(0 0 6px rgba(188,130,63,.6));
+            animation:shimmerCA 3s linear infinite;
+        }
+        @keyframes shimmerCA {
+            0%{ background-position:0% center; }
+            100%{ background-position:200% center; }
         }
 
-        .tab-panel {
-            display: none;
-            background: var(--surface);
-            border: 1px solid rgba(255,255,255,0.06);
-            border-radius: 16px;
-            padding: 36px;
-            box-shadow: 0 20px 60px rgba(0,0,0,0.4);
-            position: relative;
-            overflow: hidden;
+        /* Tables internes */
+        table { border-collapse:collapse; }
+        table th {
+            background:var(--cream);
+            color:var(--gold);
+            font-family:'DM Sans',sans-serif;
+            font-size:11px; font-weight:600;
+            text-transform:uppercase; letter-spacing:.6px;
+            padding:8px 10px;
+            border:1px solid var(--cream-deep);
+        }
+        table td {
+            padding:8px 10px;
+            border:1px solid var(--cream-deep);
+            font-size:12px; color:var(--ink);
+        }
+        table tbody tr:hover { background:var(--cream); }
+
+        /* arbiochem-card sizing */
+        .arbiochem-card { width:35.1rem; }
+        @media(max-width:768px){ .arbiochem-card{ width:100%; } }
+
+        .toparbiochem { height:22.5rem; }
+        @media(max-width:768px){ .toparbiochem{ width:auto !important; height:auto !important; } }
+
+        .f_analakely {
+            position:relative; left:3rem;
+            width:400px; height:400px;
+            margin-top:1rem; bottom:3rem;
+        }
+        @media(max-width:768px){
+            .f_analakely{ position:relative; right:2rem; width:400px; height:400px; margin-top:1rem; bottom:3rem; }
         }
 
-        .tab-panel::before {
-            content: '';
-            position: absolute;
-            top: 0; left: 0; right: 0;
-            height: 2px;
-            background: linear-gradient(90deg, transparent, var(--accent), transparent);
-            animation: scanline 2s ease-in-out infinite;
+        /* KPI trend */
+        .kpi-value { font-size:2rem; font-weight:900; }
+        .kpi-trend svg { width:1.5rem; height:1.5rem; }
+
+        /* Burger mobile */
+        .burger-btn {
+            background:none; border:1.5px solid var(--gold-light);
+            border-radius:var(--r-sm); cursor:pointer;
+            display:flex; flex-direction:column; gap:5px;
+            padding:8px 10px;
         }
-
-        @keyframes scanline {
-            0%   { opacity: 0; transform: scaleX(0); }
-            50%  { opacity: 1; transform: scaleX(1); }
-            100% { opacity: 0; transform: scaleX(0); }
+        .burger-btn span {
+            display:block; width:22px; height:1.5px;
+            background:var(--ink-mid); border-radius:2px;
+            transition:all .35s cubic-bezier(.4,0,.2,1);
         }
-
-        .tab-panel.active {
-            display: block;
-            animation: panelIn 0.4s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
-        }
-
-        @keyframes panelIn {
-            from {
-                opacity: 0;
-                transform: translateY(16px) scale(0.98);
-            }
-            to {
-                opacity: 1;
-                transform: translateY(0) scale(1);
-            }
-        }
-
-        .tab-panel h2 {
-            font-family: 'Bebas Neue', sans-serif;
-            font-size: 2.4rem;
-            letter-spacing: 0.08em;
-            color: var(--accent);
-            margin-bottom: 10px;
-        }
-
-        .tab-panel p {
-            color: var(--muted);
-            font-size: 14px;
-            line-height: 1.7;
-        }
-
-        .badge-location {
-            display: inline-flex;
-            align-items: center;
-            gap: 6px;
-            background: rgba(0,212,170,0.1);
-            border: 1px solid rgba(0,212,170,0.2);
-            color: var(--accent);
-            font-size: 11px;
-            font-weight: 600;
-            letter-spacing: 0.1em;
-            text-transform: uppercase;
-            padding: 5px 12px;
-            border-radius: 100px;
-            margin-bottom: 16px;
-        }
-
-        .badge-location::before {
-            content: '●';
-            font-size: 8px;
-            animation: blink 1.5s ease-in-out infinite;
-        }
-
-        @keyframes blink {
-            0%, 100% { opacity: 1; }
-            50%       { opacity: 0.2; }
-        }
-
-        /* ── RESPONSIVE ── */
-        @media (max-width: 768px) {
-            .tab { font-size: 11px; padding: 8px 14px; }
-            .tab-panel { padding: 24px 20px; }
-            .tab-panel h2 { font-size: 1.8rem; }
-        }
-        .tab-content {
-            display: none;
-        }
-
-        .tab-content.active {
-            display: block;
-            margin:1rem;
-        }
-        .tabs {
-            display: flex;
-            gap: 0.5rem;
-            flex-wrap: wrap;
-            border-bottom: 2px solid #e0e0e0;
-        }
-
-        .tab {
-            padding: 0.5rem 1rem;
-            cursor: pointer;
-            border: none;
-            background: none;
-            font-weight: 500;
-            color: #333;
-            transition: 0.2s;
-        }
-
-        .tab:hover {
-            color: #1d4ed8;
-        }
-
-        .tab.active {
-            border-bottom: 3px solid #1d4ed8;
-            color: #1d4ed8;
-            font-weight: 600;
-        }
-
-        .tab-content {
-            display: none;
-            padding: 1rem;
-            border: 1px solid #e0e0e0;
-            border-top: none;
-        }
-
-        .tab-content.active {
-            display: block;
-        }
-
-            /* Soulignement animé */
-            .tab.active::after {
-                content: "";
-                position: absolute;
-                left: 0;
-                bottom: -3px;
-                width: 100%;
-                height: 3px;
-                background: #1e40af;
-                border-radius: 3px;
-                transition: all 0.3s ease;
-            }
-
-            /* Contenu des onglets */
-            .tab-content {
-                display: none;
-                padding: 1.5rem;
-                background: #f9fafb;
-                border-radius: 10px;
-                margin-top: 1rem;
-                box-shadow: 0 8px 20px rgba(0,0,0,0.05);
-                animation: fadeIn 0.3s ease-in-out;
-            }
-
-            .tab-content {
-                display: none; /* caché par défaut */
-            }
-
-            .tab-content.active {
-                display: block; /* affiché uniquement si actif */
-            }
-
-            /* Animation */
-            @keyframes fadeIn {
-                from { opacity: 0; transform: translateY(5px); }
-                to { opacity: 1; transform: translateY(0); }
-            }
-            .content-section {
-                display: none;
-            }
-
-            .content-section.active {
-                display: block;
-            }
-
-            .menu-count.active {
-                background: #099646 !important; /* vert */
-                color: #fff !important;
-            }
-
-            * {
-                margin: 0;
-                padding: 0;
-                box-sizing: border-box;
-            }
-
-            html {
-                scroll-behavior: smooth;
-            }
-
-            body {
-                font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-                background: linear-gradient(135deg, #ece4c5 0%, #d4c9a8 100%);
-                min-height: 100vh;
-                display: flex;
-                flex-direction: column;
-                position: relative;
-                overflow-x: hidden;
-            }
-
-            /* Animated Background Particles */
-            body::before {
-                content: '';
-                position: fixed;
-                top: 0;
-                left: 0;
-                width: 100%;
-                height: 100%;
-                background: 
-                    radial-gradient(circle at 20% 50%, rgba(188, 130, 63, 0.1) 0%, transparent 50%),
-                    radial-gradient(circle at 80% 80%, rgba(9, 150, 70, 0.1) 0%, transparent 50%),
-                    radial-gradient(circle at 40% 20%, rgba(188, 130, 63, 0.05) 0%, transparent 50%);
-                pointer-events: none;
-                animation: backgroundShift 15s ease-in-out infinite;
-                z-index: 0;
-            }
-
-            @keyframes backgroundShift {
-                0%, 100% {
-                    transform: scale(1) rotate(0deg);
-                    opacity: 0.5;
-                }
-                50% {
-                    transform: scale(1.1) rotate(5deg);
-                    opacity: 0.8;
-                }
-            }
-
-            /* Floating Orbs */
-            .floating-orb {
-                position: fixed;
-                border-radius: 50%;
-                pointer-events: none;
-                z-index: 1;
-                animation: float 20s ease-in-out infinite;
-                opacity: 0.3;
-            }
-
-            .orb1 {
-                width: 300px;
-                height: 300px;
-                background: radial-gradient(circle, rgba(188, 130, 63, 0.3), transparent);
-                top: -100px;
-                left: -100px;
-                animation-delay: 0s;
-            }
-
-            .orb2 {
-                width: 200px;
-                height: 200px;
-                background: radial-gradient(circle, rgba(9, 150, 70, 0.3), transparent);
-                bottom: -50px;
-                right: -50px;
-                animation-delay: 5s;
-            }
-
-            .orb3 {
-                width: 250px;
-                height: 250px;
-                background: radial-gradient(circle, rgba(188, 130, 63, 0.2), transparent);
-                top: 50%;
-                right: -100px;
-                animation-delay: 10s;
-            }
-
-            @keyframes float {
-                0%, 100% {
-                    transform: translate(0, 0) scale(1);
-                }
-                25% {
-                    transform: translate(50px, -50px) scale(1.1);
-                }
-                50% {
-                    transform: translate(-30px, 30px) scale(0.9);
-                }
-                75% {
-                    transform: translate(40px, 20px) scale(1.05);
-                }
-            }
-
-            /* Header with Logo and Menu */
-            .header {
-                background: rgba(255, 255, 255, 0.95);
-                backdrop-filter: blur(20px);
-                box-shadow: 0 8px 40px rgba(0, 0, 0, 0.15);
-                border-bottom: 4px solid #bc823f;
-                position: fixed;
-                top: 0;
-                left: 0;
-                right: 0;
-                z-index: 1000;
-                transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-            }
-
-            .header::before {
-                content: '';
-                position: absolute;
-                bottom: -4px;
-                left: 0;
-                width: 0;
-                height: 4px;
-                background: linear-gradient(90deg, #099646, #bc823f);
-                transition: width 0.6s ease;
-            }
-
-            .header:hover::before {
-                width: 100%;
-            }
-
-            .header-container {
-                max-width: 1400px;
-                margin: 0 auto;
-                padding: 20px 40px;
-                display: flex;
-                align-items: center;
-                justify-content: space-between;
-                gap: 30px;
-                flex-wrap: wrap;
-                position: relative;
-                z-index: 2;
-            }
-
-            /* Logo */
-            .logo-container {
-                display: flex;
-                align-items: center;
-                gap: 15px;
-                cursor: pointer;
-                transition: transform 0.4s cubic-bezier(0.68, -0.55, 0.265, 1.55);
-                position: relative;
-            }
-
-            .logo-container::before {
-                content: '';
-                position: absolute;
-                top: 50%;
-                left: 50%;
-                width: 0;
-                height: 0;
-                background: radial-gradient(circle, rgba(188, 130, 63, 0.2), transparent);
-                border-radius: 50%;
-                transform: translate(-50%, -50%);
-                transition: all 0.5s ease;
-            }
-
-            .logo-container:hover::before {
-                width: 200px;
-                height: 200px;
-            }
-
-            .logo-container:hover {
-                transform: scale(1.08) rotate(2deg);
-            }
-
-            .logo {
-                width: 180px;
-                height: 60px;
-                display: flex;
-                align-items: center;
-                justify-content: center;
-                font-size: 2rem;
-                color: #ece4c5;
-                font-weight: 800;
-                position: relative;
-                overflow: hidden;
-                border-radius: 12px;
-                filter: drop-shadow(0 4px 15px rgba(188, 130, 63, 0.3));
-                transition: all 0.4s ease;
-            }
-
-            .logo-container:hover .logo {
-                filter: drop-shadow(0 8px 25px rgba(188, 130, 63, 0.5));
-            }
-
-            .logo::before {
-                content: '';
-                position: absolute;
-                top: -50%;
-                left: -50%;
-                width: 200%;
-                height: 200%;
-                background: linear-gradient(45deg, transparent, rgba(255, 255, 255, 0.4), transparent);
-                animation: logoShine 4s linear infinite;
-            }
-
-            @keyframes logoShine {
-                0% {
-                    transform: rotate(0deg);
-                }
-                100% {
-                    transform: rotate(360deg);
-                }
-            }
-
-            /* Horizontal Menu */
-            .horizontal-menu {
-                display: flex;
-                gap: 20px;
-                align-items: center;
-                flex-wrap: wrap;
-            }
-
-            /* Menu Items */
-            .menu-item {
-                position: relative;
-                padding: 20px 40px;
-                background: linear-gradient(135deg, #bc823f 0%, #a07235 100%);
-                color: #ece4c5;
-                text-decoration: none;
-                font-size: 1.15rem;
-                font-weight: 700;
-                border-radius: 50px;
-                display: flex;
-                align-items: center;
-                gap: 12px;
-                cursor: pointer;
-                transition: all 0.5s cubic-bezier(0.68, -0.55, 0.265, 1.55);
-                overflow: hidden;
-                border: 3px solid transparent;
-                box-shadow: 0 8px 25px rgba(188, 130, 63, 0.4);
-                text-transform: uppercase;
-                letter-spacing: 1px;
-            }
-
-            .menu-item::before {
-                content: '';
-                position: absolute;
-                top: 0;
-                left: -100%;
-                width: 100%;
-                height: 100%;
-                background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.4), transparent);
-                transition: left 0.7s ease;
-            }
-
-            .menu-item:hover::before {
-                left: 100%;
-            }
-
-            .menu-item::after {
-                content: '';
-                position: absolute;
-                top: 50%;
-                left: 50%;
-                width: 0;
-                height: 0;
-                border-radius: 50%;
-                background: rgba(9, 150, 70, 0.3);
-                transform: translate(-50%, -50%);
-                transition: width 0.6s ease, height 0.6s ease;
-            }
-
-            .menu-item:hover::after {
-                width: 400px;
-                height: 400px;
-            }
-
-            .menu-item:hover {
-                transform: translateY(-8px) scale(1.08);
-                box-shadow: 0 20px 50px rgba(188, 130, 63, 0.7), 0 0 30px rgba(9, 150, 70, 0.5);
-                border-color: #099646;
-                background: linear-gradient(135deg, #099646 0%, #077a37 100%);
-            }
-
-            .menu-item:active {
-                transform: translateY(-4px) scale(1.04);
-            }
-
-            .menu-icon {
-                font-size: 1.8rem;
-                display: inline-block;
-                transition: all 0.6s cubic-bezier(0.68, -0.55, 0.265, 1.55);
-                filter: drop-shadow(0 2px 5px rgba(0, 0, 0, 0.3));
-            }
-
-            .menu-item:hover .menu-icon {
-                transform: rotate(360deg) scale(1.3);
-                filter: drop-shadow(0 4px 10px rgba(255, 255, 255, 0.5));
-            }
-
-            .menu-text {
-                position: relative;
-                z-index: 1;
-            }
-
-            .menu-item.active {
-                background: linear-gradient(135deg, #099646 0%, #077a37 100%);
-                border-color: #ece4c5;
-                box-shadow: 0 15px 40px rgba(9, 150, 70, 0.6), 0 0 40px rgba(9, 150, 70, 0.4);
-            }
-
-            /* Logout Button */
-            .logout-btn {
-                display: inline-flex;
-                align-items: center;
-                gap: 8px;
-                background: #ece4c5;
-                color: #099646;
-                text-decoration: none;
-                font-weight: 600;
-                padding: 10px 20px;
-                border-radius: 30px;
-                box-shadow: 0 4px 10px rgba(0, 0, 0, 0.25);
-                transition: all 0.3s ease;
-            }
-
-            .logout-btn .material-icons {
-                font-size: 22px;
-                transition: transform 0.3s ease;
-            }
-
-            .logout-btn:hover {
-                transform: translateY(-3px);
-                box-shadow: 0 6px 16px rgba(0, 0, 0, 0.35);
-                background: #099646;
-                color: white;
-            }
-
-            .logout-btn:hover .material-icons {
-                transform: rotate(180deg);
-            }
-
-            .username {
-                font-weight: 700;
-                letter-spacing: 1px;
-            }
-
-            /* Main Content - ONE PAGE SECTIONS */
-            .main-content {
-                flex: 1;
-                position: relative;
-                z-index: 2;
-                padding-top: 120px; /* Space for fixed header */
-            }
-
-            /* Content Sections - ONE PAGE STYLE */
-            .content-section {
-                min-height: calc(100vh - 120px - 80px); /* header + footer */
-                padding: 60px 20px;
-                position: relative;   /* 🔥 clé */
-                width: 100%;
-                opacity: 0;
-                visibility: hidden;
-                transform: translateY(50px);
-                transition: all 0.6s cubic-bezier(0.68, -0.55, 0.265, 1.55);
-            }
-
-            .content-section.active {
-                opacity: 1;
-                visibility: visible;
-                position: relative;
-                transform: translateY(0);
-            }
-
-            .container {
-                max-width: 1400px;
-                margin: 0 auto;
-            }
-
-            /* Search Bar */
-            .search-wrapper {
-                margin-bottom: 30px;
-                display: flex;
-                justify-content: center;
-            }
-
-            .search-container {
-                position: relative;
-                width: 100%;
-                max-width: 500px;
-            }
-
-            .search-icon {
-                position: absolute;
-                top: 50%;
-                left: 15px;
-                transform: translateY(-50%);
-                color: #BC823F;
-                font-size: 24px;
-                pointer-events: none;
-                z-index: 1;
-            }
-
-            #searchInput {
-                width: 100%;
-                padding: 12px 20px 12px 50px;
-                border: 2px solid #BC823F;
-                border-radius: 25px;
-                font-size: 14px;
-                transition: all 0.3s ease;
-            }
-
-            #searchInput:focus {
-                outline: none;
-                border-color: #099646;
-                box-shadow: 0 0 10px rgba(9, 150, 70, 0.3);
-            }
-
-            /* Document Card */
-            .document-card {
-                background: white;
-                border-radius: 16px;
-                box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
-                margin-bottom: 30px;
-                overflow: hidden;
-                transition: all 0.3s ease;
-            }
-
-            .document-card:hover {
-                box-shadow: 0 8px 30px rgba(0, 0, 0, 0.15);
-            }
-
-            .document-header {
-                background: white;
-                color: green;
-                padding: 20px 30px;
-                display: flex;
-                justify-content: space-between;
-                align-items: center;
-                flex-wrap: wrap;
-                gap: 15px;
-            }
-
-            .document-info h3 {
-                margin: 0 0 8px 0;
-                font-size: 1.4rem;
-                font-weight: 600;
-            }
-
-            .document-meta {
-                display: flex;
-                gap: 20px;
-                flex-wrap: wrap;
-                font-size: 0.9rem;
-            }
-
-            .document-meta span {
-                display: flex;
-                align-items: center;
-                gap: 5px;
-            }
-
-            .expand-btn {
-                background: rgba(188, 130, 63, 0.1);
-                border: 2px solid #bc823f;
-                color: #bc823f;
-                padding: 8px 20px;
-                border-radius: 20px;
-                cursor: pointer;
-                transition: all 0.3s ease;
-                font-weight: 600;
-            }
-
-            .expand-btn:hover {
-                background: #bc823f;
-                color: white;
-            }
-
-            .lines-container {
-                padding: 0;
-                max-height: 0;
-                overflow: hidden;
-                transition: max-height 0.4s ease;
-            }
-
-            .lines-container.expanded {
-                max-height: 2000px;
-                padding: 20px 0;
-            }
-
-            .table-responsive {
-                padding: 0 30px 20px 30px;
-                overflow-x: auto;
-            }
-
-            .lines-table {
-                width: 100%;
-                border-collapse: collapse;
-            }
-
-            .lines-table thead {
-                background: #f5f7fa;
-            }
-
-            .lines-table thead th {
-                padding: 12px;
-                text-align: left;
-                font-weight: 600;
-                color: #BC823F;
-                font-size: 13px;
-                text-transform: uppercase;
-                letter-spacing: 0.5px;
-                border-bottom: 2px solid #BC823F;
-            }
-
-            .lines-table tbody tr {
-                border-bottom: 1px solid #e0e0e0;
-                transition: all 0.3s ease;
-            }
-
-            .lines-table tbody tr:hover {
-                background: #f9fafb;
-            }
-
-            .lines-table tbody td {
-                padding: 12px;
-                color: #333;
-                font-size: 14px;
-            }
-
-            .f_analakely{
-                position:relative; 
-                left:3rem; 
-                width: 400px; 
-                height: 400px; 
-                margin-top: 1rem; 
-                bottom:3rem
-            }
-
-            /* Epic Button */
-            .btn-epic {
-                position: relative;
-                padding: 8px 18px;
-                background: linear-gradient(135deg, #00eaff, #008cff);
-                border: none;
-                border-radius: 30px;
-                color: white;
-                font-size: 14px;
-                font-weight: bold;
-                letter-spacing: 1px;
-                cursor: pointer;
-                overflow: hidden;
-                z-index: 1;
-                transition: transform 0.3s ease, box-shadow 0.3s ease;
-                box-shadow: 0 0 12px #BC823F;
-            }
-
-            .btn-epic:hover {
-                transform: scale(1.06);
-                box-shadow: 0 0 25px #BC823F;
-                background: linear-gradient(135deg, #BC823F, #00eaff);
-            }
-
-            /* Stats Grid for Etat Global */
-            .stats-grid {
-                display: grid;
-                grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
-                gap: 25px;
-                margin: 40px 0;
-            }
-
-            .stat-card {
-                background: linear-gradient(135deg, #bc823f 0%, #a07235 100%);
-                padding: 30px;
-                border-radius: 20px;
-                text-align: center;
-                box-shadow: 0 10px 30px rgba(188, 130, 63, 0.4);
-                transition: all 0.4s cubic-bezier(0.68, -0.55, 0.265, 1.55);
-                border: 3px solid transparent;
-            }
-
-            .stat-card:hover {
-                transform: translateY(-10px) scale(1.05);
-                box-shadow: 0 20px 50px rgba(188, 130, 63, 0.6);
-                border-color: #099646;
-                background: linear-gradient(135deg, #099646 0%, #077a37 100%);
-            }
-
-            .stat-value {
-                font-size: 3rem;
-                font-weight: 900;
-                color: #ece4c5;
-                margin-bottom: 10px;
-            }
-
-            .stat-label {
-                font-size: 1.1rem;
-                color: #ece4c5;
-                font-weight: 600;
-                margin-bottom: 8px;
-                text-transform: uppercase;
-                letter-spacing: 1px;
-            }
-
-            .stat-trend {
-                font-size: 0.95rem;
-                color: rgba(236, 228, 197, 0.8);
-            }
-
-            .chart-placeholder {
-                background: rgba(255, 255, 255, 0.9);
-                padding: 40px;
-                border-radius: 20px;
-                margin-top: 40px;
-                border: 3px solid rgba(188, 130, 63, 0.3);
-            }
-
-            .chart-title {
-                font-size: 1.5rem;
-                color: #bc823f;
-                font-weight: 700;
-                margin-bottom: 30px;
-            }
-
-            .chart-bars {
-                display: flex;
-                justify-content: space-around;
-                align-items: flex-end;
-                gap: 20px;
-                height: 200px;
-            }
-
-            .chart-bar {
-                flex: 1;
-                background: linear-gradient(180deg, #099646 0%, #bc823f 100%);
-                border-radius: 10px 10px 0 0;
-                display: flex;
-                align-items: flex-end;
-                justify-content: center;
-                padding-bottom: 10px;
-                color: white;
-                font-weight: 700;
-                transition: all 0.3s ease;
-                cursor: pointer;
-                box-shadow: 0 5px 15px rgba(188, 130, 63, 0.3);
-            }
-
-            .chart-bar:hover {
-                transform: scale(1.05);
-                box-shadow: 0 10px 30px rgba(9, 150, 70, 0.5);
-            }
-
-            .content-box {
-                background: linear-gradient(135deg, rgba(255, 255, 255, 0.95) 0%, rgba(236, 228, 197, 0.95) 100%);
-                backdrop-filter: blur(20px);
-                border-radius: 30px;
-                padding: 60px;
-                box-shadow: 0 25px 70px rgba(0, 0, 0, 0.2);
-                border: 4px solid rgba(188, 130, 63, 0.3);
-            }
-
-            .content-title {
-                font-size: 3rem;
-                background: linear-gradient(135deg, #bc823f 0%, #099646 100%);
-                -webkit-background-clip: text;
-                -webkit-text-fill-color: transparent;
-                background-clip: text;
-                margin-bottom: 25px;
-                font-weight: 900;
-                text-transform: uppercase;
-                letter-spacing: 2px;
-                text-align: center;
-            }
-
-            .content-text {
-                font-size: 1.3rem;
-                color: #444;
-                line-height: 2;
-                text-align: center;
-                margin-bottom: 40px;
-            }
-
-            /* Footer */
-            .footer {
-                background: rgba(255, 255, 255, 0.95);
-                backdrop-filter: blur(20px);
-                color: #ece4c5;
-                text-align: center;
-                border-top: 5px solid #099646;
-                box-shadow: 0 -10px 40px rgba(0, 0, 0, 0.3);
-                position: relative;
-                z-index: 2;
-            }
-
-            .footer p {
-                color: #bc823f;
-                font-size: 14px;
-                font-weight: bold;
-                margin: 0;
-                padding: 12px;
-            }
-
-            .no-lines {
-                text-align: center;
-                padding: 40px;
-                color: #999;
-                font-style: italic;
-            }
-
-            /* Responsive */
-            @media (max-width: 768px) {
-                .f_analakely{
-                    position:relative; 
-                    right:2rem; 
-                    width: 400px; 
-                    height: 400px; 
-                    margin-top: 1rem; 
-                    bottom:3rem;
-
-                }
-
-                .header-container {
-                    padding: 15px 20px;
-                    justify-content: center;
-                }
-
-                .logo {
-                    width: 140px;
-                    height: 50px;
-                }
-
-                .horizontal-menu {
-                    justify-content: center;
-                    width: 100%;
-                }
-
-                .menu-item {
-                    padding: 16px 30px;
-                    font-size: 1rem;
-                }
-
-                .content-section {
-                    padding: 40px 15px;
-                }
-
-                .content-box {
-                    padding: 40px 30px;
-                }
-
-                .content-title {
-                    font-size: 2.2rem;
-                }
-
-                .content-text {
-                    font-size: 1.1rem;
-                }
-
-                .stats-grid {
-                    grid-template-columns: 1fr;
-                }
-
-                .chart-bars {
-                    gap: 10px;
-                    height: 150px;
-                }
-
-                .document-header {
-                    padding: 15px 20px;
-                }
-
-                .table-responsive {
-                    padding: 0 15px 15px 15px;
-                }
-
-                .main-content {
-                    padding-top: 100px;
-                }
-            }
-
-            /* ===== Background Particles ===== */
-            body::before {
-                content:'';
-                position: fixed; top:0; left:0; width:100%; height:100%;
-                background: 
-                    radial-gradient(circle at 20% 50%, rgba(188,130,63,0.1) 0%, transparent 50%),
-                    radial-gradient(circle at 80% 80%, rgba(9,150,70,0.1) 0%, transparent 50%),
-                    radial-gradient(circle at 40% 20%, rgba(188,130,63,0.05) 0%, transparent 50%);
-                pointer-events:none; z-index:0;
-                animation: backgroundShift 15s ease-in-out infinite;
-            }
-            @keyframes backgroundShift {
-                0%,100%{ transform: scale(1) rotate(0deg); opacity:0.5;}
-                50%{ transform: scale(1.1) rotate(5deg); opacity:0.8;}
-            }
-            .floating-orb {position: fixed; border-radius:50%; pointer-events:none; z-index:1; animation: float 20s ease-in-out infinite; opacity:0.3;}
-            .orb1{width:300px;height:300px; background:radial-gradient(circle, rgba(188,130,63,0.3), transparent); top:-100px; left:-100px;}
-            .orb2{width:200px;height:200px; background:radial-gradient(circle, rgba(9,150,70,0.3), transparent); bottom:-50px; right:-50px;}
-            .orb3{width:250px;height:250px; background:radial-gradient(circle, rgba(188,130,63,0.2), transparent); top:50%; right:-100px;}
-            @keyframes float {
-                0%,100%{transform: translate(0,0) scale(1);}
-                25%{transform: translate(50px,-50px) scale(1.1);}
-                50%{transform: translate(-30px,30px) scale(0.9);}
-                75%{transform: translate(40px,20px) scale(1.05);}
-            }
-
-            /* ===== Header ===== */
-            .header {background: rgba(255,255,255,0.95); backdrop-filter:blur(20px); box-shadow:0 8px 40px rgba(0,0,0,0.15); border-bottom:4px solid #bc823f; position:fixed; top:0; left:0; right:0; z-index:1000;}
-            .header-container{max-width:1400px; margin:0 auto; padding:20px 40px; display:flex;align-items:center; gap:30px; flex-wrap:wrap;}
-            .logo-container{display:flex; align-items:center; cursor:pointer;}
-            .logo{width:160px; height:50px; object-fit:contain;}
-            .horizontal-menu a{position:relative; display:flex; align-items:center; gap:4px; padding:10px 20px; font-weight:700; text-transform:uppercase; border-radius:9999px; background:linear-gradient(135deg,#bc823f,#a07235); color:#ece4c5; transition:all 0.4s; box-shadow:0 8px 25px rgba(188,130,63,0.4);}
-            .horizontal-menu a:hover{transform:translateY(-5px) scale(1.05); background:linear-gradient(135deg,#099646,#077a37); box-shadow:0 12px 40px rgba(9,150,70,0.5);}
-            .menu-count{font-size:0.75rem;font-weight:bold; background:#bc823f;color:#fff; padding:0 6px; border-radius:9999px; margin-left:4px;}
-
-            /* ===== Main Content ===== */
-            .main-content{flex:1; padding-top:120px; min-height:100vh; position:relative; z-index:2;}
-            .content-section{min-height:calc(100vh-120px-80px); padding:60px 20px; opacity:0; visibility:hidden; transform:translateY(50px); transition:all 0.6s cubic-bezier(0.68,-0.55,0.265,1.55);}
-            .content-section.active{opacity:1; visibility:visible; transform:translateY(0);}
-
-            /* ===== Stats Cards ===== */
-            .stats-grid{display:grid; grid-template-columns:repeat(auto-fit,minmax(220px,1fr)); gap:25px; margin:40px 0;}
-            .stat-card{background:linear-gradient(135deg,#bc823f,#a07235); padding:30px; border-radius:20px; text-align:center; color:#ece4c5; font-weight:700; box-shadow:0 10px 30px rgba(188,130,63,0.4); transition:all 0.3s;}
-            .stat-card:hover{transform:translateY(-8px) scale(1.05); background:linear-gradient(135deg,#099646,#077a37); box-shadow:0 15px 40px rgba(9,150,70,0.6);}
-
-            /* ===== KPI Flèche ===== */
-            .kpi-value{font-size:2rem; font-weight:900;}
-            .kpi-trend svg{width:1.5rem;height:1.5rem;}
-            
-            /* ===== Footer ===== */
-            .footer{background:rgba(255,255,255,0.95); backdrop-filter:blur(20px); color:#ece4c5; text-align:center; border-top:5px solid #099646; box-shadow:0 -10px 40px rgba(0,0,0,0.3); padding:12px;}
-            .footer p{color:#bc823f; font-size:14px; font-weight:bold;}
-
-            /* Conteneur général du formulaire */
-            #filterForm {
-                background: rgba(255, 255, 255, 0.95);
-                padding: 20px 25px;
-                border-radius: 20px;
-                box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
-                transition: all 0.3s ease;
-            }
-
-            #filtersSection {
-                position: relative;
-                text-align: center;
-            }
-
-            #filtersSection form {
-                display: inline-block;
-                max-width: 500px;
-                width: 100%;
-                margin: 0 auto; /* centre horizontalement */
-                text-align: left;
-            }
-
-            @media (max-width: 640px) {
-                #filtersSection {
-                    padding: 0.5rem;
-                }
-            }
-
-            #filterForm:hover {
-                box-shadow: 0 12px 40px rgba(0, 0, 0, 0.15);
-            }
-
-            /* Grille responsive */
-            #filterForm .grid {
-                display: grid;
-                grid-template-columns: repeat(1, 1fr);
-                gap: 10px;
-            }
-
-            @media (min-width: 640px) {
-                #filterForm .grid {
-                    grid-template-columns: repeat(2, 1fr);
-                }
-            }
-
-            @media (min-width: 1024px) {
-                #filterForm .grid {
-                    grid-template-columns: repeat(5, 1fr);
-                }
-            }
-
-            /* Labels */
-            #filterForm label {
-                display: flex;
-                align-items: center;
-                gap: 8px;
-                font-size: 0.9rem;
-                font-weight: 600;
-                color: #444;
-                margin-bottom: 6px;
-            }
-
-            /* Icônes dans les labels */
-            #filterForm label svg {
-                width: 18px;
-                height: 18px;
-                color: #099646;
-            }
-
-            /* Inputs type date */
-            #filterForm input[type="date"] {
-                width: 100%;
-                padding: 10px 15px;
-                border-radius: 12px;
-                border: 2px solid #ccc;
-                font-size: 0.9rem;
-                transition: all 0.3s ease;
-            }
-
-            #filterForm input[type="date"]:focus {
-                outline: none;
-                border-color: #099646;
-                box-shadow: 0 0 8px rgba(9, 150, 70, 0.3);
-            }
-
-            /* Bouton submit */
-            #filterForm button[type="submit"] {
-                width: 100%;
-                padding: 12px 0;
-                background: linear-gradient(135deg, #099646 0%, #077a37 100%);
-                color: #fff;
-                font-weight: 700;
-                font-size: 0.95rem;
-                border-radius: 12px;
-                border: none;
-                cursor: pointer;
-                transition: all 0.3s ease;
-                box-shadow: 0 6px 15px rgba(0, 0, 0, 0.15);
-            }
-
-            #filterForm button[type="submit"]:hover {
-                transform: translateY(-2px) scale(1.03);
-                box-shadow: 0 8px 25px rgba(0, 0, 0, 0.2);
-            }
-
-            #filterForm button[type="submit"]:active {
-                transform: translateY(0) scale(0.98);
-            }
-
-            /* Spacing pour aligner le bouton en bas des autres champs */
-            #filterForm .flex.items-end {
-                display: flex;
-                align-items: flex-end;
-            }
-
-            /* Responsive tweaks */
-            @media (max-width: 640px) {
-                #filterForm {
-                    padding: 15px 15px;
-                }
-
-                #filterForm button[type="submit"] {
-                    padding: 10px 0;
-                    font-size: 0.9rem;
-                }
-            }
-
-            /* HEADER GLOBAL */
-            .header {
-                background: #ffffff;
-                padding: 10px 20px;
-                border-bottom: 1px solid #e5e5e5;
-            }
-
-            /* CONTENEUR */
-            .header-container {
-                max-width: 1400px;
-                margin: 0 auto;
-            }
-
-            /* LOGO */
-            .logo {
-                height: 45px;
-                object-fit: contain;
-            }
-
-            /* MENU */
-            .horizontal-menu {
-                flex: 1;
-            }
-
-            .menu-item {
-                padding: 8px 14px;
-                background: #f8f9fa;
-                border-radius: 8px;
-                text-decoration: none;
-                color: #333;
-                transition: 0.3s;
-                font-size: 14px;
-            }
-
-            .menu-item:hover {
-                background: #e9ecef;
-            }
-
-            .menu-icon {
-                margin-right: 6px;
-            }
-
-            .menu-count {
-                background: #dc3545;
-                color: white;
-                font-size: 12px;
-                padding: 2px 6px;
-                border-radius: 12px;
-                margin-left: 6px;
-            }
-
-            /* LOGOUT */
-            .logout-btn {
-                text-decoration: none;
-                color: #333;
-                font-weight: 500;
-            }
-
-            .logout-btn:hover {
-                color: #dc3545;
-            }
-
-            /* ========================= */
-            /* 📱 RESPONSIVE MOBILE */
-            /* ========================= */
-
-            @media (max-width: 768px) {
-
-                .header-container {
-                    flex-direction: column;
-                    align-items: flex-start !important;
-                }
-
-                .horizontal-menu {
-                    width: 100%;
-                    margin-top: 10px;
-                }
-
-                .menu-item {
-                    width: 100%;
-                    justify-content: space-between;
-                }
-
-                .logout-btn {
-                    width: 100%;
-                    justify-content: flex-end;
-                    margin-top: 10px;
-                }
-            }
-
-            .montant {
-                font-family: 'Courier New', monospace; /* Aligne les chiffres */
-                font-weight: bold;
-                color: #099646;
-                font-size: 1em;
-                /* Optionnel: pour un effet de mise en valeur */
-                background-color: #ece4c5;
-                padding: 2px 5px;
-                border-radius: 4px;
-            }
-
-            .arbiochem-card {
-                width:35.1rem;
-                height: 45rem; /* PC par défaut */
-            }
-
-            @media (max-width: 768px) {
-                .arbiochem-card {
-                    width: 35.8rem;
-                    height: 51rem; /* ou la valeur souhaitée sur mobile */
-                }
-            }
-
-            .toparbiochem {
-                height: 22.5rem; /* PC par défaut */
-            }
-
-            @media (max-width: 768px) {
-                .toparbiochem {
-                    width: auto !important;
-                    height: auto !important; /* ou la valeur souhaitée sur mobile */
-                }
-            }
-
-             @media (max-width: 768px) {
-                .ca-vente-canvas {
-                    width: 180px !important;
-                    height: 180px !important;
-                }
-            }
-
-            .header {
-                background: #fff;
-                border-bottom: 2px solid #e0e0e0;
-                padding: 0.5rem 1rem;
-                position: sticky;
-                top: 0;
-                z-index: 1000;
-                box-shadow: 0 2px 6px rgba(0,0,0,0.08);
-            }
-
-            .header-container {
-                display: flex;
-                flex-direction: column;
-                gap: 0.5rem;
-                max-width: 1400px;
-                margin: 0 auto;
-                width: 100%;
-            }
-
-            /* ── Logo ── */
-            .logo {
-                height: 40px;
-                width: auto;
-                object-fit: contain;
-            }
-
-            /* ── Burger button ── */
-            .burger-btn {
-                background: none;
-                border: none;
-                cursor: pointer;
-                display: flex;
-                flex-direction: column;
-                gap: 5px;
-                padding: 4px;
-            }
-            .burger-btn span {
-                display: block;
-                width: 24px;
-                height: 2px;
-                background: #333;
-                border-radius: 2px;
-                transition: all 0.3s;
-            }
-
-            /* ── Menu nav ── */
-            .horizontal-menu {
-                display: flex;
-                flex-wrap: wrap;
-                gap: 0.4rem;
-                width: 100%;
-            }
-
-            /* Caché sur mobile par défaut */
-            @media (max-width: 767px) {
-                .horizontal-menu {
-                    display: none;
-                    flex-direction: column;
-                    width: 100%;
-                }
-                .horizontal-menu.open {
-                    display: flex;
-                }
-            }
-
-            /* ── Menu items ── */
-            .menu-item {
-                display: flex;
-                align-items: center;
-                gap: 0.4rem;
-                padding: 0.4rem 0.75rem;
-                border-radius: 6px;
-                text-decoration: none;
-                color: #333;
-                font-size: 0.85rem;
-                font-weight: 500;
-                background: #f5f5f5;
-                transition: background 0.2s;
-                white-space: nowrap;
-            }
-            .menu-item:hover {
-                background: #e8e8e8;
-                color: #000;
-            }
-
-            .menu-icon {
-                font-size: 1rem;
-            }
-
-            .menu-count {
-                background: #e53935;
-                color: #fff;
-                border-radius: 50%;
-                font-size: 0.7rem;
-                width: 18px;
-                height: 18px;
-                display: flex;
-                align-items: center;
-                justify-content: center;
-                font-weight: 700;
-            }
-
-            /* ── Logout ── */
-            .logout-btn {
-                text-decoration: none;
-                color: #555;
-                font-size: 0.85rem;
-                padding: 0.3rem 0.6rem;
-                border-radius: 6px;
-                background: #f5f5f5;
-                transition: background 0.2s;
-                white-space: nowrap;
-            }
-            .logout-btn:hover {
-                background: #ffebee;
-                color: #e53935;
-            }
-
-            .username {
-                font-weight: 600;
-                max-width: 80px;
-                overflow: hidden;
-                text-overflow: ellipsis;
-                white-space: nowrap;
-            }
-
-        </style>
-        
-    </head>
-    <body>
-
-        <!-- Fixed Header with Logo and Menu -->
-        <header class="header">
-            <div class="header-container">
-                
-                <!-- Ligne 1 : Logo + Burger + Logout -->
-                <div class="d-flex align-items-center justify-content-between w-100">
-                    
-                    <!-- Logo -->
-                    <div class="logo-container">
-                        <img src="{% static 'dashboard/logo.jpeg' %}" alt="Logo Société" class="logo">
-                    </div>
-
-                    <!-- Droite : Burger (mobile) + Logout -->
-                    <div class="d-flex align-items-center gap-2">
-                        <!-- Bouton burger visible uniquement sur mobile -->
-                        <button class="burger-btn d-md-none" onclick="toggleMenu()" aria-label="Menu">
-                            <span></span>
-                            <span></span>
-                            <span></span>
-                        </button>
-
-                        <!-- Logout -->
-                        <a href="{% url 'logout' %}" class="logout-btn d-flex align-items-center gap-1">
-                            <span class="username">admin</span>
-                            <i class="material-icons" style="font-size:1.2rem;">logout</i>
-                        </a>
-                    </div>
-                </div>
-
-                <!-- Ligne 2 : Menu (collapse sur mobile) -->
-                <nav class="horizontal-menu" id="mainMenu">
-                    <a href="{% url 'validation' %}" class="menu-item">
-                        <span class="menu-icon">✓</span>
+    </style>
+</head>
+
+<body>
+    <!-- Floating orbs -->
+    <div class="floating-orb orb1"></div>
+    <div class="floating-orb orb2"></div>
+    <div class="floating-orb orb3"></div>
+
+    <!-- ─── HEADER ─────────────────────────────────────── -->
+    <header class="header" id="mainHeader">
+        <div class="header-container">
+
+             <div class="logo-img-box">
+                <div class="logo-img"><img src="{% static 'dashboard/logo.jpeg' %}" alt="Logo Société" class="logo"></div>
+            </div>
+
+            <nav class="nav">
+               {% if request.session.username == "aina" %}
+                    <a href="{% url 'etat_personnalise' %}" class="menu-item" data-section="etat_personnalise">
+                        <span class="menu-icon-nav material-icons" style="font-size:16px">tune</span>
+                        <span class="menu-text">État personnalisé</span>
+                    </a>
+                {% else %}
+                    <a href="{% url 'validation' %}" class="menu-item active" data-section="validation">
+                        <span class="menu-icon-nav material-icons" style="font-size:16px">check_circle</span>
                         <span class="menu-text">Validation Achat</span>
                         <span class="menu-count">0</span>
                     </a>
-                    <a href="{% url 'etat' %}" class="menu-item">
-                        <span class="menu-icon">📊</span>
-                        <span class="menu-text">Etat Global</span>
+                    <a href="{% url 'etat' %}" class="menu-item" data-section="etat">
+                        <span class="menu-icon-nav material-icons" style="font-size:16px">bar_chart</span>
+                        <span class="menu-text">État Global</span>
                     </a>
-                </nav>
 
-            </div>
-        </header>
-        <span class="d-block d-md-none">
-        </span>
-        <main class="main-content">
-            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-8">
-            <!-- Filtres -->
-                <div id="filtersSection" class="d-flex justify-content-center mb-4">
-                    <form id="filterForm" method="POST" action="{% url 'etat' %}">
-                        {% csrf_token %}
-                        <div class="d-flex flex-wrap align-items-end gap-3">
-                            
-                            <div>
-                                <label class="form-label text-muted fw-semibold" style="font-size:0.85rem;">
-                                    📅 Date début
-                                </label>
-                                <input type="date" name="date_debut" id="dateDebut"
-                                    value="{{ date_debut }}"
-                                    class="form-control" style="min-width: 160px;">
-                            </div>
+                    <a href="{% url 'etat_personnalise' %}" class="menu-item" data-section="etat_personnalise">
+                        <span class="menu-icon-nav material-icons" style="font-size:16px">tune</span>
+                        <span class="menu-text">État personnalisé</span>
+                    </a>
+                {% endif %}
+            </nav>
 
-                            <div>
-                                <label class="form-label text-muted fw-semibold" style="font-size:0.85rem;">
-                                    📅 Date fin
-                                </label>
-                                <input type="date" name="date_fin" id="dateFin"
-                                    value="{{ date_fin }}"
-                                    class="form-control" style="min-width: 160px;">
-                            </div>
-
-                            <div>
-                                <button type="submit" class="btn btn-success fw-bold px-4">
-                                    Afficher
-                                </button>
-                            </div>
-
+            <div class="user-area">
+                <div class="user-chip">
+                    {% with username=request.session.username %}
+                        <div class="user-avatar">
+                            {{ username|slice:":2"|upper }}
                         </div>
-                    </form>
+                        <span class="user-name">{{ username|capfirst }}</span>
+                    {% endwith %}
                 </div>
-                <br><br>
-                <div class="col-12 col-md-8 col-lg-6" style="width: 100%; max-width: 70.1rem;">
+                <a href="{% url 'logout' %}" class="logout-btn">
+                    <i class="material-icons">logout</i>
+                </a>
+            </div>
+
+            <button class="hamburger" id="hamburger" aria-label="Menu">
+                <span></span><span></span><span></span>
+            </button>
+        </div>
+    </header>
+
+    <!-- Mobile drawer -->
+    <div class="mobile-drawer" id="mobileDrawer">
+        {% if request.session.username == "aina" %}
+            <a href="{% url 'etat_personnalise' %}" class="menu-item" data-section="etat_personnalise">
+                <span class="menu-icon-nav material-icons" style="font-size:16px">tune</span>
+                <span class="menu-text">État personnalisé</span>
+            </a>
+        {% else %}
+            <a href="{% url 'validation' %}" class="menu-item active" data-section="validation">
+                <span class="menu-icon-nav material-icons" style="font-size:16px">check_circle</span>
+                <span class="menu-text">Validation Achat</span>
+                <span class="menu-count">0</span>
+            </a>
+            <a href="{% url 'etat' %}" class="menu-item" data-section="etat">
+                <span class="menu-icon-nav material-icons" style="font-size:16px">bar_chart</span>
+                <span class="menu-text">État Global</span>
+            </a>
+
+            <a href="{% url 'etat_personnalise' %}" class="menu-item" data-section="etat_personnalise">
+                <span class="menu-icon-nav material-icons" style="font-size:16px">tune</span>
+                <span class="menu-text">État personnalisé</span>
+            </a>
+        {% endif %}
+        <a href="{% url 'logout' %}" class="menu-item" style="margin-top:8px;color:var(--danger);border-color:var(--danger-light)">
+            <span class="menu-icon-nav material-icons" style="font-size:16px">logout</span>
+            Déconnexion
+        </a>
+    </div>
+
+    <!-- ─── MAIN CONTENT ────────────────────────────────── -->
+    <main class="main-content">
+
+        <!-- Filtres -->
+        <div id="filtersSection">
+            <form id="filterForm" method="POST" action="{% url 'etat' %}">
+                {% csrf_token %}
+                <div class="d-flex flex-wrap align-items-end gap-3">
+                    <div>
+                        <label>📅 Date début</label>
+                        <input type="date" name="date_debut" id="dateDebut" value="{{ date_debut }}">
+                    </div>
+                    <div>
+                        <label>📅 Date fin</label>
+                        <input type="date" name="date_fin" id="dateFin" value="{{ date_fin }}">
+                    </div>
+                    <div>
+                        <button type="submit">Afficher</button>
+                    </div>
+                </div>
+            </form>
+        </div>
+
+        <div class="etat-body">
+            <div class="max-w-7xl mx-auto">
+
+                <!-- Graphique global -->
+                <div class="col-12 col-md-8 col-lg-6 mb-4" style="width:100%; max-width:70.1rem;">
                     <div class="card shadow h-100">
-                        <div style="position: relative; background: #ece4c5; padding: 1rem; text-align: center;">
-                            
+                        <div style="position:relative; background:var(--cream); padding:1.2rem; text-align:center;">
+
                             <!-- KPI Cards -->
                             <div class="d-flex justify-content-around gap-2 mb-3 flex-wrap">
-                                
-                                <!-- Période actuelle -->
-                                <div style="background:#fff; border-radius:8px; padding:0.5rem 0.75rem; min-width:100px; flex:1; box-shadow:0 1px 4px rgba(0,0,0,0.1);">
-                                    <div style="font-size:0.7rem; font-weight:600; color:#888; text-transform:uppercase;">
-                                        {{date_deb|date:"d/m/Y"}} - {{date_f|date:"d/m/Y"}}
+                                <div style="background:var(--white); border:1.5px solid var(--cream-deep); border-radius:var(--r-lg); padding:0.6rem 1rem; min-width:100px; flex:1; box-shadow:0 2px 8px rgba(0,0,0,.06);">
+                                    <div style="font-size:0.7rem; font-weight:600; color:var(--ink-muted); text-transform:uppercase; letter-spacing:.5px; margin-bottom:4px;">
+                                        {{date_deb|date:"d/m/Y"}} – {{date_f|date:"d/m/Y"}}
                                     </div>
-                                    <span class="ca-epics1" style="font-size: clamp(0.75rem, 2.5vw, 1.2rem); word-break: break-all;">
+                                    <span class="ca-epics1" style="font-size:clamp(0.75rem,2.5vw,1.2rem); word-break:break-all;">
                                         {{ ca_totals|floatformat:2 }}
                                     </span>
                                 </div>
-
-                                <!-- Période précédente -->
-                                <div style="background:#fff; border-radius:8px; padding:0.5rem 0.75rem; min-width:100px; flex:1; box-shadow:0 1px 4px rgba(0,0,0,0.1);">
-                                    <div style="font-size:0.7rem; color:#888; text-transform:uppercase; font-weight:600;">
-                                        {{date_debut_prec|date:"d/m/Y"}} - {{date_fin_prec|date:"d/m/Y"}}
+                                <div style="background:var(--white); border:1.5px solid var(--cream-deep); border-radius:var(--r-lg); padding:0.6rem 1rem; min-width:100px; flex:1; box-shadow:0 2px 8px rgba(0,0,0,.06);">
+                                    <div style="font-size:0.7rem; color:var(--ink-muted); text-transform:uppercase; font-weight:600; letter-spacing:.5px; margin-bottom:4px;">
+                                        {{date_debut_prec|date:"d/m/Y"}} – {{date_fin_prec|date:"d/m/Y"}}
                                     </div>
-                                    <span class="ca-epics1" style="font-size: clamp(0.75rem, 2.5vw, 1.2rem); word-break: break-all;">
+                                    <span class="ca-epics1" style="font-size:clamp(0.75rem,2.5vw,1.2rem); word-break:break-all;">
                                         {{ ca_total_prec|floatformat:2 }}
                                     </span>
                                 </div>
-
-                                <!-- KPI Evolution -->
-                                <div style="background:#fff; border-radius:8px; padding:0.5rem 0.75rem; min-width:100px; flex:1; box-shadow:0 1px 4px rgba(0,0,0,0.1);">
-                                    <div style="font-size:0.7rem; color:#888; text-transform:uppercase; font-weight:600;">KPI</div>
-                                    <div style="font-size:1.1rem; font-weight:700; color:#6a1b9a; display:flex; align-items:center; justify-content:center; gap:4px;">
-                                        {{evolution_pct}} %
+                                <div style="background:var(--white); border:1.5px solid var(--cream-deep); border-radius:var(--r-lg); padding:0.6rem 1rem; min-width:100px; flex:1; box-shadow:0 2px 8px rgba(0,0,0,.06);">
+                                    <div style="font-size:0.7rem; color:var(--ink-muted); text-transform:uppercase; font-weight:600; letter-spacing:.5px; margin-bottom:4px;">KPI</div>
+                                    <div style="font-size:1.1rem; font-weight:700; display:flex; align-items:center; justify-content:center; gap:4px;">
                                         {% if evolution_pct < 0 %}
-                                            <svg width="20" height="20" fill="none" stroke="#ef4444" viewBox="0 0 24 24">
+                                            <span style="color:var(--danger)">{{evolution_pct}} %</span>
+                                            <svg width="20" height="20" fill="none" stroke="var(--danger)" viewBox="0 0 24 24">
                                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 17h8m0 0v-8m0 8l-8-8-4 4-6-6"/>
                                             </svg>
                                         {% else %}
-                                            <svg width="20" height="20" fill="none" stroke="#22c55e" viewBox="0 0 24 24">
+                                            <span style="color:var(--green)">{{evolution_pct}} %</span>
+                                            <svg width="20" height="20" fill="none" stroke="var(--green)" viewBox="0 0 24 24">
                                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6"/>
                                             </svg>
                                         {% endif %}
                                     </div>
                                 </div>
-
                             </div>
 
-                            <!-- Graphique RESPONSIVE -->
-                            <div style="position: relative; width: 100%; height: 300px;">
+                            <div style="position:relative; width:100%; height:300px;">
                                 <canvas id="caVenteCharts"></canvas>
                             </div>
-
                         </div>
                     </div>
                 </div>
-                <br><br><br><br>
-                <div class="container" style="position:relative; bottom:3rem;">
+
+                <br>
+
+                <!-- Cartes détaillées -->
+                <div class="container" style="position:relative;">
                     <div class="row">
-                        <!-- COLONNE -->
+
+                        <!-- ARBIOCHEM -->
                         <div class="col-4 arbiochem-card" style="position:relative; bottom:1rem; right:1rem;">
                             <div class="card shadow h-100" style="margin:1rem;">
-                                <div class="card-header bg-success text-white">
-                                    <h5 class="mb-0 fw-bold fs-6">ARBIOCHEM : <span class="ca-epic">{{ ca_total|floatformat:2 }}</span></h5>
+                                <div class="card-header bg-success">
+                                    <h5>ARBIOCHEM : <span class="ca-epic">{{ ca_total|floatformat:2 }}</span></h5>
+                                </div>
+                                <div class="card-body d-flex flex-column flex-md-row gap-3">
+                                    <div class="d-flex flex-column align-items-start" style="min-width:150px; font-size:0.7rem; line-height:1.8; color:var(--ink-mid);">
+                                        AMBOHIMANGAKELY : <strong class="montant">{{ ca_vente|default:"0" }}</strong><br>
+                                        ANALAKELY : <strong class="montant">{{ ca_vente1|default:"0" }}</strong><br>
+                                        ANTANIMORA : <strong class="montant">{{ ca_vente2|default:"0" }}</strong><br>
+                                        IMERINTSIATOSIKA : <strong class="montant">{{ ca_vente3|default:"0" }}</strong><br>
+                                        MAHITSY : <strong class="montant">{{ ca_vente4|default:"0" }}</strong><br>
+                                        DIEGO : <strong class="montant">{{ ca_vente5|default:"0" }}</strong><br>
+                                        MAJUNGA : <strong class="montant">{{ ca_vente6|default:"0" }}</strong><br>
+                                        TAMATAVE : <strong class="montant">{{ ca_vente7|default:"0" }}</strong>
+                                    </div>
+                                    <div class="flex-grow-1 toparbiochem" style="border:1.5px solid var(--cream-deep); padding:8px; font-size:0.65rem; border-radius:var(--r-md);">
+                                        <div style="font-weight:700; text-align:center; margin-bottom:6px; color:var(--gold-dark); font-family:'Syne',sans-serif; font-size:0.75rem;">TOP 10 VENTE ARTICLES</div>
+                                        <table style="width:100%;">
+                                            <thead><tr>
+                                                <th class="text-start">Article</th>
+                                                <th class="text-end">CA</th>
+                                            </tr></thead>
+                                            <tbody>
+                                                {% for item in top_articles_arbio %}
+                                                <tr>
+                                                    <td class="text-start">{{ item.article }}</td>
+                                                    <td class="text-end"><strong class="montant">{{ item.total_ca|floatformat:0 }}</strong></td>
+                                                </tr>
+                                                {% endfor %}
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                </div>
+                                <div style="position:relative; width:100%; overflow-x:auto; padding:8px 0; bottom:457rem;">
+                                    <div style="min-width:500px; height:250px;">
+                                        <canvas id="caVenteChart"></canvas>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="d-block d-md-none"><br></div>
+
+                        <!-- ACTIVO & ACTIVOFEED -->
+                        <div class="col-4" style="width:35.1rem">
+                            <div class="card shadow h-100">
+                                <div class="card-header bg-success">
+                                    <h5>ACTIVO & ACTIVOFEED : <span class="ca-epic">{{ ca_total1|floatformat:2 }}</span></h5>
                                 </div>
 
-                                <div class="card-body d-flex flex-column flex-md-row gap-3">
-
-                                    <!-- Colonne gauche : chiffres + graphique -->
-                                    <div class="d-flex flex-column align-items-start" style="min-width:150px; font-size:0.7rem; line-height:1.6;">
-                                        <!-- Chiffres -->
-                                        <div>
-                                            AMBOHIMANGAKELY : <strong class="montant">{{ ca_vente|default:"0" }}</strong><br>
-                                            ANALAKELY : <strong class="montant">{{ ca_vente1|default:"0" }}</strong><br>
-                                            ANTANIMORA : <strong class="montant">{{ ca_vente2|default:"0" }}</strong><br>
-                                            IMERINTSIATOSIKA : <strong class="montant">{{ ca_vente3|default:"0" }}</strong><br>
-                                            MAHITSY : <strong class="montant">{{ ca_vente4|default:"0" }}</strong><br>
-                                            DIEGO : <strong class="montant">{{ ca_vente5|default:"0" }}</strong><br>
-                                            MAJUNGA : <strong class="montant">{{ ca_vente6|default:"0" }}</strong><br>
-                                            TAMATAVE : <strong class="montant">{{ ca_vente7|default:"0" }}</strong>
-                                        </div>
+                                {% for site_data in activofeed_sites %}
+                                <div class="card shadow h-100" style="margin:1rem;">
+                                    <div class="card-header bg-primary">
+                                        <h5>{{ site_data.label }} : <strong>{{ site_data.total|default:"0" }}</strong></h5>
                                     </div>
-
-                                    <!-- Tableau TOP 10 VENTE ARTICLES -->
-                                    <div class="flex-grow-1 toparbiochem" style="border:1px solid #ccc; padding:6px; font-size:0.65rem;">
-                                        <div style="font-weight:bold; text-align:center; margin-bottom:4px;">TOP 10 VENTE ARTICLES</div>
-                                        <div style="overflow-x:auto;">
-                                            <table style="width:100%; border-collapse:collapse;">
-                                                <thead>
-                                                    <tr>
-                                                        <th class="text-start" style="padding:4px 6px; border:1px solid #ccc;">Article</th>
-                                                        <th class="text-end" style="padding:4px 6px; border:1px solid #ccc;">CA</th>
-                                                    </tr>
-                                                </thead>
+                                    <div class="card-body d-flex flex-column flex-md-row gap-3">
+                                        <div class="d-flex flex-column align-items-start" style="min-width:150px; font-size:0.7rem; line-height:1.8; color:var(--ink-mid);">
+                                            FEED : <strong class="montant">{{ site_data.feed|default:"0" }}</strong><br>
+                                            POUSSINS : <strong class="montant">{{ site_data.poussin|default:"0" }}</strong><br>
+                                            FISH : <strong class="montant">{{ site_data.fish|default:"0" }}</strong><br>
+                                            GRANULE : <strong class="montant">{{ site_data.granule|default:"0" }}</strong>
+                                        </div>
+                                        <div class="flex-grow-1" style="border:1.5px solid var(--cream-deep); padding:8px; font-size:0.65rem; min-width:220px; border-radius:var(--r-md);">
+                                            <div style="font-weight:700; text-align:center; margin-bottom:6px; color:var(--gold-dark); font-family:'Syne',sans-serif; font-size:0.75rem;">TOP 10 VENTE ARTICLES</div>
+                                            <table style="width:100%;">
+                                                <thead><tr>
+                                                    <th class="text-start">Article</th>
+                                                    <th class="text-end">CA</th>
+                                                </tr></thead>
                                                 <tbody>
-                                                    {% for item in top_articles_arbio %}
+                                                    {% for item in site_data.top_articles %}
                                                     <tr>
-                                                        <td class="text-start" style="padding:4px 6px; border:1px solid #ccc;">{{ item.article }}</td>
-                                                        <td class="text-end" style="padding:4px 6px; border:1px solid #ccc;">
-                                                            <strong class="montant">{{ item.total_ca|floatformat:0 }}</strong>
-                                                        </td>
+                                                        <td class="text-start">{{ item.article }}</td>
+                                                        <td class="text-end"><strong class="montant">{{ item.total_ca|floatformat:0 }}</strong></td>
                                                     </tr>
                                                     {% endfor %}
                                                 </tbody>
                                             </table>
                                         </div>
                                     </div>
-                                </div>
-
-                                <div style="position:relative; width: 100%; bottom:1rem; overflow-x: auto;">
-                                    <div style="min-width: 500px; height: 250px;">
-                                        <canvas id="caVenteChart"></canvas>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                        
-                        <div class="d-block d-md-none"><br></div>
-                        <div class="col-4" style="width:35.1rem">
-                            <div class="card shadow h-100">
-                                <div class="card-header bg-success text-white">
-                                    <div class="d-flex justify-content-between align-items-center">
-                                        <h5 class="mb-0 fw-bold fs-6">ACTIVO & ACTIVOFEED : <span class="ca-epic">{{ ca_total1|floatformat:2 }}</span></h5>
-                                    </div>
-                                </div>
-
-                                <div class="card shadow h-100" style="margin:1rem;">
-                                    <div class="card-header bg-primary text-white">
-                                        <h5 style="font-size: 0.8rem;">
-                                            ACTIVO : <strong>{{ ca_vente_activo|default:"0" }}</strong>
-                                        </h5>
-                                    </div>
-
-                                    <div class="card-body d-flex flex-column flex-md-row gap-3">
-
-                                        <!-- Colonne gauche : chiffres + graphique -->
-                                        <div class="d-flex flex-column align-items-start" style="min-width:150px; font-size:0.7rem; line-height:1.6;">
-                                            <!-- Chiffres -->
-                                            <div>
-                                                FEED : <strong class="montant">{{ ca_vente_activo_feed|default:"0" }}</strong><br>
-                                                POUSSINS : <strong class="montant">{{ ca_vente_activo_poussin|default:"0" }}</strong><br>
-                                                FISH : <strong class="montant">{{ ca_vente_activo_fish|default:"0" }}</strong><br>
-                                                GRANULE : <strong class="montant">{{ ca_vente_activo_granule|default:"0" }}</strong>
-                                            </div>
-                                        </div>
-
-                                        <!-- Tableau TOP 10 VENTE ARTICLES -->
-                                        <div class="flex-grow-1" style="border:1px solid #ccc; padding:6px; font-size:0.65rem; min-width:220px;">
-                                            <div style="font-weight:bold; text-align:center; margin-bottom:4px;">TOP 10 VENTE ARTICLES</div>
-                                            <div style="overflow-x:auto;">
-                                                <table style="width:100%; border-collapse:collapse;">
-                                                    <thead>
-                                                        <tr>
-                                                            <th class="text-start" style="padding:4px 6px; border:1px solid #ccc;">Article</th>
-                                                            <th class="text-end" style="padding:4px 6px; border:1px solid #ccc;">CA</th>
-                                                        </tr>
-                                                    </thead>
-                                                    <tbody>
-                                                        {% for item in top_articles %}
-                                                        <tr>
-                                                            <td class="text-start" style="padding:4px 6px; border:1px solid #ccc;">{{ item.article }}</td>
-                                                            <td class="text-end" style="padding:4px 6px; border:1px solid #ccc;">
-                                                                <strong class="montant">{{ item.total_ca|floatformat:0 }}</strong>
-                                                            </td>
-                                                        </tr>
-                                                        {% endfor %}
-                                                    </tbody>
-                                                </table>
-                                            </div>
-                                        </div>
-                                    </div>
-
-                                    <!-- Graphique circulaire -->
                                     <div class="f_analakely">
-                                        <canvas id="caVenteChart1"></canvas>
+                                        <canvas id="{{ site_data.chart_id }}"></canvas>
                                     </div>
                                 </div>
-                                
+                                {% endfor %}
+
+                                <!-- Fallback si pas de boucle Django : garder les blocs individuels originaux -->
+                                {% if not activofeed_sites %}
+
                                 <div class="card shadow h-100" style="margin:1rem;">
-                                    <div class="card-header bg-primary text-white">
-                                        <h5 style="font-size: 0.8rem;">
-                                            ACTIVOFEED ANALAKELY : <strong>{{ ca_vente_activo_analakely|default:"0" }}</strong>
-                                        </h5>
-                                    </div>
-
+                                    <div class="card-header bg-primary"><h5>ACTIVO : <strong>{{ ca_vente_activo|default:"0" }}</strong></h5></div>
                                     <div class="card-body d-flex flex-column flex-md-row gap-3">
-
-                                        <!-- Colonne gauche : chiffres + graphique -->
-                                        <div class="d-flex flex-column align-items-start" style="min-width:150px; font-size:0.7rem; line-height:1.6;">
-                                            <!-- Chiffres -->
-                                            <div>
-                                                FEED : <strong class="montant">{{ ca_vente_activo_feed_analakely|default:"0" }}</strong><br>
-                                                POUSSINS : <strong class="montant">{{ ca_vente_activo_poussin_analakely|default:"0" }}</strong><br>
-                                                FISH : <strong class="montant">{{ ca_vente_activo_fish_analakely|default:"0" }}</strong><br>
-                                                GRANULE : <strong class="montant">{{ ca_vente_activo_granule_analakely|default:"0" }}</strong>
-                                            </div>
+                                        <div style="min-width:150px;font-size:0.7rem;line-height:1.8;color:var(--ink-mid);">
+                                            FEED : <strong class="montant">{{ ca_vente_activo_feed|default:"0" }}</strong><br>
+                                            POUSSINS : <strong class="montant">{{ ca_vente_activo_poussin|default:"0" }}</strong><br>
+                                            FISH : <strong class="montant">{{ ca_vente_activo_fish|default:"0" }}</strong><br>
+                                            GRANULE : <strong class="montant">{{ ca_vente_activo_granule|default:"0" }}</strong>
                                         </div>
-
-                                        <!-- Tableau TOP 10 VENTE ARTICLES -->
-                                        <div class="flex-grow-1" style="border:1px solid #ccc; padding:6px; font-size:0.65rem; min-width:220px;">
-                                            <div style="font-weight:bold; text-align:center; margin-bottom:4px;">TOP 10 VENTE ARTICLES</div>
-                                            <div style="overflow-x:auto;">
-                                                <table style="width:100%; border-collapse:collapse;">
-                                                    <thead>
-                                                        <tr>
-                                                            <th class="text-start" style="padding:4px 6px; border:1px solid #ccc;">Article</th>
-                                                            <th class="text-end" style="padding:4px 6px; border:1px solid #ccc;">CA</th>
-                                                        </tr>
-                                                    </thead>
-                                                    <tbody>
-                                                        {% for item in top_articles_analakely %}
-                                                        <tr>
-                                                            <td class="text-start" style="padding:4px 6px; border:1px solid #ccc;">{{ item.article }}</td>
-                                                            <td class="text-end" style="padding:4px 6px; border:1px solid #ccc;">
-                                                                <strong class="montant">{{ item.total_ca|floatformat:0 }}</strong>
-                                                            </td>
-                                                        </tr>
-                                                        {% endfor %}
-                                                    </tbody>
-                                                </table>
-                                            </div>
+                                        <div class="flex-grow-1" style="border:1.5px solid var(--cream-deep);padding:8px;font-size:0.65rem;min-width:220px;border-radius:var(--r-md);">
+                                            <div style="font-weight:700;text-align:center;margin-bottom:6px;color:var(--gold-dark);font-family:'Syne',sans-serif;font-size:0.75rem;">TOP 10 VENTE ARTICLES</div>
+                                            <table style="width:100%;"><thead><tr><th class="text-start">Article</th><th class="text-end">CA</th></tr></thead>
+                                            <tbody>{% for item in top_articles %}<tr><td class="text-start">{{ item.article }}</td><td class="text-end"><strong class="montant">{{ item.total_ca|floatformat:0 }}</strong></td></tr>{% endfor %}</tbody></table>
                                         </div>
-
                                     </div>
-
-                                    <!-- Graphique circulaire -->
-                                    <div style="position:relative; left:3rem; width: 400px; height: 400px; margin-top: 1rem; bottom:3rem">
-                                        <canvas id="caVenteChart2"></canvas>
-                                    </div>
+                                    <div class="f_analakely"><canvas id="caVenteChart1"></canvas></div>
                                 </div>
 
                                 <div class="card shadow h-100" style="margin:1rem;">
-                                    <div class="card-header bg-primary text-white">
-                                        <h5 style="font-size: 0.8rem;">
-                                            ACTIVOFEED ANTANIMORA : <strong>{{ ca_vente_activo_antanimora|default:"0" }}</strong>
-                                        </h5>
-                                    </div>
-
+                                    <div class="card-header bg-primary"><h5>ACTIVOFEED ANALAKELY : <strong>{{ ca_vente_activo_analakely|default:"0" }}</strong></h5></div>
                                     <div class="card-body d-flex flex-column flex-md-row gap-3">
-
-                                        <!-- Colonne gauche : chiffres + graphique -->
-                                        <div class="d-flex flex-column align-items-start" style="min-width:150px; font-size:0.7rem; line-height:1.6;">
-                                            <!-- Chiffres -->
-                                            <div>
-                                                FEED : <strong class="montant">{{ ca_vente_activo_feed_antanimora|default:"0" }}</strong><br>
-                                                POUSSINS : <strong class="montant">{{ ca_vente_activo_poussin_antanimora|default:"0" }}</strong><br>
-                                                FISH : <strong class="montant">{{ ca_vente_activo_fish_antanimora|default:"0" }}</strong><br>
-                                                GRANULE : <strong class="montant">{{ ca_vente_activo_granule_antanimora|default:"0" }}</strong>
-                                            </div>
+                                        <div style="min-width:150px;font-size:0.7rem;line-height:1.8;color:var(--ink-mid);">
+                                            FEED : <strong class="montant">{{ ca_vente_activo_feed_analakely|default:"0" }}</strong><br>
+                                            POUSSINS : <strong class="montant">{{ ca_vente_activo_poussin_analakely|default:"0" }}</strong><br>
+                                            FISH : <strong class="montant">{{ ca_vente_activo_fish_analakely|default:"0" }}</strong><br>
+                                            GRANULE : <strong class="montant">{{ ca_vente_activo_granule_analakely|default:"0" }}</strong>
                                         </div>
-
-                                        <!-- Tableau TOP 10 VENTE ARTICLES -->
-                                        <div class="flex-grow-1" style="border:1px solid #ccc; padding:6px; font-size:0.65rem; min-width:220px;">
-                                            <div style="font-weight:bold; text-align:center; margin-bottom:4px;">TOP 10 VENTE ARTICLES</div>
-                                            <div style="overflow-x:auto;">
-                                                <table style="width:100%; border-collapse:collapse;">
-                                                    <thead>
-                                                        <tr>
-                                                            <th class="text-start" style="padding:4px 6px; border:1px solid #ccc;">Article</th>
-                                                            <th class="text-end" style="padding:4px 6px; border:1px solid #ccc;">CA</th>
-                                                        </tr>
-                                                    </thead>
-                                                    <tbody>
-                                                        {% for item in top_articles_antanimora %}
-                                                        <tr>
-                                                            <td class="text-start" style="padding:4px 6px; border:1px solid #ccc;">{{ item.article }}</td>
-                                                            <td class="text-end" style="padding:4px 6px; border:1px solid #ccc;">
-                                                                <strong class="montant">{{ item.total_ca|floatformat:0 }}</strong>
-                                                            </td>
-                                                        </tr>
-                                                        {% endfor %}
-                                                    </tbody>
-                                                </table>
-                                            </div>
+                                        <div class="flex-grow-1" style="border:1.5px solid var(--cream-deep);padding:8px;font-size:0.65rem;min-width:220px;border-radius:var(--r-md);">
+                                            <div style="font-weight:700;text-align:center;margin-bottom:6px;color:var(--gold-dark);font-family:'Syne',sans-serif;font-size:0.75rem;">TOP 10 VENTE ARTICLES</div>
+                                            <table style="width:100%;"><thead><tr><th class="text-start">Article</th><th class="text-end">CA</th></tr></thead>
+                                            <tbody>{% for item in top_articles_analakely %}<tr><td class="text-start">{{ item.article }}</td><td class="text-end"><strong class="montant">{{ item.total_ca|floatformat:0 }}</strong></td></tr>{% endfor %}</tbody></table>
                                         </div>
-
                                     </div>
-
-                                    <!-- Graphique circulaire -->
-                                    <div style="position:relative; left:3rem; width: 400px; height: 400px; margin-top: 1rem; bottom:3rem">
-                                        <canvas id="caVenteChart3"></canvas>
-                                    </div>
+                                    <div style="position:relative;left:3rem;width:400px;height:400px;margin-top:1rem;bottom:3rem"><canvas id="caVenteChart2"></canvas></div>
                                 </div>
 
                                 <div class="card shadow h-100" style="margin:1rem;">
-                                    <div class="card-header bg-primary text-white">
-                                        <h5 style="font-size: 0.8rem;">
-                                            ACTIVOFEED DIEGO : <strong>{{ ca_vente_activo_diego|default:"0" }}</strong>
-                                        </h5>
-                                    </div>
-
+                                    <div class="card-header bg-primary"><h5>ACTIVOFEED ANTANIMORA : <strong>{{ ca_vente_activo_antanimora|default:"0" }}</strong></h5></div>
                                     <div class="card-body d-flex flex-column flex-md-row gap-3">
-
-                                        <!-- Colonne gauche : chiffres + graphique -->
-                                        <div class="d-flex flex-column align-items-start" style="min-width:150px; font-size:0.7rem; line-height:1.6;">
-                                            <!-- Chiffres -->
-                                            <div>
-                                                FEED : <strong class="montant">{{ ca_vente_activo_feed_diego|default:"0" }}</strong><br>
-                                                POUSSINS : <strong class="montant">{{ ca_vente_activo_poussin_diego|default:"0" }}</strong><br>
-                                                FISH : <strong class="montant">{{ ca_vente_activo_fish_diego|default:"0" }}</strong><br>
-                                                GRANULE : <strong class="montant">{{ ca_vente_activo_granule_diego|default:"0" }}</strong>
-                                            </div>
+                                        <div style="min-width:150px;font-size:0.7rem;line-height:1.8;color:var(--ink-mid);">
+                                            FEED : <strong class="montant">{{ ca_vente_activo_feed_antanimora|default:"0" }}</strong><br>
+                                            POUSSINS : <strong class="montant">{{ ca_vente_activo_poussin_antanimora|default:"0" }}</strong><br>
+                                            FISH : <strong class="montant">{{ ca_vente_activo_fish_antanimora|default:"0" }}</strong><br>
+                                            GRANULE : <strong class="montant">{{ ca_vente_activo_granule_antanimora|default:"0" }}</strong>
                                         </div>
-
-                                        <!-- Tableau TOP 10 VENTE ARTICLES -->
-                                        <div class="flex-grow-1" style="border:1px solid #ccc; padding:6px; font-size:0.65rem; min-width:220px;">
-                                            <div style="font-weight:bold; text-align:center; margin-bottom:4px;">TOP 10 VENTE ARTICLES</div>
-                                            <div style="overflow-x:auto;">
-                                                <table style="width:100%; border-collapse:collapse;">
-                                                    <thead>
-                                                        <tr>
-                                                            <th class="text-start" style="padding:4px 6px; border:1px solid #ccc;">Article</th>
-                                                            <th class="text-end" style="padding:4px 6px; border:1px solid #ccc;">CA</th>
-                                                        </tr>
-                                                    </thead>
-                                                    <tbody>
-                                                        {% for item in top_articles_diego %}
-                                                        <tr>
-                                                            <td class="text-start" style="padding:4px 6px; border:1px solid #ccc;">{{ item.article }}</td>
-                                                            <td class="text-end" style="padding:4px 6px; border:1px solid #ccc;">
-                                                                <strong class="montant">{{ item.total_ca|floatformat:0 }}</strong>
-                                                            </td>
-                                                        </tr>
-                                                        {% endfor %}
-                                                    </tbody>
-                                                </table>
-                                            </div>
+                                        <div class="flex-grow-1" style="border:1.5px solid var(--cream-deep);padding:8px;font-size:0.65rem;min-width:220px;border-radius:var(--r-md);">
+                                            <div style="font-weight:700;text-align:center;margin-bottom:6px;color:var(--gold-dark);font-family:'Syne',sans-serif;font-size:0.75rem;">TOP 10 VENTE ARTICLES</div>
+                                            <table style="width:100%;"><thead><tr><th class="text-start">Article</th><th class="text-end">CA</th></tr></thead>
+                                            <tbody>{% for item in top_articles_antanimora %}<tr><td class="text-start">{{ item.article }}</td><td class="text-end"><strong class="montant">{{ item.total_ca|floatformat:0 }}</strong></td></tr>{% endfor %}</tbody></table>
                                         </div>
-
                                     </div>
-
-                                    <!-- Graphique circulaire -->
-                                    <div style="position:relative; left:3rem; width: 400px; height: 400px; margin-top: 1rem; bottom:3rem">
-                                        <canvas id="caVenteChart4"></canvas>
-                                    </div>
+                                    <div style="position:relative;left:3rem;width:400px;height:400px;margin-top:1rem;bottom:3rem"><canvas id="caVenteChart3"></canvas></div>
                                 </div>
 
                                 <div class="card shadow h-100" style="margin:1rem;">
-                                    <div class="card-header bg-primary text-white">
-                                        <h5 style="font-size: 0.8rem;">
-                                            ACTIVOFEED IMERINTSIATOSIKA : <strong>{{ ca_vente_activo_imerintsiatosika|default:"0" }}</strong>
-                                        </h5>
-                                    </div>
-
+                                    <div class="card-header bg-primary"><h5>ACTIVOFEED DIEGO : <strong>{{ ca_vente_activo_diego|default:"0" }}</strong></h5></div>
                                     <div class="card-body d-flex flex-column flex-md-row gap-3">
-
-                                        <!-- Colonne gauche : chiffres + graphique -->
-                                        <div class="d-flex flex-column align-items-start" style="min-width:150px; font-size:0.7rem; line-height:1.6;">
-                                            <!-- Chiffres -->
-                                            <div>
-                                                FEED : <strong class="montant">{{ ca_vente_activo_feed_imerintsiatosika|default:"0" }}</strong><br>
-                                                POUSSINS : <strong class="montant">{{ ca_vente_activo_poussin_imerintsiatosika|default:"0" }}</strong><br>
-                                                FISH : <strong class="montant">{{ ca_vente_activo_fish_imerintsiatosika|default:"0" }}</strong><br>
-                                                GRANULE : <strong class="montant">{{ ca_vente_activo_granule_imerintsiatosika|default:"0" }}</strong>
-                                            </div>
+                                        <div style="min-width:150px;font-size:0.7rem;line-height:1.8;color:var(--ink-mid);">
+                                            FEED : <strong class="montant">{{ ca_vente_activo_feed_diego|default:"0" }}</strong><br>
+                                            POUSSINS : <strong class="montant">{{ ca_vente_activo_poussin_diego|default:"0" }}</strong><br>
+                                            FISH : <strong class="montant">{{ ca_vente_activo_fish_diego|default:"0" }}</strong><br>
+                                            GRANULE : <strong class="montant">{{ ca_vente_activo_granule_diego|default:"0" }}</strong>
                                         </div>
-
-                                        <!-- Tableau TOP 10 VENTE ARTICLES -->
-                                        <div class="flex-grow-1" style="border:1px solid #ccc; padding:6px; font-size:0.65rem; min-width:220px;">
-                                            <div style="font-weight:bold; text-align:center; margin-bottom:4px;">TOP 10 VENTE ARTICLES</div>
-                                            <div style="overflow-x:auto;">
-                                                <table style="width:100%; border-collapse:collapse;">
-                                                    <thead>
-                                                        <tr>
-                                                            <th class="text-start" style="padding:4px 6px; border:1px solid #ccc;">Article</th>
-                                                            <th class="text-end" style="padding:4px 6px; border:1px solid #ccc;">CA</th>
-                                                        </tr>
-                                                    </thead>
-                                                    <tbody>
-                                                        {% for item in top_articles_imerintsiatosika %}
-                                                        <tr>
-                                                            <td class="text-start" style="padding:4px 6px; border:1px solid #ccc;">{{ item.article }}</td>
-                                                            <td class="text-end" style="padding:4px 6px; border:1px solid #ccc;">
-                                                                <strong class="montant">{{ item.total_ca|floatformat:0 }}</strong>
-                                                            </td>
-                                                        </tr>
-                                                        {% endfor %}
-                                                    </tbody>
-                                                </table>
-                                            </div>
+                                        <div class="flex-grow-1" style="border:1.5px solid var(--cream-deep);padding:8px;font-size:0.65rem;min-width:220px;border-radius:var(--r-md);">
+                                            <div style="font-weight:700;text-align:center;margin-bottom:6px;color:var(--gold-dark);font-family:'Syne',sans-serif;font-size:0.75rem;">TOP 10 VENTE ARTICLES</div>
+                                            <table style="width:100%;"><thead><tr><th class="text-start">Article</th><th class="text-end">CA</th></tr></thead>
+                                            <tbody>{% for item in top_articles_diego %}<tr><td class="text-start">{{ item.article }}</td><td class="text-end"><strong class="montant">{{ item.total_ca|floatformat:0 }}</strong></td></tr>{% endfor %}</tbody></table>
                                         </div>
-
                                     </div>
-
-                                    <!-- Graphique circulaire -->
-                                    <div style="position:relative; left:3rem; width: 400px; height: 400px; margin-top: 1rem; bottom:3rem">
-                                        <canvas id="caVenteChart5"></canvas>
-                                    </div>
+                                    <div style="position:relative;left:3rem;width:400px;height:400px;margin-top:1rem;bottom:3rem"><canvas id="caVenteChart4"></canvas></div>
                                 </div>
 
                                 <div class="card shadow h-100" style="margin:1rem;">
-                                    <div class="card-header bg-primary text-white">
-                                        <h5 style="font-size: 0.8rem;">
-                                            ACTIVOFEED MAHITSY : <strong>{{ ca_vente_activo_mahitsy|default:"0" }}</strong>
-                                        </h5>
-                                    </div>
-
+                                    <div class="card-header bg-primary"><h5>ACTIVOFEED IMERINTSIATOSIKA : <strong>{{ ca_vente_activo_imerintsiatosika|default:"0" }}</strong></h5></div>
                                     <div class="card-body d-flex flex-column flex-md-row gap-3">
-
-                                        <!-- Colonne gauche : chiffres + graphique -->
-                                        <div class="d-flex flex-column align-items-start" style="min-width:150px; font-size:0.7rem; line-height:1.6;">
-                                            <!-- Chiffres -->
-                                            <div>
-                                                FEED : <strong class="montant">{{ ca_vente_activo_feed_mahitsy|default:"0" }}</strong><br>
-                                                POUSSINS : <strong class="montant">{{ ca_vente_activo_poussin_mahitsy|default:"0" }}</strong><br>
-                                                FISH : <strong class="montant">{{ ca_vente_activo_fish_mahitsy|default:"0" }}</strong><br>
-                                                GRANULE : <strong class="montant">{{ ca_vente_activo_granule_mahitsy|default:"0" }}</strong>
-                                            </div>
+                                        <div style="min-width:150px;font-size:0.7rem;line-height:1.8;color:var(--ink-mid);">
+                                            FEED : <strong class="montant">{{ ca_vente_activo_feed_imerintsiatosika|default:"0" }}</strong><br>
+                                            POUSSINS : <strong class="montant">{{ ca_vente_activo_poussin_imerintsiatosika|default:"0" }}</strong><br>
+                                            FISH : <strong class="montant">{{ ca_vente_activo_fish_imerintsiatosika|default:"0" }}</strong><br>
+                                            GRANULE : <strong class="montant">{{ ca_vente_activo_granule_imerintsiatosika|default:"0" }}</strong>
                                         </div>
-
-                                        <!-- Tableau TOP 10 VENTE ARTICLES -->
-                                        <div class="flex-grow-1" style="border:1px solid #ccc; padding:6px; font-size:0.65rem; min-width:220px;">
-                                            <div style="font-weight:bold; text-align:center; margin-bottom:4px;">TOP 10 VENTE ARTICLES</div>
-                                            <div style="overflow-x:auto;">
-                                                <table style="width:100%; border-collapse:collapse;">
-                                                    <thead>
-                                                        <tr>
-                                                            <th class="text-start" style="padding:4px 6px; border:1px solid #ccc;">Article</th>
-                                                            <th class="text-end" style="padding:4px 6px; border:1px solid #ccc;">CA</th>
-                                                        </tr>
-                                                    </thead>
-                                                    <tbody>
-                                                        {% for item in top_articles_mahitsy %}
-                                                        <tr>
-                                                            <td class="text-start" style="padding:4px 6px; border:1px solid #ccc;">{{ item.article }}</td>
-                                                            <td class="text-end" style="padding:4px 6px; border:1px solid #ccc;">
-                                                                <strong class="montant">{{ item.total_ca|floatformat:0 }}</strong>
-                                                            </td>
-                                                        </tr>
-                                                        {% endfor %}
-                                                    </tbody>
-                                                </table>
-                                            </div>
+                                        <div class="flex-grow-1" style="border:1.5px solid var(--cream-deep);padding:8px;font-size:0.65rem;min-width:220px;border-radius:var(--r-md);">
+                                            <div style="font-weight:700;text-align:center;margin-bottom:6px;color:var(--gold-dark);font-family:'Syne',sans-serif;font-size:0.75rem;">TOP 10 VENTE ARTICLES</div>
+                                            <table style="width:100%;"><thead><tr><th class="text-start">Article</th><th class="text-end">CA</th></tr></thead>
+                                            <tbody>{% for item in top_articles_imerintsiatosika %}<tr><td class="text-start">{{ item.article }}</td><td class="text-end"><strong class="montant">{{ item.total_ca|floatformat:0 }}</strong></td></tr>{% endfor %}</tbody></table>
                                         </div>
-
                                     </div>
-
-                                    <!-- Graphique circulaire -->
-                                    <div style="position:relative; left:3rem; width: 400px; height: 400px; margin-top: 1rem; bottom:3rem">
-                                        <canvas id="caVenteChart6"></canvas>
-                                    </div>
+                                    <div style="position:relative;left:3rem;width:400px;height:400px;margin-top:1rem;bottom:3rem"><canvas id="caVenteChart5"></canvas></div>
                                 </div>
 
                                 <div class="card shadow h-100" style="margin:1rem;">
-                                    <div class="card-header bg-primary text-white">
-                                        <h5 style="font-size: 0.8rem;">
-                                            ACTIVOFEED MAJUNGA : <strong>{{ ca_vente_activo_majunga|default:"0" }}</strong>
-                                        </h5>
-                                    </div>
-
+                                    <div class="card-header bg-primary"><h5>ACTIVOFEED MAHITSY : <strong>{{ ca_vente_activo_mahitsy|default:"0" }}</strong></h5></div>
                                     <div class="card-body d-flex flex-column flex-md-row gap-3">
-
-                                        <!-- Colonne gauche : chiffres + graphique -->
-                                        <div class="d-flex flex-column align-items-start" style="min-width:150px; font-size:0.7rem; line-height:1.6;">
-                                            <!-- Chiffres -->
-                                            <div>
-                                                FEED : <strong class="montant">{{ ca_vente_activo_feed_majunga|default:"0" }}</strong><br>
-                                                POUSSINS : <strong class="montant">{{ ca_vente_activo_poussin_majunga|default:"0" }}</strong><br>
-                                                FISH : <strong class="montant">{{ ca_vente_activo_fish_majunga|default:"0" }}</strong><br>
-                                                GRANULE : <strong class="montant">{{ ca_vente_activo_granule_majunga|default:"0" }}</strong>
-                                            </div>
+                                        <div style="min-width:150px;font-size:0.7rem;line-height:1.8;color:var(--ink-mid);">
+                                            FEED : <strong class="montant">{{ ca_vente_activo_feed_mahitsy|default:"0" }}</strong><br>
+                                            POUSSINS : <strong class="montant">{{ ca_vente_activo_poussin_mahitsy|default:"0" }}</strong><br>
+                                            FISH : <strong class="montant">{{ ca_vente_activo_fish_mahitsy|default:"0" }}</strong><br>
+                                            GRANULE : <strong class="montant">{{ ca_vente_activo_granule_mahitsy|default:"0" }}</strong>
                                         </div>
-
-                                        <!-- Tableau TOP 10 VENTE ARTICLES -->
-                                        <div class="flex-grow-1" style="border:1px solid #ccc; padding:6px; font-size:0.65rem; min-width:220px;">
-                                            <div style="font-weight:bold; text-align:center; margin-bottom:4px;">TOP 10 VENTE ARTICLES</div>
-                                            <div style="overflow-x:auto;">
-                                                <table style="width:100%; border-collapse:collapse;">
-                                                    <thead>
-                                                        <tr>
-                                                            <th class="text-start" style="padding:4px 6px; border:1px solid #ccc;">Article</th>
-                                                            <th class="text-end" style="padding:4px 6px; border:1px solid #ccc;">CA</th>
-                                                        </tr>
-                                                    </thead>
-                                                    <tbody>
-                                                        {% for item in top_articles_majunga %}
-                                                        <tr>
-                                                            <td class="text-start" style="padding:4px 6px; border:1px solid #ccc;">{{ item.article }}</td>
-                                                            <td class="text-end" style="padding:4px 6px; border:1px solid #ccc;">
-                                                                <strong class="montant">{{ item.total_ca|floatformat:0 }}</strong>
-                                                            </td>
-                                                        </tr>
-                                                        {% endfor %}
-                                                    </tbody>
-                                                </table>
-                                            </div>
+                                        <div class="flex-grow-1" style="border:1.5px solid var(--cream-deep);padding:8px;font-size:0.65rem;min-width:220px;border-radius:var(--r-md);">
+                                            <div style="font-weight:700;text-align:center;margin-bottom:6px;color:var(--gold-dark);font-family:'Syne',sans-serif;font-size:0.75rem;">TOP 10 VENTE ARTICLES</div>
+                                            <table style="width:100%;"><thead><tr><th class="text-start">Article</th><th class="text-end">CA</th></tr></thead>
+                                            <tbody>{% for item in top_articles_mahitsy %}<tr><td class="text-start">{{ item.article }}</td><td class="text-end"><strong class="montant">{{ item.total_ca|floatformat:0 }}</strong></td></tr>{% endfor %}</tbody></table>
                                         </div>
-
                                     </div>
-
-                                    <!-- Graphique circulaire -->
-                                    <div style="position:relative; left:3rem; width: 400px; height: 400px; margin-top: 1rem; bottom:3rem">
-                                        <canvas id="caVenteChart7"></canvas>
-                                    </div>
+                                    <div style="position:relative;left:3rem;width:400px;height:400px;margin-top:1rem;bottom:3rem"><canvas id="caVenteChart6"></canvas></div>
                                 </div>
 
                                 <div class="card shadow h-100" style="margin:1rem;">
-                                    <div class="card-header bg-primary text-white">
-                                        <h5 style="font-size: 0.8rem;">
-                                            ACTIVOFEED TAMATAVE : <strong>{{ ca_vente_activo_tmm|default:"0" }}</strong>
-                                        </h5>
-                                    </div>
-
+                                    <div class="card-header bg-primary"><h5>ACTIVOFEED MAJUNGA : <strong>{{ ca_vente_activo_majunga|default:"0" }}</strong></h5></div>
                                     <div class="card-body d-flex flex-column flex-md-row gap-3">
-
-                                        <!-- Colonne gauche : chiffres + graphique -->
-                                        <div class="d-flex flex-column align-items-start" style="min-width:150px; font-size:0.7rem; line-height:1.6;">
-                                            <!-- Chiffres -->
-                                            <div>
-                                                FEED : <strong class="montant">{{ ca_vente_activo_feed_tmm|default:"0" }}</strong><br>
-                                                POUSSINS : <strong class="montant">{{ ca_vente_activo_poussin_tmm|default:"0" }}</strong><br>
-                                                FISH : <strong class="montant">{{ ca_vente_activo_fish_tmm|default:"0" }}</strong><br>
-                                                GRANULE : <strong class="montant">{{ ca_vente_activo_granule_tmm|default:"0" }}</strong>
-                                            </div>
+                                        <div style="min-width:150px;font-size:0.7rem;line-height:1.8;color:var(--ink-mid);">
+                                            FEED : <strong class="montant">{{ ca_vente_activo_feed_majunga|default:"0" }}</strong><br>
+                                            POUSSINS : <strong class="montant">{{ ca_vente_activo_poussin_majunga|default:"0" }}</strong><br>
+                                            FISH : <strong class="montant">{{ ca_vente_activo_fish_majunga|default:"0" }}</strong><br>
+                                            GRANULE : <strong class="montant">{{ ca_vente_activo_granule_majunga|default:"0" }}</strong>
                                         </div>
-
-                                        <!-- Tableau TOP 10 VENTE ARTICLES -->
-                                        <div class="flex-grow-1" style="border:1px solid #ccc; padding:6px; font-size:0.65rem; min-width:220px;">
-                                            <div style="font-weight:bold; text-align:center; margin-bottom:4px;">TOP 10 VENTE ARTICLES</div>
-                                            <div style="overflow-x:auto;">
-                                                <table style="width:100%; border-collapse:collapse;">
-                                                    <thead>
-                                                        <tr>
-                                                            <th class="text-start" style="padding:4px 6px; border:1px solid #ccc;">Article</th>
-                                                            <th class="text-end" style="padding:4px 6px; border:1px solid #ccc;">CA</th>
-                                                        </tr>
-                                                    </thead>
-                                                    <tbody>
-                                                        {% for item in top_articles_tmm %}
-                                                        <tr>
-                                                            <td class="text-start" style="padding:4px 6px; border:1px solid #ccc;">{{ item.article }}</td>
-                                                            <td class="text-end" style="padding:4px 6px; border:1px solid #ccc;">
-                                                                <strong class="montant">{{ item.total_ca|floatformat:0 }}</strong>
-                                                            </td>
-                                                        </tr>
-                                                        {% endfor %}
-                                                    </tbody>
-                                                </table>
-                                            </div>
+                                        <div class="flex-grow-1" style="border:1.5px solid var(--cream-deep);padding:8px;font-size:0.65rem;min-width:220px;border-radius:var(--r-md);">
+                                            <div style="font-weight:700;text-align:center;margin-bottom:6px;color:var(--gold-dark);font-family:'Syne',sans-serif;font-size:0.75rem;">TOP 10 VENTE ARTICLES</div>
+                                            <table style="width:100%;"><thead><tr><th class="text-start">Article</th><th class="text-end">CA</th></tr></thead>
+                                            <tbody>{% for item in top_articles_majunga %}<tr><td class="text-start">{{ item.article }}</td><td class="text-end"><strong class="montant">{{ item.total_ca|floatformat:0 }}</strong></td></tr>{% endfor %}</tbody></table>
                                         </div>
-
                                     </div>
-
-                                    <!-- Graphique circulaire -->
-                                    <div style="position:relative; left:3rem; width: 400px; height: 400px; margin-top: 1rem; bottom:3rem">
-                                        <canvas id="caVenteChart8"></canvas>
-                                    </div>
+                                    <div style="position:relative;left:3rem;width:400px;height:400px;margin-top:1rem;bottom:3rem"><canvas id="caVenteChart7"></canvas></div>
                                 </div>
 
+                                <div class="card shadow h-100" style="margin:1rem;">
+                                    <div class="card-header bg-primary"><h5>ACTIVOFEED TAMATAVE : <strong>{{ ca_vente_activo_tmm|default:"0" }}</strong></h5></div>
+                                    <div class="card-body d-flex flex-column flex-md-row gap-3">
+                                        <div style="min-width:150px;font-size:0.7rem;line-height:1.8;color:var(--ink-mid);">
+                                            FEED : <strong class="montant">{{ ca_vente_activo_feed_tmm|default:"0" }}</strong><br>
+                                            POUSSINS : <strong class="montant">{{ ca_vente_activo_poussin_tmm|default:"0" }}</strong><br>
+                                            FISH : <strong class="montant">{{ ca_vente_activo_fish_tmm|default:"0" }}</strong><br>
+                                            GRANULE : <strong class="montant">{{ ca_vente_activo_granule_tmm|default:"0" }}</strong>
+                                        </div>
+                                        <div class="flex-grow-1" style="border:1.5px solid var(--cream-deep);padding:8px;font-size:0.65rem;min-width:220px;border-radius:var(--r-md);">
+                                            <div style="font-weight:700;text-align:center;margin-bottom:6px;color:var(--gold-dark);font-family:'Syne',sans-serif;font-size:0.75rem;">TOP 10 VENTE ARTICLES</div>
+                                            <table style="width:100%;"><thead><tr><th class="text-start">Article</th><th class="text-end">CA</th></tr></thead>
+                                            <tbody>{% for item in top_articles_tmm %}<tr><td class="text-start">{{ item.article }}</td><td class="text-end"><strong class="montant">{{ item.total_ca|floatformat:0 }}</strong></td></tr>{% endfor %}</tbody></table>
+                                        </div>
+                                    </div>
+                                    <div style="position:relative;left:3rem;width:400px;height:400px;margin-top:1rem;bottom:3rem"><canvas id="caVenteChart8"></canvas></div>
+                                </div>
+
+                                {% endif %}
                             </div>
                         </div>
+
                     </div>
                 </div>
-            
+
             </div>
+        </div>
+
     </main>
 
-    </br>
-    
+    <!-- ─── FOOTER ──────────────────────────────────────── -->
     <footer class="footer">
-        <p>
-            Développé par l'équipe <strong>IT Arbiochem</strong> © {% now "Y" %}
-        </p>
+        <p>Développé par l'équipe <strong>IT Arbiochem</strong> &copy; {% now "Y" %}</p>
     </footer>
-    <!-- Footer -->
-   
+
+    <!-- ─── SCRIPTS ─────────────────────────────────────── -->
     <script>
-
-        function toggleMenu() {
-            const menu = document.getElementById('mainMenu');
-            menu.classList.toggle('open');
-        }
-
-        // Fermer le menu si on clique en dehors
-        document.addEventListener('click', function(e) {
-            const menu = document.getElementById('mainMenu');
-            const burger = document.querySelector('.burger-btn');
-            if (!menu.contains(e.target) && !burger.contains(e.target)) {
-                menu.classList.remove('open');
-            }
+        /* ── Header scroll ── */
+        const hdr = document.getElementById('mainHeader');
+        window.addEventListener('scroll', () => {
+            hdr.classList.toggle('scrolled', window.scrollY > 10);
         });
-    // ── DONNÉES ──────────────────────────────────────────────
-    const sites  = ['AMBOHIMANGAKELY','ANALAKELY','ANTANIMORA','IMERINTSIATOSIKA','MAHITSY','DIEGO','MAJUNGA','TAMATAVE'];
-    const sites1 = ['FEED','FISH','POUSSIN','GRANULE'];
-    const sites2 = ['ARBIOCHEM','ACTIVO & FEED'];
 
-    const caValues  = [
-        parseFloat("{{ ca_vente|default:0 }}".replace(/\s/g,'').replace(',','.')),
-        parseFloat("{{ ca_vente1|default:0 }}".replace(/\s/g,'').replace(',','.')),
-        parseFloat("{{ ca_vente2|default:0 }}".replace(/\s/g,'').replace(',','.')),
-        parseFloat("{{ ca_vente3|default:0 }}".replace(/\s/g,'').replace(',','.')),
-        parseFloat("{{ ca_vente4|default:0 }}".replace(/\s/g,'').replace(',','.')),
-        parseFloat("{{ ca_vente5|default:0 }}".replace(/\s/g,'').replace(',','.')),
-        parseFloat("{{ ca_vente6|default:0 }}".replace(/\s/g,'').replace(',','.')),
-        parseFloat("{{ ca_vente7|default:0 }}".replace(/\s/g,'').replace(',','.'))
-    ];
-    const caValues1 = [
-        parseFloat("{{ ca_vente_activo_feed|default:0 }}".replace(/\s/g,'').replace(',','.')),
-        parseFloat("{{ ca_vente_activo_fish|default:0 }}".replace(/\s/g,'').replace(',','.')),
-        parseFloat("{{ ca_vente_activo_poussin|default:0 }}".replace(/\s/g,'').replace(',','.')),
-        parseFloat("{{ ca_vente_activo_granule|default:0 }}".replace(/\s/g,'').replace(',','.'))
-    ];
-    const caValues2 = [
-        parseFloat("{{ ca_vente_activo_feed_analakely|default:0 }}".replace(/\s/g,'').replace(',','.')),
-        parseFloat("{{ ca_vente_activo_fish_analakely|default:0 }}".replace(/\s/g,'').replace(',','.')),
-        parseFloat("{{ ca_vente_activo_poussin_analakely|default:0 }}".replace(/\s/g,'').replace(',','.')),
-        parseFloat("{{ ca_vente_activo_granule_analakely|default:0 }}".replace(/\s/g,'').replace(',','.'))
-    ];
-    const caValues3 = [
-        parseFloat("{{ ca_vente_activo_feed_antanimora|default:0 }}".replace(/\s/g,'').replace(',','.')),
-        parseFloat("{{ ca_vente_activo_fish_antanimora|default:0 }}".replace(/\s/g,'').replace(',','.')),
-        parseFloat("{{ ca_vente_activo_poussin_antanimora|default:0 }}".replace(/\s/g,'').replace(',','.')),
-        parseFloat("{{ ca_vente_activo_granule_antanimora|default:0 }}".replace(/\s/g,'').replace(',','.'))
-    ];
-    const caValues4 = [
-        parseFloat("{{ ca_vente_activo_feed_diego|default:0 }}".replace(/\s/g,'').replace(',','.')),
-        parseFloat("{{ ca_vente_activo_fish_diego|default:0 }}".replace(/\s/g,'').replace(',','.')),
-        parseFloat("{{ ca_vente_activo_poussin_diego|default:0 }}".replace(/\s/g,'').replace(',','.')),
-        parseFloat("{{ ca_vente_activo_granule_diego|default:0 }}".replace(/\s/g,'').replace(',','.'))
-    ];
-    const caValues5 = [
-        parseFloat("{{ ca_vente_activo_feed_imerintsiatosika|default:0 }}".replace(/\s/g,'').replace(',','.')),
-        parseFloat("{{ ca_vente_activo_fish_imerintsiatosika|default:0 }}".replace(/\s/g,'').replace(',','.')),
-        parseFloat("{{ ca_vente_activo_poussin_imerintsiatosika|default:0 }}".replace(/\s/g,'').replace(',','.')),
-        parseFloat("{{ ca_vente_activo_granule_imerintsiatosika|default:0 }}".replace(/\s/g,'').replace(',','.'))
-    ];
-    const caValues6 = [
-        parseFloat("{{ ca_vente_activo_feed_mahitsy|default:0 }}".replace(/\s/g,'').replace(',','.')),
-        parseFloat("{{ ca_vente_activo_fish_mahitsy|default:0 }}".replace(/\s/g,'').replace(',','.')),
-        parseFloat("{{ ca_vente_activo_poussin_mahitsy|default:0 }}".replace(/\s/g,'').replace(',','.')),
-        parseFloat("{{ ca_vente_activo_granule_mahitsy|default:0 }}".replace(/\s/g,'').replace(',','.'))
-    ];
-    const caValues7 = [
-        parseFloat("{{ ca_vente_activo_feed_majunga|default:0 }}".replace(/\s/g,'').replace(',','.')),
-        parseFloat("{{ ca_vente_activo_fish_majunga|default:0 }}".replace(/\s/g,'').replace(',','.')),
-        parseFloat("{{ ca_vente_activo_poussin_majunga|default:0 }}".replace(/\s/g,'').replace(',','.')),
-        parseFloat("{{ ca_vente_activo_granule_majunga|default:0 }}".replace(/\s/g,'').replace(',','.'))
-    ];
-    const caValues8 = [
-        parseFloat("{{ ca_vente_activo_feed_tmm|default:0 }}".replace(/\s/g,'').replace(',','.')),
-        parseFloat("{{ ca_vente_activo_fish_tmm|default:0 }}".replace(/\s/g,'').replace(',','.')),
-        parseFloat("{{ ca_vente_activo_poussin_tmm|default:0 }}".replace(/\s/g,'').replace(',','.')),
-        parseFloat("{{ ca_vente_activo_granule_tmm|default:0 }}".replace(/\s/g,'').replace(',','.'))
-    ];
-    const caValues9 = [
-        parseFloat("{{ ca_total|default:0 }}".replace(/\s/g,'').replace(',','.')),
-        parseFloat("{{ ca_total1|default:0 }}".replace(/\s/g,'').replace(',','.'))
-    ];
-
-    // ── DÉSACTIVE ChartDataLabels GLOBALEMENT ────────────────
-    Chart.unregister(ChartDataLabels);
-
-    // ── PLUGIN FLÈCHES + LABELS EXTÉRIEURS ───────────────────
-    const pieLineLabels = {
-        id: 'pieLineLabels',
-        afterDraw(chart) {
-            const { ctx, data } = chart;
-            const meta  = chart.getDatasetMeta(0);
-            const total = data.datasets[0].data.reduce((a, b) => a + b, 0);
-
-            meta.data.forEach((arc, i) => {
-                const value   = data.datasets[0].data[i];
-                const percent = ((value / total) * 100).toFixed(1);
-                
-                const { x, y, startAngle, endAngle, outerRadius } = arc.getProps(
-                    ['x','y','startAngle','endAngle','outerRadius'], true
-                );
-                const midAngle = (startAngle + endAngle) / 2;
-
-                const x1 = x + outerRadius * Math.cos(midAngle);
-                const y1 = y + outerRadius * Math.sin(midAngle);
-                const x2 = x + (outerRadius + 15) * Math.cos(midAngle);
-                const y2 = y + (outerRadius + 15) * Math.sin(midAngle);
-                const goRight = Math.cos(midAngle) > 0;
-                const x3 = x2 + (goRight ? 15 : -15);
-                const y3 = y2;
-
-                const color = data.datasets[0].backgroundColor[i];
-
-                // Ligne coudée
-                ctx.save();
-                ctx.beginPath();
-                ctx.moveTo(x1, y1);
-                ctx.lineTo(x2, y2);
-                ctx.lineTo(x3, y3);
-                ctx.strokeStyle = color;
-                ctx.lineWidth   = 1.5;
-                ctx.stroke();
-
-                // Texte : LABEL (xx.x%)
-                ctx.font = 'bold 8px sans-serif';
-                ctx.fillStyle    = '#333';
-                ctx.textAlign    = goRight ? 'left' : 'right';
-                ctx.textBaseline = 'middle';
-                ctx.fillText(
-                    data.labels[i] + ' (' + percent + '%)',
-                    x3 + (goRight ? 4 : -4),
-                    y3
-                );
-                ctx.restore();
+        /* ── Hamburger ── */
+        const burger = document.getElementById('hamburger');
+        const drawer = document.getElementById('mobileDrawer');
+        burger.addEventListener('click', () => {
+            const open = drawer.classList.toggle('open');
+            burger.classList.toggle('open', open);
+        });
+        drawer.querySelectorAll('.menu-item').forEach(a => {
+            a.addEventListener('click', () => {
+                drawer.classList.remove('open');
+                burger.classList.remove('open');
             });
-        }
-    };
+        });
 
-    // ── TOOLTIP COMMUN ───────────────────────────────────────
-    const commonTooltip = {
-        callbacks: {
-            label: function(context) {
-                const total   = context.dataset.data.reduce((a, b) => a + b, 0);
-                const percent = ((context.raw / total) * 100).toFixed(1);
-                return context.label + ': ' + context.raw.toLocaleString() + ' (' + percent + '%)';
-            }
-        }
-    };
+        // ── DONNÉES ──────────────────────────────────────────────
+        const sites  = ['AMBOHIMANGAKELY','ANALAKELY','ANTANIMORA','IMERINTSIATOSIKA','MAHITSY','DIEGO','MAJUNGA','TAMATAVE'];
+        const sites1 = ['FEED','FISH','POUSSIN','GRANULE'];
+        const sites2 = ['ARBIOCHEM','ACTIVO & FEED'];
 
-    // ── FONCTION HELPER OPTIONS ───────────────────────────────
-    function makeOptions(paddingLarge = false) {
-        return {
-            responsive: true,
-            layout: {
-                padding: paddingLarge
-                    ? { top: 50, bottom: 50, left: 100, right: 120 }
-                    : { top: 40, bottom: 40, left: 80, right: 120 } // ✅ right plus grand
-            },
-            plugins: {
-                legend:  { display: false },
-                tooltip: commonTooltip
+        const caValues  = [
+            parseFloat("{{ ca_vente|default:0 }}".replace(/\s/g,'').replace(',','.')),
+            parseFloat("{{ ca_vente1|default:0 }}".replace(/\s/g,'').replace(',','.')),
+            parseFloat("{{ ca_vente2|default:0 }}".replace(/\s/g,'').replace(',','.')),
+            parseFloat("{{ ca_vente3|default:0 }}".replace(/\s/g,'').replace(',','.')),
+            parseFloat("{{ ca_vente4|default:0 }}".replace(/\s/g,'').replace(',','.')),
+            parseFloat("{{ ca_vente5|default:0 }}".replace(/\s/g,'').replace(',','.')),
+            parseFloat("{{ ca_vente6|default:0 }}".replace(/\s/g,'').replace(',','.')),
+            parseFloat("{{ ca_vente7|default:0 }}".replace(/\s/g,'').replace(',','.'))
+        ];
+        const caValues1 = [
+            parseFloat("{{ ca_vente_activo_feed|default:0 }}".replace(/\s/g,'').replace(',','.')),
+            parseFloat("{{ ca_vente_activo_fish|default:0 }}".replace(/\s/g,'').replace(',','.')),
+            parseFloat("{{ ca_vente_activo_poussin|default:0 }}".replace(/\s/g,'').replace(',','.')),
+            parseFloat("{{ ca_vente_activo_granule|default:0 }}".replace(/\s/g,'').replace(',','.'))
+        ];
+        const caValues2 = [
+            parseFloat("{{ ca_vente_activo_feed_analakely|default:0 }}".replace(/\s/g,'').replace(',','.')),
+            parseFloat("{{ ca_vente_activo_fish_analakely|default:0 }}".replace(/\s/g,'').replace(',','.')),
+            parseFloat("{{ ca_vente_activo_poussin_analakely|default:0 }}".replace(/\s/g,'').replace(',','.')),
+            parseFloat("{{ ca_vente_activo_granule_analakely|default:0 }}".replace(/\s/g,'').replace(',','.'))
+        ];
+        const caValues3 = [
+            parseFloat("{{ ca_vente_activo_feed_antanimora|default:0 }}".replace(/\s/g,'').replace(',','.')),
+            parseFloat("{{ ca_vente_activo_fish_antanimora|default:0 }}".replace(/\s/g,'').replace(',','.')),
+            parseFloat("{{ ca_vente_activo_poussin_antanimora|default:0 }}".replace(/\s/g,'').replace(',','.')),
+            parseFloat("{{ ca_vente_activo_granule_antanimora|default:0 }}".replace(/\s/g,'').replace(',','.'))
+        ];
+        const caValues4 = [
+            parseFloat("{{ ca_vente_activo_feed_diego|default:0 }}".replace(/\s/g,'').replace(',','.')),
+            parseFloat("{{ ca_vente_activo_fish_diego|default:0 }}".replace(/\s/g,'').replace(',','.')),
+            parseFloat("{{ ca_vente_activo_poussin_diego|default:0 }}".replace(/\s/g,'').replace(',','.')),
+            parseFloat("{{ ca_vente_activo_granule_diego|default:0 }}".replace(/\s/g,'').replace(',','.'))
+        ];
+        const caValues5 = [
+            parseFloat("{{ ca_vente_activo_feed_imerintsiatosika|default:0 }}".replace(/\s/g,'').replace(',','.')),
+            parseFloat("{{ ca_vente_activo_fish_imerintsiatosika|default:0 }}".replace(/\s/g,'').replace(',','.')),
+            parseFloat("{{ ca_vente_activo_poussin_imerintsiatosika|default:0 }}".replace(/\s/g,'').replace(',','.')),
+            parseFloat("{{ ca_vente_activo_granule_imerintsiatosika|default:0 }}".replace(/\s/g,'').replace(',','.'))
+        ];
+        const caValues6 = [
+            parseFloat("{{ ca_vente_activo_feed_mahitsy|default:0 }}".replace(/\s/g,'').replace(',','.')),
+            parseFloat("{{ ca_vente_activo_fish_mahitsy|default:0 }}".replace(/\s/g,'').replace(',','.')),
+            parseFloat("{{ ca_vente_activo_poussin_mahitsy|default:0 }}".replace(/\s/g,'').replace(',','.')),
+            parseFloat("{{ ca_vente_activo_granule_mahitsy|default:0 }}".replace(/\s/g,'').replace(',','.'))
+        ];
+        const caValues7 = [
+            parseFloat("{{ ca_vente_activo_feed_majunga|default:0 }}".replace(/\s/g,'').replace(',','.')),
+            parseFloat("{{ ca_vente_activo_fish_majunga|default:0 }}".replace(/\s/g,'').replace(',','.')),
+            parseFloat("{{ ca_vente_activo_poussin_majunga|default:0 }}".replace(/\s/g,'').replace(',','.')),
+            parseFloat("{{ ca_vente_activo_granule_majunga|default:0 }}".replace(/\s/g,'').replace(',','.'))
+        ];
+        const caValues8 = [
+            parseFloat("{{ ca_vente_activo_feed_tmm|default:0 }}".replace(/\s/g,'').replace(',','.')),
+            parseFloat("{{ ca_vente_activo_fish_tmm|default:0 }}".replace(/\s/g,'').replace(',','.')),
+            parseFloat("{{ ca_vente_activo_poussin_tmm|default:0 }}".replace(/\s/g,'').replace(',','.')),
+            parseFloat("{{ ca_vente_activo_granule_tmm|default:0 }}".replace(/\s/g,'').replace(',','.'))
+        ];
+        const caValues9 = [
+            parseFloat("{{ ca_total|default:0 }}".replace(/\s/g,'').replace(',','.')),
+            parseFloat("{{ ca_total1|default:0 }}".replace(/\s/g,'').replace(',','.'))
+        ];
+
+        // ── DÉSACTIVE ChartDataLabels GLOBALEMENT ────────────────
+        Chart.unregister(ChartDataLabels);
+
+        // ── PLUGIN FLÈCHES + LABELS EXTÉRIEURS ───────────────────
+        const pieLineLabels = {
+            id: 'pieLineLabels',
+            afterDraw(chart) {
+                const { ctx, data } = chart;
+                const meta  = chart.getDatasetMeta(0);
+                const total = data.datasets[0].data.reduce((a, b) => a + b, 0);
+                meta.data.forEach((arc, i) => {
+                    const value   = data.datasets[0].data[i];
+                    const percent = ((value / total) * 100).toFixed(1);
+                    const { x, y, startAngle, endAngle, outerRadius } = arc.getProps(['x','y','startAngle','endAngle','outerRadius'], true);
+                    const midAngle = (startAngle + endAngle) / 2;
+                    const x1 = x + outerRadius * Math.cos(midAngle);
+                    const y1 = y + outerRadius * Math.sin(midAngle);
+                    const x2 = x + (outerRadius + 15) * Math.cos(midAngle);
+                    const y2 = y + (outerRadius + 15) * Math.sin(midAngle);
+                    const goRight = Math.cos(midAngle) > 0;
+                    const x3 = x2 + (goRight ? 15 : -15);
+                    const y3 = y2;
+                    const color = data.datasets[0].backgroundColor[i];
+                    ctx.save();
+                    ctx.beginPath();
+                    ctx.moveTo(x1, y1); ctx.lineTo(x2, y2); ctx.lineTo(x3, y3);
+                    ctx.strokeStyle = color; ctx.lineWidth = 1.5; ctx.stroke();
+                    ctx.font = 'bold 8px sans-serif';
+                    ctx.fillStyle = '#333';
+                    ctx.textAlign = goRight ? 'left' : 'right';
+                    ctx.textBaseline = 'middle';
+                    ctx.fillText(data.labels[i] + ' (' + percent + '%)', x3 + (goRight ? 4 : -4), y3);
+                    ctx.restore();
+                });
             }
         };
-    }
 
-    // ── CHART : GRAND TOTAL ───────────────────────────────────
-    new Chart(document.getElementById('caVenteCharts'), {
-        type: 'pie',
-        data: {
-            labels: sites2,
-            datasets: [{
-                data: caValues9,
-                backgroundColor: ['rgba(25,135,84,0.7)', 'rgba(188,130,63,0.7)'],
-                borderColor: '#fff',
-                borderWidth: 2
-            }]
-        },
-        options: {
-            ...makeOptions(true),
-            responsive: true,
-            maintainAspectRatio: false,
-            plugins: {
-                legend: { display: false },
-                tooltip: commonTooltip
+        // ── TOOLTIP COMMUN ───────────────────────────────────────
+        const commonTooltip = {
+            callbacks: {
+                label: function(context) {
+                    const total   = context.dataset.data.reduce((a, b) => a + b, 0);
+                    const percent = ((context.raw / total) * 100).toFixed(1);
+                    return context.label + ': ' + context.raw.toLocaleString() + ' (' + percent + '%)';
+                }
             }
-        },
-        plugins: [pieLineLabels] // ✅ Ajout du plugin
-    });
+        };
 
-    // ── CHART : ARBIOCHEM (8 sites) ───────────────────────────
-    const filtered = sites.reduce((acc, site, i) => {
-        if (caValues[i] !== null && caValues[i] !== undefined && caValues[i] !== '' && caValues[i] !== 0) {
-            acc.sites.push(site);
-            acc.values.push(caValues[i]);
-            acc.colors.push([
-                'rgba(25,135,84,0.7)','rgba(188,130,63,0.7)',
-                'rgba(54,162,235,0.7)','rgba(255,99,132,0.7)',
-                'rgba(255,205,86,0.7)','rgba(153,102,255,0.7)',
-                'rgba(255,159,64,0.7)','rgba(99,255,132,0.7)'
-            ][i]);
+        function makeOptions(paddingLarge = false) {
+            return {
+                responsive: true,
+                layout: {
+                    padding: paddingLarge
+                        ? { top:50, bottom:50, left:100, right:120 }
+                        : { top:40, bottom:40, left:80, right:120 }
+                },
+                plugins: { legend: { display: false }, tooltip: commonTooltip }
+            };
         }
-        return acc;
-    }, { sites: [], values: [], colors: [] });
 
-    new Chart(document.getElementById('caVenteChart'), {
-        type: 'pie', // ✅ bar → pie
-        data: {
-            labels: filtered.sites,
-            datasets: [{
-                data: filtered.values,
-                backgroundColor: filtered.colors,
-                borderColor: '#fff',
-                borderWidth: 2
-            }]
-        },
-        options: {
-            ...makeOptions(true),
-            responsive: true,
-            maintainAspectRatio: false,
-            plugins: {
-                legend: { display: false },
-                tooltip: commonTooltip
-            }
-            // ✅ scales supprimées (inutiles pour pie)
-        },
-        plugins: [pieLineLabels] // ✅ Ajout du plugin
-    });
-    
-
-    // ── CHARTS 1→8 : FEED / FISH / POUSSIN ───────────────────
-    const feedColors = [
-        'rgba(25,135,84,0.7)',
-        'rgba(188,130,63,0.7)',
-        'rgba(54,162,235,0.7)',
-        'rgba(255, 0, 0, 1)'
-    ];
-
-    [
-        ['caVenteChart1', caValues1],
-        ['caVenteChart2', caValues2],
-        ['caVenteChart3', caValues3],
-        ['caVenteChart4', caValues4],
-        ['caVenteChart5', caValues5],
-        ['caVenteChart6', caValues6],
-        ['caVenteChart7', caValues7],
-        ['caVenteChart8', caValues8],
-    ].forEach(([id, values]) => {
-        const filtered = sites1.reduce((acc, site, i) => {
-            if (values[i] !== null && values[i] !== undefined && values[i] !== '' && values[i] !== 0) {
-                acc.labels.push(site);
-                acc.data.push(values[i]);
-                acc.colors.push(feedColors[i % feedColors.length]);
-            }
-            return acc;
-        }, { labels: [], data: [], colors: [] });
-
-        new Chart(document.getElementById(id), {
+        // ── CHART GRAND TOTAL ─────────────────────────────────────
+        new Chart(document.getElementById('caVenteCharts'), {
             type: 'pie',
             data: {
-                labels: filtered.labels,
-                datasets: [{
-                    data: filtered.data,
-                    backgroundColor: filtered.colors,
-                    borderColor: '#fff', borderWidth: 2
-                }]
+                labels: sites2,
+                datasets: [{ data: caValues9, backgroundColor: ['rgba(9,150,70,.7)','rgba(188,130,63,.7)'], borderColor:'#fff', borderWidth:2 }]
             },
-            options: makeOptions(false),
+            options: { ...makeOptions(true), responsive:true, maintainAspectRatio:false, plugins:{ legend:{display:false}, tooltip:commonTooltip } },
             plugins: [pieLineLabels]
         });
-    });
 
-    // ── TABS ─────────────────────────────────────────────────
-    document.addEventListener("DOMContentLoaded", function() {
-        const tabs     = document.querySelectorAll(".tab");
-        const contents = document.querySelectorAll(".tab-content");
-        tabs.forEach(tab => {
-            tab.addEventListener("click", () => {
-                tabs.forEach(t => t.classList.remove("active"));
-                contents.forEach(c => c.classList.remove("active"));
-                tab.classList.add("active");
-                const target = document.getElementById(tab.dataset.tab);
-                if (target) target.classList.add("active");
+        // ── CHART ARBIOCHEM ───────────────────────────────────────
+        const filtered = sites.reduce((acc, site, i) => {
+            if (caValues[i]) {
+                acc.sites.push(site);
+                acc.values.push(caValues[i]);
+                acc.colors.push(['rgba(9,150,70,.7)','rgba(188,130,63,.7)','rgba(54,162,235,.7)','rgba(255,99,132,.7)','rgba(255,205,86,.7)','rgba(153,102,255,.7)','rgba(255,159,64,.7)','rgba(99,255,132,.7)'][i]);
+            }
+            return acc;
+        }, { sites:[], values:[], colors:[] });
+
+        new Chart(document.getElementById('caVenteChart'), {
+            type: 'pie',
+            data: { labels: filtered.sites, datasets: [{ data: filtered.values, backgroundColor: filtered.colors, borderColor:'#fff', borderWidth:2 }] },
+            options: { ...makeOptions(true), responsive:true, maintainAspectRatio:false, plugins:{ legend:{display:false}, tooltip:commonTooltip } },
+            plugins: [pieLineLabels]
+        });
+
+        // ── CHARTS 1→8 ────────────────────────────────────────────
+        const feedColors = ['rgba(9,150,70,.7)','rgba(188,130,63,.7)','rgba(54,162,235,.7)','rgba(255,0,0,1)'];
+
+        [
+            ['caVenteChart1', caValues1],
+            ['caVenteChart2', caValues2],
+            ['caVenteChart3', caValues3],
+            ['caVenteChart4', caValues4],
+            ['caVenteChart5', caValues5],
+            ['caVenteChart6', caValues6],
+            ['caVenteChart7', caValues7],
+            ['caVenteChart8', caValues8],
+        ].forEach(([id, values]) => {
+            const f = sites1.reduce((acc, site, i) => {
+                if (values[i]) { acc.labels.push(site); acc.data.push(values[i]); acc.colors.push(feedColors[i % feedColors.length]); }
+                return acc;
+            }, { labels:[], data:[], colors:[] });
+            const el = document.getElementById(id);
+            if (!el) return;
+            new Chart(el, {
+                type: 'pie',
+                data: { labels: f.labels, datasets: [{ data: f.data, backgroundColor: f.colors, borderColor:'#fff', borderWidth:2 }] },
+                options: makeOptions(false),
+                plugins: [pieLineLabels]
             });
         });
-    });
-</script>
+
+        const menuValidation = document.querySelector('.menu-item[data-section="validation"]');
+        const validationBadge = menuValidation ? menuValidation.querySelector('.menu-count') : null;
+
+        function updateCounter() {
+            fetch('/dashboard/entete_count')
+                .then(res => res.json())
+                .then(data => {
+                    if (data.count !== undefined && validationBadge) {
+                        validationBadge.textContent = data.count;
+                    }
+                })
+                .catch(err => console.error('Erreur compteur:', err));
+        }
+
+        updateCounter();
+        setInterval(updateCounter, 20000);
+    </script>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/js/materialize.min.js"></script>
 </body>
 </html>

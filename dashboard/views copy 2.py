@@ -879,8 +879,6 @@ def etat(request):
         import traceback
         traceback.print_exc()
         return render(request, 'dashboard/etat.html')
-def etat_personnalise(request):
-    return render(request, 'dashboard/etat_personnalise.html')
 
 def entete_count(request):
     try:
@@ -962,40 +960,294 @@ ACTIVO_FEED_BASES = [
     'ACTIVOFEED_TMM',
     'ACTIVOFEED_DIEGO_AG',
 ]
-
-ACTIVO_DBS = {
-    'ACTIVO',
-    'ACTIVOFEED_ANALAKELY',
-    'ACTIVOFEED_ANTANIMORA',
-    'ACTIVOFEED_DIEGO_AG',
-    'ACTIVOFEED_IMERINTSIATOSIKA',
-    'ACTIVOFEED_MAHINTSY',
-    'ACTIVOFEED_TMM',
-}
-
-def afficher(request):
-    today = date.today()
+def afficher_clients_activo(request):
+    today      = date.today()
     date_debut = request.GET.get('date_debut', today.strftime('%Y-%m-%d'))
-    date_fin   = request.GET.get('date_fin', today.strftime('%Y-%m-%d'))
+    date_fin   = request.GET.get('date_fin',   today.strftime('%Y-%m-%d'))
     site       = request.GET.get('site', '')
     depots     = request.GET.getlist('depots')
 
     print("SITE =", site, "| DEPOTS =", depots)
 
-    rows_pdts = []  # ✅ IMPORTANT
+    rows = []
 
     if site == 'ARBIOCHEM':
+        # Une seule base, filtre par dépôt
         try:
             with connections['ARBIO'].cursor() as cursor:
                 sql = """
-                    SELECT *
+                    SELECT CLI_INTITULE
+                    FROM VW_VENTE_CA_EP_ARTICLE
+                    WHERE V_DOCDATE BETWEEN %s AND %s
+                """
+                params = [date_debut, date_fin]
+                if depots:
+                    placeholders = ','.join(['%s'] * len(depots))
+                    sql += f" AND V_DEPOT IN ({placeholders})"
+                    params += depots
+                cursor.execute(sql, params)
+                rows = cursor.fetchall()
+        except Exception as e:
+            print(f"Erreur ARBIO : {e}")
+
+    elif site == 'ACTIVO_FEED':
+        # ✅ Chaque dépôt sélectionné EST la base à interroger
+        for db_alias in depots:
+            if db_alias not in ACTIVO_FEED_BASES:
+                continue  # sécurité
+            try:
+                with connections[db_alias].cursor() as cursor:
+                    # Selon la base, le nom de colonne date diffère
+                    date_col = 'V_DOCDATE' if db_alias == 'ACTIVO' else 'LADATE'
+                    sql = f"""
+                        SELECT CLI_INTITULE
+                        FROM VW_VENTE_CA_EP_ARTICLE
+                        WHERE {date_col} BETWEEN %s AND %s
+                    """
+                    cursor.execute(sql, [date_debut, date_fin])
+                    rows += cursor.fetchall()
+            except Exception as e:
+                print(f"Erreur {db_alias} : {e}")
+                continue
+
+    clients = list(dict.fromkeys(row[0] for row in rows if row[0]))
+
+    return render(request, 'dashboard/etat_personnalise.html', {
+        'date_debut': date_debut,
+        'date_fin':   date_fin,
+        'site':       site,
+        'depots':     depots,
+        'clts':       json.dumps(clients, cls=DjangoJSONEncoder),
+    })
+
+
+def afficher_clients_arbio(request):
+    today = date.today()
+
+    date_debut = request.GET.get('date_debut', today.strftime('%Y-%m-%d'))
+    date_fin   = request.GET.get('date_fin',   today.strftime('%Y-%m-%d'))
+
+    site = request.GET.get('site', '')
+    depots = request.GET.getlist('depots')
+
+    print("Date début =", date_debut)
+    print("Date fin =", date_fin)
+    #print("GET params =", request.GET)
+    print("SITE =", site)
+    print("DEPOTS =", depots)
+
+    rows = []
+
+    SITE_DB = {
+        'ARBIOCHEM':   ['ARBIO'],
+    }
+
+    if site == "ARBIOCHEM":
+        db_aliases = SITE_DB.get(site, [])
+    elif site == "ACTIVO_FEED":
+        db_aliases = depots
+    else:
+        db_aliases = []
+
+    rows = []
+    for db_alias in db_aliases:
+        try:
+            with connections[db_alias].cursor() as cursor:
+                sql = """
+                    SELECT CLI_INTITULE
                     FROM VW_VENTE_CA_EP_ARTICLE
                     WHERE V_DOCDATE BETWEEN %s AND %s
                 """
                 params = [date_debut, date_fin]
 
-                sql += " ORDER BY V_DEPOT ASC,QteVendues DESC,CLI_INTITULE ASC"
+                if depots:
+                    placeholders = ','.join(['%s'] * len(depots))
+                    sql += f" AND V_DEPOT IN ({placeholders})"
+                    params += depots
 
+                cursor.execute(sql, params)
+                rows += cursor.fetchall()
+
+        except Exception as e:
+            print(f"Erreur sur la base {db_alias} : {e}")
+            continue  # on continue même si une base est indisponible
+
+    clients = list(dict.fromkeys(row[0] for row in rows if row[0]))
+
+    return render(request, 'dashboard/etat_personnalise.html', {
+        'rows':        rows,
+        'date_debut':  date_debut,
+        'date_fin':    date_fin,
+        'site':        site,
+        'depots':      depots,
+        'clts': json.dumps(clients, cls=DjangoJSONEncoder),
+    })
+
+def afficher_produits(request):
+    today      = date.today()
+    date_debut = request.GET.get('date_debut', today.strftime('%Y-%m-%d'))
+    date_fin   = request.GET.get('date_fin',   today.strftime('%Y-%m-%d'))
+    site       = request.GET.get('site', '')
+    depots     = request.GET.getlist('depots')
+    clients    = request.GET.getlist('clients')
+
+    print("SITE =", site, "| DEPOTS =", depots, "| CLIENTS =", clients)
+
+    rows_pdts = []
+    rows_clts = []
+
+    if site == 'ARBIOCHEM':
+        try:
+            with connections['ARBIO'].cursor() as cursor:
+                # Produits
+                sql = """
+                    SELECT ART_LIB
+                    FROM VW_VENTE_CA_EP_ARTICLE
+                    WHERE V_DOCDATE BETWEEN %s AND %s
+                """
+                params = [date_debut, date_fin]
+                if depots:
+                    placeholders = ','.join(['%s'] * len(depots))
+                    sql += f" AND V_DEPOT IN ({placeholders})"
+                    params += depots
+                if clients:
+                    placeholders = ','.join(['%s'] * len(clients))
+                    sql += f" AND CLI_INTITULE IN ({placeholders})"
+                    params += clients
+                cursor.execute(sql, params)
+                rows_pdts = cursor.fetchall()
+
+                # Clients (pour maintenir la liste)
+                sql2 = """
+                    SELECT CLI_INTITULE
+                    FROM VW_VENTE_CA_EP_ARTICLE
+                    WHERE V_DOCDATE BETWEEN %s AND %s
+                """
+                params2 = [date_debut, date_fin]
+                if depots:
+                    placeholders = ','.join(['%s'] * len(depots))
+                    sql2 += f" AND V_DEPOT IN ({placeholders})"
+                    params2 += depots
+                cursor.execute(sql2, params2)
+                rows_clts = cursor.fetchall()
+        except Exception as e:
+            print(f"Erreur ARBIO : {e}")
+
+    elif site == 'ACTIVO_FEED':
+        # ✅ Interroger chaque dépôt = chaque base
+        for db_alias in depots:
+            if db_alias not in ACTIVO_FEED_BASES:
+                continue
+            try:
+                date_col = 'V_DOCDATE' if db_alias == 'ACTIVO' else 'LADATE'
+                with connections[db_alias].cursor() as cursor:
+                    # Produits
+                    sql = f"""
+                        SELECT ART_LIB
+                        FROM VW_VENTE_CA_EP_ARTICLE
+                        WHERE {date_col} BETWEEN %s AND %s
+                    """
+                    params = [date_debut, date_fin]
+                    if clients:
+                        placeholders = ','.join(['%s'] * len(clients))
+                        sql += f" AND CLI_INTITULE IN ({placeholders})"
+                        params += clients
+                    cursor.execute(sql, params)
+                    rows_pdts += cursor.fetchall()
+
+                    # Clients
+                    sql2 = f"""
+                        SELECT CLI_INTITULE
+                        FROM VW_VENTE_CA_EP_ARTICLE
+                        WHERE {date_col} BETWEEN %s AND %s
+                    """
+                    cursor.execute(sql2, [date_debut, date_fin])
+                    rows_clts += cursor.fetchall()
+            except Exception as e:
+                print(f"Erreur {db_alias} : {e}")
+                continue
+
+    produits = list(dict.fromkeys(row[0] for row in rows_pdts if row[0]))
+    clts     = list(dict.fromkeys(row[0] for row in rows_clts if row[0]))
+
+    return render(request, 'dashboard/etat_personnalise.html', {
+        'date_debut': date_debut,
+        'date_fin':   date_fin,
+        'site':       site,
+        'depots':     depots,
+        'clients':    clients,
+        'clts':       json.dumps(clts,     cls=DjangoJSONEncoder),
+        'pdts':       json.dumps(produits, cls=DjangoJSONEncoder),
+    })
+
+def etat_personnalise(request):
+    today = date.today()
+    date_debut = request.GET.get('date_debut', today.strftime('%Y-%m-%d'))
+    date_fin   = request.GET.get('date_fin',   today.strftime('%Y-%m-%d'))
+    site       = request.GET.get('site', '')
+    depots     = request.GET.getlist('depots')
+    clients    = request.GET.getlist('clients')
+
+    clts = []
+    if depots:
+        seen = set()
+        for db_alias in ACTIVO_FEED_BASES:
+            for c in _get_clients(db_alias, date_debut, date_fin, depots):
+                if c not in seen:
+                    seen.add(c)
+                    clts.append(c)
+
+    pdts = []
+    if clients:
+        seen = set()
+        for db_alias in ACTIVO_FEED_BASES:
+            for p in _get_produits(db_alias, date_debut, date_fin, depots, clients):
+                if p not in seen:
+                    seen.add(p)
+                    pdts.append(p)
+
+    return render(request, 'dashboard/etat_personnalise.html', {
+        'date_debut': date_debut,
+        'date_fin':   date_fin,
+        'site':       site,
+        'depots':     depots,
+        'clients':    clients,
+        'clts':       json.dumps(clts, cls=DjangoJSONEncoder),
+        'pdts':       json.dumps(pdts, cls=DjangoJSONEncoder),
+    })
+
+def afficher(request):
+    today      = date.today()
+    date_debut = request.GET.get('date_debut', today.strftime('%Y-%m-%d'))
+    date_fin   = request.GET.get('date_fin',   today.strftime('%Y-%m-%d'))
+    site       = request.GET.get('site', '')
+    depots     = request.GET.getlist('depots')
+    clients    = request.GET.getlist('clients')
+
+    print("SITE =", site, "| DEPOTS =", depots, "| CLIENTS =", clients)
+
+    rows_pdts = []
+    rows_clts = []
+
+    if site == 'ARBIOCHEM':
+        try:
+            with connections['ARBIO'].cursor() as cursor:
+                # Produits
+                sql = """
+                    SELECT *
+                    FROM VW_VENTE_CA_EP_ARTICLE
+                    WHERE V_DOCDATE BETWEEN %s AND %s
+                    ORDER BY V_DEPOT ASC
+                """
+                params = [date_debut, date_fin]
+                if depots:
+                    placeholders = ','.join(['%s'] * len(depots))
+                    sql += f" AND V_DEPOT IN ({placeholders})"
+                    params += depots
+                if clients:
+                    placeholders = ','.join(['%s'] * len(clients))
+                    sql += f" AND CLI_INTITULE IN ({placeholders})"
+                    params += clients
                 cursor.execute(sql, params)
                 rows_pdts = cursor.fetchall()
 
@@ -1003,38 +1255,41 @@ def afficher(request):
             print(f"Erreur ARBIO : {e}")
 
     elif site == 'ACTIVO_FEED':
-        for db_alias in ACTIVO_FEED_BASES:
+        # ✅ Interroger chaque dépôt = chaque base
+        for db_alias in depots:
             if db_alias not in ACTIVO_FEED_BASES:
                 continue
-
             try:
-                date_col = 'V_DOCDATE' if db_alias in ACTIVO_DBS else 'LADATE'
-                
+                date_col = 'V_DOCDATE' if db_alias == 'ACTIVO' else 'LADATE'
                 with connections[db_alias].cursor() as cursor:
+                    # Produits
                     sql = f"""
                         SELECT *
                         FROM VW_VENTE_CA_EP_ARTICLE
                         WHERE {date_col} BETWEEN %s AND %s
                     """
-
                     params = [date_debut, date_fin]
-
-                    
-                    sql += "ORDER BY QteVendues DESC,CLI_INTITULE ASC"
+                    if clients:
+                        placeholders = ','.join(['%s'] * len(clients))
+                        sql += f" AND CLI_INTITULE IN ({placeholders})"
+                        params += clients
                     cursor.execute(sql, params)
                     rows_pdts += cursor.fetchall()
-                    
 
+                    # Clients
+                    sql2 = f"""
+                        SELECT CLI_INTITULE
+                        FROM VW_VENTE_CA_EP_ARTICLE
+                        WHERE {date_col} BETWEEN %s AND %s
+                    """
+                    cursor.execute(sql2, [date_debut, date_fin])
+                    rows_clts += cursor.fetchall()
             except Exception as e:
                 print(f"Erreur {db_alias} : {e}")
                 continue
 
     return render(request, 'dashboard/etat_personnalise.html', {
-        'date_debut': date_debut,
-        'date_fin' : date_fin,
-        'rows': rows_pdts,
-        'site': site,
-        'depots': depots,
+        'rows':       rows_pdts,
     })
 
 def validation(request):
