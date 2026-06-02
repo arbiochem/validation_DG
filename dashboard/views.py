@@ -1,17 +1,34 @@
+from datetime import datetime, timedelta, date
+
+import json
+
 from django.shortcuts import render, redirect
+from django.http import JsonResponse
+from django.core.serializers.json import DjangoJSONEncoder
+from django.template.loader import render_to_string
+from django.views.decorators.csrf import csrf_exempt
+from django.views.decorators.http import require_http_methods
+from django.contrib.auth.decorators import login_required
+from django.db import connection
+from django.db import connections
+from django.db.models import (
+    DecimalField,
+    Sum,
+    F,
+    Value,
+    CharField,
+    ExpressionWrapper,
+    FloatField,
+    IntegerField,
+    OuterRef,
+    Subquery,
+    Case,
+    When
+)
+from django.db.models.functions import Cast, Concat, Coalesce
 from .models import FDocentete
 from .models import FDOCLIGNE
-from django.views.decorators.csrf import csrf_exempt
-import json
-from django.http import JsonResponse
-from django.db import connections
-from django.db import connection
-from django.contrib.auth.decorators import login_required
-from django.template.loader import render_to_string
-from django.views.decorators.http import require_http_methods
-from datetime import datetime, timedelta
-from datetime import date
-from django.core.serializers.json import DjangoJSONEncoder
+from .models import P_DEVISE
 
 def logout_view(request):
     return redirect('/login')
@@ -25,49 +42,124 @@ def require_login(view_func):
 
 @require_login
 def dashboard_home(request):
-    entete = FDocentete.objects.select_related('do_tiers').filter(
+    cours = Case(
+        When(Do_Cours=0, then=Value(1.0)),
+        default=Cast(F('Do_Cours'), FloatField()),
+        output_field=FloatField()
+    )
+
+    ligne_sum = FDOCLIGNE.objects.filter(
+        do_piece=OuterRef('do_piece')
+    ).values('do_piece').annotate(
+        total=Sum('DL_MontantTTC')
+    ).values('total')
+
+    devise_sub = P_DEVISE.objects.filter(
+        cbIndice=Cast(OuterRef('DO_Devise'), IntegerField())
+    ).values('D_Intitule')[:1]
+
+    entete = FDocentete.objects.filter(
         do_statut=1,
         do_piece__icontains='APA'
+    ).annotate(
+        total_ttc=Coalesce(
+            Subquery(ligne_sum, output_field=FloatField()),
+            Value(0.0)
+        ),
+        devise_libelle=Subquery(devise_sub)
+    ).annotate(
+        total_devise=ExpressionWrapper(
+            F('total_ttc') / cours,
+            output_field=FloatField()
+        )
     ).values(
         'cbMarq',
         'do_piece',
         'do_ref',
-        'do_tiers__ct_intitule'
+        'do_tiers__ct_intitule',
+        'DO_Devise',
+        'total_ttc',
+        'total_devise',
+        'devise_libelle'
     )
 
-    username = request.session.get('username', 'Utilisateur')
-    
-    context = {
-        'username': username,
-        'entete':entete
-    }
-    return render(request, 'dashboard/menu.html', context)
+    return render(request, 'dashboard/menu.html', {
+        'entete': entete
+    })
+
+class DecimalEncoder(json.JSONEncoder):
+    def default(self, obj):
+        if isinstance(obj, Decimal):
+            return float(obj)
+        return super().default(obj)
 
 def dashboard_data(request):
-    # Données qui vont changer
-    entete = list(FDocentete.objects.select_related('do_tiers').filter(
-        do_statut=1,
-        do_piece__icontains='APA'
-    ).values('cbMarq', 'do_piece', 'do_ref', 'do_tiers__ct_intitule'))
-    return JsonResponse({'entete': entete})
+    with connection['default'].cursor() as cursor:
+        cursor.execute("""
+            SELECT 
+                ent.cbMarq,
+                ent.do_piece,
+                ent.do_ref,
+                tiers.ct_intitule           AS do_tiers__ct_intitule,
+                ent.Do_Cours,
+                ent.DO_Devise,
+                devise.D_Intitule           AS devise_libelle,
+                COALESCE(SUM(ligne.DL_MontantTTC), 0) / NULLIF(ent.Do_Cours, 0) AS total_ttc
+            FROM F_DOCENTETE ent
+            LEFT JOIN F_COMPTET tiers  ON tiers.ct_num   = ent.DO_Tiers
+            LEFT JOIN F_DOCLIGNE ligne ON ligne.DO_Piece = ent.do_piece
+            LEFT JOIN P_Devise devise  ON devise.cbIndice = ent.DO_Devise
+            WHERE ent.do_statut = 1
+              AND ent.do_piece LIKE '%APA%'
+            GROUP BY 
+                ent.cbMarq, ent.do_piece, ent.do_ref,
+                tiers.ct_intitule, ent.Do_Cours,
+                ent.DO_Devise, devise.D_Intitule
+            ORDER BY ent.do_piece ASC
+        """)
+        columns = [col[0] for col in cursor.description]
+        entete  = []
+        for row in cursor.fetchall():
+            d = dict(zip(columns, row))
+            print(f"[DEBUG] total_ttc brut = {d['total_ttc']} type = {type(d['total_ttc'])}")
+            d['total_ttc'] = float(d['total_ttc']) if d['total_ttc'] else 0.0
+            print(f"[DEBUG] total_ttc après = {d['total_ttc']}")
+            entete.append(d)
 
-def lignes_view(request,do_piece):
+    return render(request, 'dashboard/index.html', {'entete': entete})
+
+def lignes_view(request, do_piece):
     """Charge les lignes d'un document via AJAX"""
     try:
-        # Récupérer les lignes du document
+        # ✅ nom du champ en minuscules comme dans le modèle
         lignes = FDOCLIGNE.objects.filter(do_piece=do_piece)
-        
-        # Rendre le template avec les lignes
+
+        try:
+            # ✅ FDocentete (pas FDOCENTETE)
+            entete    = FDocentete.objects.get(do_piece=do_piece)
+            do_cours  = entete.Do_Cours  or 1
+            do_devise = entete.DO_Devise or ""
+        except FDocentete.DoesNotExist:
+            do_cours  = 1
+            do_devise = ""
+
         html = render_to_string('dashboard/ligne.html', {
-            'lignes': lignes,
-            'do_piece': do_piece
+            'lignes':    lignes,
+            'do_piece':  do_piece,
+            'do_cours':  do_cours,
+            'do_devise': do_devise,
         })
-        
+
         return JsonResponse({
-            'success': True,
-            'html': html
+            'success':   True,
+            'html':      html,
+            'do_cours':  str(do_cours),
+            'do_devise': do_devise,
         })
+
     except Exception as e:
+        import traceback
+        traceback.print_exc()
         return JsonResponse({
             'success': False,
             'message': str(e)
@@ -882,6 +974,9 @@ def etat(request):
 def etat_personnalise(request):
     return render(request, 'dashboard/etat_personnalise.html')
 
+def etat_personnalise_dg(request):
+    return render(request, 'dashboard/etat_personnalise_DG.html')
+
 def entete_count(request):
     try:
         # Compter TOUS les documents avec DO_Statut=1
@@ -957,19 +1052,19 @@ ACTIVO_FEED_BASES = [
     'ACTIVOFEED_ANALAKELY',
     'ACTIVOFEED_ANTANIMORA',
     'ACTIVOFEED_IMERINTSIATOSIKA',
-    'ACTIVOFEED_MAHINTSY',
-    'ACTIVOFEED_MAJUNGA',
+    'ACTIVOFEED_MAHITSY',
+    #'ACTIVOFEED_MAJUNGA',
     'ACTIVOFEED_TMM',
-    'ACTIVOFEED_DIEGO_AG',
+    'ACTIVOFEED_DIEGO',
 ]
 
 ACTIVO_DBS = {
     'ACTIVO',
     'ACTIVOFEED_ANALAKELY',
     'ACTIVOFEED_ANTANIMORA',
-    'ACTIVOFEED_DIEGO_AG',
+    'ACTIVOFEED_DIEGO',
     'ACTIVOFEED_IMERINTSIATOSIKA',
-    'ACTIVOFEED_MAHINTSY',
+    'ACTIVOFEED_MAHITSY',
     'ACTIVOFEED_TMM',
 }
 
@@ -987,14 +1082,19 @@ def afficher(request):
     if site == 'ARBIOCHEM':
         try:
             with connections['ARBIO'].cursor() as cursor:
-                sql = """
-                    SELECT *
-                    FROM VW_VENTE_CA_EP_ARTICLE
+                sql = f"""
+                    SELECT 
+                        v.*, 
+                        u.U_Intitule, 
+                        a.AR_Ref
+                    FROM VW_VENTE_CA_EP_ARTICLE v
+                    JOIN F_ARTICLE a ON a.AR_Ref = v.ART_NUM
+                    JOIN P_UNITE u ON u.cbIndice = a.AR_UniteVen
                     WHERE V_DOCDATE BETWEEN %s AND %s
+                    ORDER BY QteVendues DESC, CLI_INTITULE ASC
                 """
-                params = [date_debut, date_fin]
 
-                sql += " ORDER BY V_DEPOT ASC,QteVendues DESC,CLI_INTITULE ASC"
+                params = [date_debut, date_fin]
 
                 cursor.execute(sql, params)
                 rows_pdts = cursor.fetchall()
@@ -1012,19 +1112,22 @@ def afficher(request):
                 
                 with connections[db_alias].cursor() as cursor:
                     sql = f"""
-                        SELECT *
-                        FROM VW_VENTE_CA_EP_ARTICLE
+                        SELECT 
+                            v.*, 
+                            u.U_Intitule, 
+                            a.AR_Ref
+                        FROM VW_VENTE_CA_EP_ARTICLE v
+                        JOIN F_ARTICLE a ON a.AR_Ref = v.ART_NUM
+                        JOIN P_UNITE u ON u.cbIndice = a.AR_UniteVen
                         WHERE {date_col} BETWEEN %s AND %s
+                        ORDER BY CAST(v.QteVendues AS FLOAT) DESC, v.CLI_INTITULE ASC
                     """
 
                     params = [date_debut, date_fin]
 
-                    
-                    sql += "ORDER BY QteVendues DESC,CLI_INTITULE ASC"
                     cursor.execute(sql, params)
                     rows_pdts += cursor.fetchall()
                     
-
             except Exception as e:
                 print(f"Erreur {db_alias} : {e}")
                 continue

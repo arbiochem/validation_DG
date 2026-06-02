@@ -678,12 +678,12 @@
 
             <nav class="nav">
                 {% if request.session.username == "aina" %}
-                    <a href="{% url 'etat_personnalise' %}" class="menu-item" data-section="etat_personnalise">
+                    <a href="{% url 'etat_personnalise' %}" class="menu-item" data-section="etat_personnalise" style="display:none">
                         <span class="menu-icon-nav material-icons" style="font-size:16px">tune</span>
                         <span class="menu-text">État personnalisé</span>
                     </a>
                 {% else %}
-                    <a href="{% url 'validation' %}" class="menu-item active" data-section="validation">
+                    <a href="{% url 'validation' %}" class="menu-item active" data-section="validation" style="display:none">
                         <span class="menu-icon-nav material-icons" style="font-size:16px">check_circle</span>
                         <span class="menu-text">Validation Achat</span>
                         <span class="menu-count">0</span>
@@ -728,7 +728,7 @@
                 <span class="menu-text">État personnalisé</span>
             </a>
         {% else %}
-            <a href="{% url 'validation' %}" class="menu-item active" data-section="validation">
+            <a href="{% url 'validation' %}" class="menu-item active" data-section="validation" style="display:none">
                 <span class="menu-icon-nav material-icons" style="font-size:16px">check_circle</span>
                 <span class="menu-text">Validation Achat</span>
                 <span class="menu-count">0</span>
@@ -782,8 +782,12 @@
                             class="{% if site %}has-value{% endif %}"
                             onchange="this.classList.toggle('has-value', this.value !== '')">
                             <option value=""></option>
-                            <option value="ARBIOCHEM"   {% if site == "ARBIOCHEM" %}selected{% endif %}>ARBIOCHEM</option>
-                            <option value="ACTIVO_FEED" {% if site == "ACTIVO_FEED" %}selected{% endif %}>ACTIVO FEED</option>
+                            {% if request.session.username == "aina" %}
+                                <option value="ACTIVO_FEED" {% if site == "ACTIVO_FEED" %}selected{% endif %}>ACTIVO FEED</option>
+                            {%else%}
+                                <option value="ARBIOCHEM"   {% if site == "ARBIOCHEM" %}selected{% endif %}>ARBIOCHEM</option>
+                                <option value="ACTIVO_FEED" {% if site == "ACTIVO_FEED" %}selected{% endif %}>ACTIVO FEED</option>
+                            {%endif%}
                         </select>
                         <label for="site">Site</label>
                         <span class="chevron">▾</span>
@@ -850,21 +854,22 @@
                                 </thead>
                                 <tbody>
                                     {% for row in rows %}
-                                    <tr>
-                                        <td>{{ row.1 }}</td>
-                                        <td>{{ row.2 |date:"j F Y" }}</td>
-                                        <td>{{ row.3 }}</td>
-                                        <td>{{ row.4 }}</td>
-                                        <td>{{ row.5 }}</td>
-                                        <td>{{ row.6 }}</td>
-                                        <td>{{ row.7 }}</td>
-                                        <td>{{ row.8 }}</td>
-                                        <td>{{ row.9 |floatformat:2 }}</td>
-                                        <td>{{ row.10 |floatformat:2 }}</td>
-                                        <td>{{ row.11 |floatformat:2 }}</td>
-                                        <td>{{ row.12 |floatformat:2 }}</td>
-                                        <td>{{ row.13 }}</td>
-                                    </tr>
+                                        <tr>
+                                            <td>{{ row.1 }}</td>
+                                            <td>{{ row.2 |date:"j F Y" }}</td>
+                                            <td>{{ row.3 }}</td>
+                                            <td>{{ row.4 }}</td>
+                                            <td>{{ row.5 }}</td>
+                                            <td>{{ row.6 }}</td>
+                                            <td>{{ row.7 }}</td>
+                                            <td>{{ row.8 }}</td>
+                                            <td>{{ row.9 |floatformat:"-2" }}</td>
+                                            <!--<td>{{ row.10|floatformat:"-2" }} {{ row.14 }}</td>-->
+                                            <td style="text-align:center">{{ row.10|floatformat:"-2" }}</td>
+                                            <td>{{ row.11 |floatformat:"-2" }}</td>
+                                            <td>{{ row.12 |floatformat:"-2" }}</td>
+                                            <td>{{ row.13 }}</td>
+                                        </tr>
                                     {% endfor %}
                                 </tbody>
                             </table>
@@ -918,10 +923,11 @@
                 buttons: [
                     {
                         extend: 'excelHtml5',
-                        text: 'Exporter Excel',
-                        className: 'btn btn-success'
+                        text: 'Exporter',
+                        className: 'btn btn-success',
                     }
                 ],
+                
                 language: {
                     url: "https://cdn.datatables.net/plug-ins/1.13.6/i18n/fr-FR.json"
                 },

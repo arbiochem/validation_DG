@@ -9,9 +9,7 @@
         <td class="qte-cell" contenteditable="true" 
             data-row-id="{{ ligne.cbMarq }}"
             style="text-align: center; background-color: blue; color:white">{{ ligne.DL_QTE|floatformat:2|localize }}</td>
-        <td class="prix-cell" style="text-align: center;">{{ ligne.DL_PrixUnitaire|floatformat:2|localize }}</td>
-        <td class="frais-cell" style="text-align: center;">{{ ligne.DL_Frais|floatformat:2|localize }}</td>
-        <td class="montant-cell" data-row-id="{{ ligne.cbMarq }}" style="text-align: center;">{{ ligne.DL_MontantTTC|floatformat:2|localize }}</td>
+        
         <td class="text-center">
             <button class="btn btn-sm btn-success btn-save" data-row-id="{{ ligne.cbMarq }}" type="button" title="Enregistrer">
                 💾

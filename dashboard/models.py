@@ -15,6 +15,8 @@ class FDocentete(models.Model):
     do_tiers = models.ForeignKey(FComptet, models.DO_NOTHING, db_column='DO_Tiers')
     do_statut = models.IntegerField(blank=True, null=True)
     do_type = models.IntegerField(blank=True, null=True)
+    Do_Cours    = models.DecimalField(max_digits=10, decimal_places=4, blank=True, null=True)  # ✅ ajouté
+    DO_Devise   = models.CharField(max_length=10, blank=True, null=True)     
 
     class Meta:
         managed = False
@@ -34,4 +36,12 @@ class FDOCLIGNE(models.Model):
     class Meta:
         managed = False
         db_table = 'F_DOCLIGNE'
+
+class P_DEVISE(models.Model):
+    cbIndice = models.AutoField(primary_key=True)
+    D_Intitule = models.CharField(max_length=255)
+
+    class Meta:
+        managed = False
+        db_table = 'P_DEVISE'
 

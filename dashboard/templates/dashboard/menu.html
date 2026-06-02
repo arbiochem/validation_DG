@@ -584,7 +584,7 @@
                 <span class="menu-text">État personnalisé</span>
             </a>
         {% else %}
-            <a href="{% url 'validation' %}" class="menu-item active" data-section="validation">
+            <a href="{% url 'validation' %}" class="menu-item active" data-section="validation" style="display:none">
                 <span class="menu-icon-nav material-icons" style="font-size:16px">check_circle</span>
                 <span class="menu-text">Validation Achat</span>
                 <span class="menu-count">0</span>
@@ -612,12 +612,16 @@
         <section id="validation" class="content-section active" data-url="{% url 'dashboard_home' %}" style="visibility:hidden">
             <div class="container">
                 {% for row in entete %}
+
                 <div class="document-card" data-search="{{ row.do_piece }} {{ row.do_ref }} {{ row.do_tiers__ct_intitule }}">
                     <div class="document-header">
                         <div class="document-info">
                             <h3>
                                 <span class="doc-piece-label">Document N°</span>
                                 <strong>{{ row.do_piece }}</strong>
+
+                                <span class="doc-piece-label">Montant :</span>
+                                <strong>{{ row.total_devise }} {{ row.devise_libelle }}</strong>
                             </h3>
                             <div class="document-meta">
                                 <span>
@@ -653,9 +657,6 @@
                                         <th>Référence article</th>
                                         <th>Désignation</th>
                                         <th style="text-align:center">Quantité</th>
-                                        <th style="text-align:center">Prix unitaire</th>
-                                        <th style="text-align:center">Frais</th>
-                                        <th style="text-align:center">Montant TTC</th>
                                         <th>Actions</th>
                                     </tr>
                                 </thead>
