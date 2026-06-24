@@ -13,7 +13,6 @@ from django.contrib.auth.decorators import login_required
 from django.db import connection
 from django.db import connections
 from sklearn.linear_model import LinearRegression
-from dateutil.relativedelta import relativedelta
 import numpy as np
 from django.db.models import (
     DecimalField,
@@ -179,137 +178,7 @@ def etat(request):
     ca_total1       = 0
     ca_total_prec   = 0
     ca_total_precs  = 0
-    ca_total_prec1   = 0
-    ca_total_precs10  = 0
     evolution_pct   = 0
-    evolution_pct1   = 0
-    stock_total=0
-
-    with connections['ARBIO'].cursor() as cursor:
-        cursor.execute("""
-            SELECT
-            SUM(A.AR_PrixAch * S.AS_QteSto)
-            FROM F_ARTSTOCK S
-            INNER JOIN F_ARTICLE A
-                ON A.AR_Ref = S.AR_Ref
-            AND A.AR_PrixAch>0 AND S.AS_QteSto>0
-        """)
-
-        row = cursor.fetchone()
-        stock_arbiochem = row[0] or 0
-        stock_total+=stock_arbiochem
-    
-    with connections['ACTIVO'].cursor() as cursor:
-        cursor.execute("""
-            SELECT
-            SUM(A.AR_PrixAch * S.AS_QteSto)
-            FROM F_ARTSTOCK S
-            INNER JOIN F_ARTICLE A
-                ON A.AR_Ref = S.AR_Ref
-            AND A.AR_PrixAch>0 AND S.AS_QteSto>0
-        """)
-
-        row = cursor.fetchone()
-        stock_activo = row[0] or 0
-        stock_total+=stock_activo
-
-    with connections['ACTIVOFEED_ANALAKELY'].cursor() as cursor:
-        cursor.execute("""
-            SELECT
-            SUM(A.AR_PrixAch * S.AS_QteSto)
-            FROM F_ARTSTOCK S
-            INNER JOIN F_ARTICLE A
-                ON A.AR_Ref = S.AR_Ref
-            AND A.AR_PrixAch>0 AND S.AS_QteSto>0
-        """)
-
-        row = cursor.fetchone()
-        stock_activo_analakely = row[0] or 0
-        stock_total+=stock_activo_analakely
-    
-    with connections['ACTIVOFEED_ANTANIMORA'].cursor() as cursor:
-        cursor.execute("""
-            SELECT
-            SUM(A.AR_PrixAch * S.AS_QteSto)
-            FROM F_ARTSTOCK S
-            INNER JOIN F_ARTICLE A
-                ON A.AR_Ref = S.AR_Ref
-            AND A.AR_PrixAch>0 AND S.AS_QteSto>0
-        """)
-
-        row = cursor.fetchone()
-        stock_activo_antanimora = row[0] or 0
-        stock_total+=stock_activo_antanimora
-
-    with connections['ACTIVOFEED_DIEGO'].cursor() as cursor:
-        cursor.execute("""
-            SELECT
-            SUM(A.AR_PrixAch * S.AS_QteSto)
-            FROM F_ARTSTOCK S
-            INNER JOIN F_ARTICLE A
-                ON A.AR_Ref = S.AR_Ref
-            AND A.AR_PrixAch>0 AND S.AS_QteSto>0
-        """)
-
-        row = cursor.fetchone()
-        stock_activo_diego = row[0] or 0
-        stock_total+=stock_activo_diego
-
-    with connections['ACTIVOFEED_MAHITSY'].cursor() as cursor:
-        cursor.execute("""
-            SELECT
-            SUM(A.AR_PrixAch * S.AS_QteSto)
-            FROM F_ARTSTOCK S
-            INNER JOIN F_ARTICLE A
-                ON A.AR_Ref = S.AR_Ref
-            AND A.AR_PrixAch>0 AND S.AS_QteSto>0
-        """)
-
-        row = cursor.fetchone()
-        stock_activo_mahitsy = row[0] or 0
-        stock_total+=stock_activo_mahitsy
-
-    with connections['ACTIVOFEED_IMERINTSIATOSIKA'].cursor() as cursor:
-        cursor.execute("""
-            SELECT
-            SUM(A.AR_PrixAch * S.AS_QteSto)
-            FROM F_ARTSTOCK S
-            INNER JOIN F_ARTICLE A
-                ON A.AR_Ref = S.AR_Ref
-            AND A.AR_PrixAch>0 AND S.AS_QteSto>0
-        """)
-
-        row = cursor.fetchone()
-        stock_activo_imerintsiatosika = row[0] or 0
-        stock_total+=stock_activo_imerintsiatosika
-
-    with connections['ACTIVOFEED_TMM'].cursor() as cursor:
-        cursor.execute("""
-            SELECT
-            SUM(A.AR_PrixAch * S.AS_QteSto)
-            FROM F_ARTSTOCK S
-            INNER JOIN F_ARTICLE A
-                ON A.AR_Ref = S.AR_Ref
-            AND A.AR_PrixAch>0 AND S.AS_QteSto>0
-        """)
-
-        row = cursor.fetchone()
-        stock_activo_tmm = row[0] or 0
-        stock_total+=stock_activo_tmm
-
-    with connections['ACTIVOFEED_MAJUNGA'].cursor() as cursor:
-        cursor.execute("""
-            SELECT
-            SUM(A.AR_PrixAch * S.AS_QteSto)
-            FROM F_ARTSTOCK S
-            INNER JOIN F_ARTICLE A
-                ON A.AR_Ref = S.AR_Ref
-            AND A.AR_PrixAch>0 AND S.AS_QteSto>0
-        """)
-
-        row = cursor.fetchone()
-        stock_activo_mjn = row[0] or 0
-        stock_total+=stock_activo_mjn
 
     try:
         if request.method == 'POST':
@@ -325,21 +194,11 @@ def etat(request):
         date_debut = datetime.strptime(date_debut, '%Y-%m-%d').date()
         date_fin   = datetime.strptime(date_fin,   '%Y-%m-%d').date()
 
-        duree = (date_fin - date_debut).days + 1
-
-        # Calcul du nombre de mois couverts par la période, de façon inclusive
-        delta = relativedelta(date_fin, date_debut)
-        nb_mois = delta.years * 12 + delta.months
-        nb_mois_inclusif = nb_mois + 1 if date_fin.day >= date_debut.day else nb_mois
-
-        date_debut_prec = date_debut - relativedelta(months=nb_mois_inclusif)
-        date_fin_prec   = date_fin   - relativedelta(months=nb_mois_inclusif)
-
-        date_debut_prec1 = date_debut - relativedelta(months=nb_mois_inclusif * 2)
-        date_fin_prec1   = date_fin   - relativedelta(months=nb_mois_inclusif * 2)
-
-        date_debut_pred = date_debut + relativedelta(months=nb_mois_inclusif)
-        date_fin_pred   = date_fin   + relativedelta(months=nb_mois_inclusif)
+        duree           = (date_fin - date_debut).days + 1
+        date_debut_prec = date_debut - timedelta(days=duree)
+        date_fin_prec   = date_fin   - timedelta(days=duree)
+        date_debut_pred = date_debut + timedelta(days=duree)
+        date_fin_pred   = date_fin   + timedelta(days=duree)
 
         # ─────────────────────────────────────────────
         # ARBIOCHEM
@@ -357,7 +216,6 @@ def etat(request):
 
         ca_arbio_par_depot      = {}
         ca_arbio_prec_par_depot = {}
-        ca_arbio_prec1_par_depot = {}
 
         with connections['ARBIO'].cursor() as cursor:
             for depot in ARBIO_DEPOTS:
@@ -375,13 +233,6 @@ def etat(request):
                 """, [depot, date_debut_prec, date_fin_prec])
                 ca_arbio_prec_par_depot[depot] = cursor.fetchone()[0] or 0
 
-                cursor.execute("""
-                    SELECT SUM(CAHTNet)
-                    FROM VENTES_AGGREGATED_DAILY
-                    WHERE V_DEPOT=%s AND V_DOCDATE BETWEEN %s AND %s
-                """, [depot, date_debut_prec1, date_fin_prec1])
-                ca_arbio_prec1_par_depot[depot] = cursor.fetchone()[0] or 0
-
         # Variables nommées pour le template (rétrocompat)
         ca_vente  = ca_arbio_par_depot['AMBOHIMANGAKELY']
         ca_vente1 = ca_arbio_par_depot['ANALAKELY']
@@ -394,7 +245,6 @@ def etat(request):
 
         ca_total      = sum(ca_arbio_par_depot.values())
         ca_total_prec = sum(ca_arbio_prec_par_depot.values())
-        ca_total_prec1 = sum(ca_arbio_prec1_par_depot.values())
 
         # Top articles ARBIO
         top_articles_arbio = []
@@ -455,24 +305,6 @@ def etat(request):
             ca_vente_activo_granule_prec = row[4] or 0
             ca_total_precs += ca_vente_activo_prec
 
-            cursor.execute(f"""
-                SELECT
-                    SUM(CATTCNet),
-                    SUM(CASE WHEN FAGROUPE LIKE '%FEED%'    THEN CATTCNet ELSE 0 END),
-                    SUM(CASE WHEN FAGROUPE LIKE '%FISH%'    THEN CATTCNet ELSE 0 END),
-                    SUM(CASE WHEN FAGROUPE LIKE '%POUSSIN%' THEN CATTCNet ELSE 0 END),
-                    SUM(CASE WHEN FAGROUPE LIKE '%GRANULE%' THEN CATTCNet ELSE 0 END)
-                FROM VW_VENTE_CA
-                WHERE V_DOCDATE BETWEEN '{date_debut_prec1}' AND '{date_fin_prec1}'
-            """)
-            row = cursor.fetchone()
-            ca_vente_activo_prec1         = row[0] or 0
-            ca_vente_activo_feed_prec1    = row[1] or 0
-            ca_vente_activo_fish_prec1    = row[2] or 0
-            ca_vente_activo_poussin_prec1 = row[3] or 0
-            ca_vente_activo_granule_prec1 = row[4] or 0
-            ca_total_precs10 += ca_vente_activo_prec1
-
         # Top articles ACTIVO
         top_articles = []
         with connections['ACTIVO'].cursor() as cursor:
@@ -521,19 +353,7 @@ def etat(request):
                     WHERE LADATE BETWEEN '{date_debut_prec}' AND '{date_fin_prec}'
                 """)
                 row_prec = cur.fetchone()
-
-                cur.execute(f"""
-                    SELECT
-                        SUM(CA),
-                        SUM(CASE WHEN FAGROUPE LIKE '%FEED%'    THEN CA ELSE 0 END),
-                        SUM(CASE WHEN FAGROUPE LIKE '%FISH%'    THEN CA ELSE 0 END),
-                        SUM(CASE WHEN FAGROUPE LIKE '%POUSSIN%' THEN CA ELSE 0 END),
-                        SUM(CASE WHEN FAGROUPE LIKE '%GRANULE%' THEN CA ELSE 0 END)
-                    FROM VW_VENTE_CA
-                    WHERE LADATE BETWEEN '{date_debut_prec1}' AND '{date_fin_prec1}'
-                """)
-                row_prec1 = cur.fetchone()
-            return row_cur, row_prec, row_prec1
+            return row_cur, row_prec
 
         def fetch_top_activofeed(conn_name):
             top = []
@@ -553,7 +373,7 @@ def etat(request):
             return top
 
         # ── ANALAKELY ──
-        row_cur, row_prec, row_prec1 = fetch_activofeed('ACTIVOFEED_ANALAKELY')
+        row_cur, row_prec = fetch_activofeed('ACTIVOFEED_ANALAKELY')
         ca_vente_activo_analakely         = row_cur[0]  or 0
         ca_vente_activo_feed_analakely    = row_cur[1]  or 0
         ca_vente_activo_fish_analakely    = row_cur[2]  or 0
@@ -568,17 +388,10 @@ def etat(request):
         ca_vente_activo_granule_analakely_prec = row_prec[4] or 0
         ca_total_precs += ca_vente_activo_analakely_prec
 
-        ca_vente_activo_analakely_prec1         = row_prec1[0] or 0
-        ca_vente_activo_feed_analakely_prec1    = row_prec1[1] or 0
-        ca_vente_activo_fish_analakely_prec1    = row_prec1[2] or 0
-        ca_vente_activo_poussin_analakely_prec1 = row_prec1[3] or 0
-        ca_vente_activo_granule_analakely_prec1 = row_prec1[4] or 0
-        ca_total_precs10 += ca_vente_activo_analakely_prec1
-
         top_articles_analakely = fetch_top_activofeed('ACTIVOFEED_ANALAKELY')
 
         # ── ANTANIMORA ──
-        row_cur, row_prec, row_prec1 = fetch_activofeed('ACTIVOFEED_ANTANIMORA')
+        row_cur, row_prec = fetch_activofeed('ACTIVOFEED_ANTANIMORA')
         ca_vente_activo_antanimora         = row_cur[0]  or 0
         ca_vente_activo_feed_antanimora    = row_cur[1]  or 0
         ca_vente_activo_fish_antanimora    = row_cur[2]  or 0
@@ -593,17 +406,10 @@ def etat(request):
         ca_vente_activo_granule_antanimora_prec = row_prec[4] or 0
         ca_total_precs += ca_vente_activo_antanimora_prec
 
-        ca_vente_activo_antanimora_prec1         = row_prec1[0] or 0
-        ca_vente_activo_feed_antanimora_prec1   = row_prec1[1] or 0
-        ca_vente_activo_fish_antanimora_prec1    = row_prec1[2] or 0
-        ca_vente_activo_poussin_antanimora_prec1 = row_prec1[3] or 0
-        ca_vente_activo_granule_antanimora_prec1 = row_prec1[4] or 0
-        ca_total_precs10 += ca_vente_activo_antanimora_prec1
-
         top_articles_antanimora = fetch_top_activofeed('ACTIVOFEED_ANTANIMORA')
 
         # ── DIEGO ──
-        row_cur, row_prec, row_prec1 = fetch_activofeed('ACTIVOFEED_DIEGO')
+        row_cur, row_prec = fetch_activofeed('ACTIVOFEED_DIEGO')
         ca_vente_activo_diego         = row_cur[0]  or 0
         ca_vente_activo_feed_diego    = row_cur[1]  or 0
         ca_vente_activo_fish_diego    = row_cur[2]  or 0
@@ -618,17 +424,10 @@ def etat(request):
         ca_vente_activo_granule_diego_prec = row_prec[4] or 0
         ca_total_precs += ca_vente_activo_diego_prec
 
-        ca_vente_activo_diego_prec1         = row_prec1[0] or 0
-        ca_vente_activo_feed_diego_prec1    = row_prec1[1] or 0
-        ca_vente_activo_fish_diego_prec1    = row_prec1[2] or 0
-        ca_vente_activo_poussin_diego_prec1 = row_prec1[3] or 0
-        ca_vente_activo_granule_diego_prec1 = row_prec1[4] or 0
-        ca_total_precs10 += ca_vente_activo_diego_prec1
-
         top_articles_diego = fetch_top_activofeed('ACTIVOFEED_DIEGO')
 
         # ── IMERINTSIATOSIKA ──
-        row_cur, row_prec, row_prec1 = fetch_activofeed('ACTIVOFEED_IMERINTSIATOSIKA')
+        row_cur, row_prec = fetch_activofeed('ACTIVOFEED_IMERINTSIATOSIKA')
         ca_vente_activo_imerintsiatosika         = row_cur[0]  or 0
         ca_vente_activo_feed_imerintsiatosika    = row_cur[1]  or 0
         ca_vente_activo_fish_imerintsiatosika    = row_cur[2]  or 0
@@ -643,17 +442,10 @@ def etat(request):
         ca_vente_activo_granule_imerintsiatosika_prec = row_prec[4] or 0
         ca_total_precs += ca_vente_activo_imerintsiatosika_prec
 
-        ca_vente_activo_imerintsiatosika_prec1         = row_prec1[0] or 0
-        ca_vente_activo_feed_imerintsiatosika_prec1    = row_prec1[1] or 0
-        ca_vente_activo_fish_imerintsiatosika_prec1    = row_prec1[2] or 0
-        ca_vente_activo_poussin_imerintsiatosika_prec1 = row_prec1[3] or 0
-        ca_vente_activo_granule_imerintsiatosika_prec1 = row_prec1[4] or 0
-        ca_total_precs10 += ca_vente_activo_imerintsiatosika_prec1
-
         top_articles_imerintsiatosika = fetch_top_activofeed('ACTIVOFEED_IMERINTSIATOSIKA')
 
         # ── MAHITSY ──
-        row_cur, row_prec, row_prec1 = fetch_activofeed('ACTIVOFEED_MAHITSY')
+        row_cur, row_prec = fetch_activofeed('ACTIVOFEED_MAHITSY')
         ca_vente_activo_mahitsy         = row_cur[0]  or 0
         ca_vente_activo_feed_mahitsy    = row_cur[1]  or 0
         ca_vente_activo_fish_mahitsy    = row_cur[2]  or 0
@@ -668,17 +460,10 @@ def etat(request):
         ca_vente_activo_granule_mahitsy_prec = row_prec[4] or 0
         ca_total_precs += ca_vente_activo_mahitsy_prec
 
-        ca_vente_activo_mahitsy_prec1         = row_prec1[0] or 0
-        ca_vente_activo_feed_mahitsy_prec1    = row_prec1[1] or 0
-        ca_vente_activo_fish_mahitsy_prec1    = row_prec1[2] or 0
-        ca_vente_activo_poussin_mahitsy_prec1 = row_prec1[3] or 0
-        ca_vente_activo_granule_mahitsy_prec1 = row_prec1[4] or 0
-        ca_total_precs10 += ca_vente_activo_mahitsy_prec1
-
         top_articles_mahitsy = fetch_top_activofeed('ACTIVOFEED_MAHITSY')
 
         # ── MAJUNGA ── (CORRIGÉ : bonne base + bonne colonne)
-        row_cur, row_prec, row_prec1 = fetch_activofeed('ACTIVOFEED_MAJUNGA')
+        row_cur, row_prec = fetch_activofeed('ACTIVOFEED_MAJUNGA')
         ca_vente_activo_majunga         = row_cur[0]  or 0
         ca_vente_activo_feed_majunga    = row_cur[1]  or 0
         ca_vente_activo_fish_majunga    = row_cur[2]  or 0
@@ -693,17 +478,10 @@ def etat(request):
         ca_vente_activo_granule_majunga_prec = row_prec[4] or 0
         ca_total_precs += ca_vente_activo_majunga_prec
 
-        ca_vente_activo_majunga_prec1         = row_prec1[0] or 0
-        ca_vente_activo_feed_majunga_prec1    = row_prec1[1] or 0
-        ca_vente_activo_fish_majunga_prec1    = row_prec1[2] or 0
-        ca_vente_activo_poussin_majunga_prec1 = row_prec1[3] or 0
-        ca_vente_activo_granule_majunga_prec1 = row_prec1[4] or 0
-        ca_total_precs10 += ca_vente_activo_majunga_prec1
-
         top_articles_majunga = fetch_top_activofeed('ACTIVOFEED_MAJUNGA')
 
         # ── TMM ──
-        row_cur, row_prec, row_prec1 = fetch_activofeed('ACTIVOFEED_TMM')
+        row_cur, row_prec = fetch_activofeed('ACTIVOFEED_TMM')
         ca_vente_activo_tmm         = row_cur[0]  or 0
         ca_vente_activo_feed_tmm    = row_cur[1]  or 0
         ca_vente_activo_fish_tmm    = row_cur[2]  or 0
@@ -718,52 +496,29 @@ def etat(request):
         ca_vente_activo_granule_tmm_prec = row_prec[4] or 0  # CORRIGÉ : row[4] au lieu de row[3]
         ca_total_precs += ca_vente_activo_tmm_prec
 
-        ca_vente_activo_tmm_prec1         = row_prec1[0] or 0
-        ca_vente_activo_feed_tmm_prec1    = row_prec1[1] or 0
-        ca_vente_activo_fish_tmm_prec1    = row_prec1[2] or 0
-        ca_vente_activo_poussin_tmm_prec1 = row_prec1[3] or 0
-        ca_vente_activo_granule_tmm_prec1 = row_prec1[4] or 0  # CORRIGÉ : row[4] au lieu de row[3]
-        ca_total_precs10 += ca_vente_activo_tmm_prec1
-
         top_articles_tmm = fetch_top_activofeed('ACTIVOFEED_TMM')
 
         # ─────────────────────────────────────────────
         # Totaux finaux
         # ─────────────────────────────────────────────
-        
-        ca_totals       = ca_total  + ca_total1        # total période N
-        ca_total_precs1 = ca_total_prec + ca_total_precs # total période N-1
-        ca_total_precs2 = ca_total_prec1 + ca_total_precs10  # total période N-2
+        ca_totals       = ca_total  + ca_total1        # total période actuelle
+        ca_total_precs1 = ca_total_prec + ca_total_precs  # total période précédente
 
         if ca_total_precs1:
-            evolution_pct = round(((ca_totals - ca_total_precs1) / ca_total_precs1) * 100)
-
-        if ca_total_precs2:
-            evolution_pct1 = round(((ca_total_precs1 - ca_total_precs2) / ca_total_precs2) * 100)
+            evolution_pct = round(((ca_totals - ca_total_precs1) / ca_total_precs1) * 100, 1)
 
         # ─────────────────────────────────────────────
         # Prédiction IA (régression linéaire)
         # ─────────────────────────────────────────────
         X = np.array([
-            [date_debut_prec1.toordinal(), date_debut_prec1.toordinal()],
             [date_debut_prec.toordinal(), date_fin_prec.toordinal()],
             [date_debut.toordinal(),      date_fin.toordinal()],
         ], dtype=float)
-
-        y = np.array([
-            float(ca_total_precs2),
-            float(ca_total_precs1),
-            float(ca_totals)
-        ], dtype=float)
+        y = np.array([ca_total_precs1, ca_totals])
 
         model = LinearRegression()
         model.fit(X, y)
-
-        val_prediction = float(
-            model.predict([
-                [date_debut_pred.toordinal(), date_fin_pred.toordinal()]
-            ])[0]
-        )
+        val_prediction = model.predict([[date_debut_pred.toordinal(), date_fin_pred.toordinal()]])
 
         # ─────────────────────────────────────────────
         # Contexte template
@@ -842,16 +597,10 @@ def etat(request):
             'ca_total':        ca_total,
             'ca_totals':       ca_totals,
             'ca_total1':       ca_total1,
-            'ca_total_prec':   ca_total_prec,
-            'ca_total_precs1':   ca_total_precs1,
-            'ca_total_precs':   ca_total_precs,
-            'ca_total_prec1':   ca_total_prec1,
-            'ca_total_precs10':ca_total_precs10,
-            'ca_total_precs2':   ca_total_precs2,
+            'ca_total_prec':   ca_total_precs1,
             'evolution_pct':   evolution_pct,
-            'evolution_pct1':   evolution_pct1,
-            'val_prediction': fmt(val_prediction),
-            'val_prediction_negative': val_prediction < 0,
+            'val_prediction':  fmt(float(val_prediction[0])),
+
             # Top articles
             'top_articles_arbio':           top_articles_arbio,
             'top_articles':                 top_articles,
@@ -862,7 +611,7 @@ def etat(request):
             'top_articles_mahitsy':         top_articles_mahitsy,
             'top_articles_majunga':         top_articles_majunga,
             'top_articles_tmm':             top_articles_tmm,
-            'stock_total':      stock_total,
+
             # Dates
             'date_debut':      date_debut.strftime('%Y-%m-%d'),
             'date_fin':        date_fin.strftime('%Y-%m-%d'),
@@ -870,8 +619,6 @@ def etat(request):
             'date_f':          date_fin,
             'date_debut_prec': date_debut_prec,
             'date_fin_prec':   date_fin_prec,
-            'date_debut_prec1': date_debut_prec1,
-            'date_fin_prec1':   date_fin_prec1,
             'date_debut_pred': date_debut_pred,
             'date_fin_pred':   date_fin_pred,
         }
@@ -886,10 +633,97 @@ def etat(request):
 
 
 def etat_personnalise(request):
-    return render(request, 'dashboard/etat_personnalise_DG.html')
-    
+    return render(request, 'dashboard/etat_personnalise.html')
+
 def etat_personnalise_dg(request):
-    return render(request, 'dashboard/etat_personnalise_DG.html')
+
+    with connection.cursor() as cursor:
+
+        # KPI
+        cursor.execute("""
+            SELECT
+                COUNT(DISTINCT A.AR_Ref) AS NbArticles,
+                SUM(S.AS_QteSto * A.AR_PrixAch) AS ValeurStock
+            FROM F_ARTSTOCK S
+            INNER JOIN F_ARTICLE A
+                ON S.AR_Ref = A.AR_Ref
+        """)
+        kpi = cursor.fetchone()
+
+        # Ruptures
+        cursor.execute("""
+            SELECT COUNT(*)
+            FROM F_ARTSTOCK
+            WHERE AS_QteSto <= 0
+        """)
+        nb_ruptures = cursor.fetchone()[0]
+
+        # Stocks faibles
+        cursor.execute("""
+            SELECT COUNT(*)
+            FROM F_ARTSTOCK
+            WHERE AS_QteSto BETWEEN 1 AND 10
+        """)
+        nb_alerte = cursor.fetchone()[0]
+
+        # Stock par dépôt
+        cursor.execute("""
+            SELECT
+                D.DE_Intitule,
+                SUM(S.AS_QteSto * A.AR_PrixAch)
+            FROM F_ARTSTOCK S
+            INNER JOIN F_ARTICLE A
+                ON A.AR_Ref = S.AR_Ref
+            INNER JOIN F_DEPOT D
+                ON D.DE_No = S.DE_No
+            GROUP BY D.DE_Intitule
+            ORDER BY 2 DESC
+        """)
+        stock_depots = cursor.fetchall()
+
+        # Top 10 articles valeur
+        cursor.execute("""
+            SELECT TOP 10
+                A.AR_Ref,
+                A.AR_Design,
+                SUM(S.AS_QteSto * A.AR_PrixAch) AS Valeur
+            FROM F_ARTSTOCK S
+            INNER JOIN F_ARTICLE A
+                ON A.AR_Ref = S.AR_Ref
+            GROUP BY
+                A.AR_Ref,
+                A.AR_Design
+            ORDER BY Valeur DESC
+        """)
+        top_articles = cursor.fetchall()
+
+        # Ruptures détail
+        cursor.execute("""
+            SELECT TOP 20
+                A.AR_Ref,
+                A.AR_Design,
+                D.DE_Intitule
+            FROM F_ARTSTOCK S
+            INNER JOIN F_ARTICLE A
+                ON A.AR_Ref = S.AR_Ref
+            INNER JOIN F_DEPOT D
+                ON D.DE_No = S.DE_No
+            WHERE S.AS_QteSto <= 0
+            ORDER BY A.AR_Ref
+        """)
+        ruptures = cursor.fetchall()
+
+    context = {
+        "nb_articles": kpi[0],
+        "valeur_stock": round(kpi[1] or 0, 0),
+        "nb_ruptures": nb_ruptures,
+        "nb_alerte": nb_alerte,
+        "stock_depots": stock_depots,
+        "top_articles": top_articles,
+        "ruptures": ruptures,
+    }
+
+    return render(request, 'dashboard/etat_personnalise_DG.html',context)
 
 
 def entete_count(request):

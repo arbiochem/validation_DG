@@ -551,19 +551,33 @@
             </div>
 
             <nav class="nav">
-                <a href="{% url 'validation' %}" class="menu-item active" data-section="validation">
-                    <span class="menu-icon-nav material-icons" style="font-size:16px">check_circle</span>
-                    <span class="menu-text">Validation Achat</span>
-                    <span class="menu-count">0</span>
-                </a>
-                <a href="{% url 'etat' %}" class="menu-item" data-section="etat">
-                    <span class="menu-icon-nav material-icons" style="font-size:16px">bar_chart</span>
-                    <span class="menu-text">État Global</span>
-                </a>
-                <a href="{% url 'etat_personnalise' %}" class="menu-item" data-section="etat_personnalise">
-                    <span class="menu-icon-nav material-icons" style="font-size:16px">tune</span>
-                    <span class="menu-text">État personnalisé</span>
-                </a>
+                {% if request.session.username == "aina" %}
+                    <a href="{% url 'etat_personnalise' %}" class="menu-item" data-section="etat_personnalise">
+                        <span class="menu-icon-nav material-icons" style="font-size:16px">tune</span>
+                        <span class="menu-text">État personnalisé</span>
+                    </a>
+                {% elif  request.session.username == "antsa" %}
+                    <a href="{% url 'validation' %}" class="menu-item active" data-section="validation">
+                        <span class="menu-icon-nav material-icons" style="font-size:16px">check_circle</span>
+                        <span class="menu-text">Validation Achat</span>
+                        <span class="menu-count">0</span>
+                    </a>
+                {% else %}
+                    <a href="{% url 'validation' %}" class="menu-item active" data-section="validation">
+                        <span class="menu-icon-nav material-icons" style="font-size:16px">check_circle</span>
+                        <span class="menu-text">Validation Achat</span>
+                        <span class="menu-count">0</span>
+                    </a>
+                    <a href="{% url 'etat' %}" class="menu-item" data-section="etat">
+                        <span class="menu-icon-nav material-icons" style="font-size:16px">bar_chart</span>
+                        <span class="menu-text">État Global</span>
+                    </a>
+
+                    <a href="{% url 'etat_personnalise_dg' %}" class="menu-item" data-section="etat_personnalise">
+                        <span class="menu-icon-nav material-icons" style="font-size:16px">tune</span>
+                        <span class="menu-text">État personnalisé</span>
+                    </a>
+                {% endif %}
             </nav>
 
             <div class="user-area">

@@ -5,14 +5,13 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Arbiochem — État Global</title>
+    <title>Arbiochem — État Global CA</title>
 
     <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:ital,wght@0,300;0,400;0,500;1,400&display=swap" rel="stylesheet">
     <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2.2.0/dist/chartjs-plugin-datalabels.min.js"></script>
 
     <style>
         /* ─── TOKENS ─────────────────────────────────────── */
@@ -255,6 +254,21 @@
             .main-content{padding-top:var(--nav-h)}
         }
 
+        .periode-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+            background: var(--cream);
+            border: 1px solid var(--cream-deep);
+            border-radius: var(--r-pill);
+            padding: 3px 10px;
+            font-size: 11px;
+            font-weight: 600;
+            color: var(--ink-muted);
+            letter-spacing: .3px;
+            margin-bottom: 10px;
+        }
+
         /* ─── FILTRE FORM ────────────────────────────────── */
         #filtersSection {
             position:relative;
@@ -310,7 +324,8 @@
 
         /* ─── CARDS / CONTENT ────────────────────────────── */
         .etat-body {
-            padding: 24px 36px 48px;
+            padding: 24px 16px 48px;
+            width: 100%;
         }
 
         .card {
@@ -346,7 +361,6 @@
         }
 
         /* KPI cards dans le graphique global */
-        #filtersSection ~ .etat-body .col-12 > .card > div > .d-flex > div,
         .kpi-inline-card {
             background:var(--white) !important;
             border:1.5px solid var(--cream-deep) !important;
@@ -363,6 +377,27 @@
             padding:2px 7px;
             border-radius:var(--r-sm);
             font-size:1em;
+        }
+
+        .kpi-panel {
+            background: linear-gradient(135deg, var(--white) 0%, var(--gold-bg) 100%);
+            border: 1.5px solid var(--gold-light);
+            border-radius: var(--r-xl);
+            padding: 20px 24px;
+            transition: all .3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+        .kpi-panel::before {
+            content: '';
+            position: absolute;
+            top: 0; left: 0; right: 0;
+            height: 3px;
+            background: linear-gradient(90deg, var(--gold), var(--green));
+        }
+        .kpi-panel:hover {
+            box-shadow: 0 8px 28px rgba(188,130,63,.18);
+            transform: translateY(-2px);
         }
 
         /* shimmer CA */
@@ -388,16 +423,57 @@
             filter:drop-shadow(0 0 6px rgba(188,130,63,.6));
             animation:shimmerCA 3s linear infinite;
         }
+
+        .evo-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 6px 14px;
+            border-radius: var(--r-pill);
+            font-size: 15px;
+            font-weight: 700;
+            letter-spacing: .2px;
+        }
+        .evo-badge.positive {
+            background: var(--green-light);
+            color: var(--green-dark);
+            border: 1px solid rgba(9,150,70,.2);
+        }
+        .evo-badge.negative {
+            background: var(--danger-bg);
+            color: var(--danger);
+            border: 1px solid var(--danger-light);
+        }
         .ca-epics1 {
             font-weight:900;
-            font-size:1.4rem;
-            background:linear-gradient(90deg,#fff 0%,#fff 25%,#1565c0 45%,#bc823f 50%,#1565c0 55%,#fff 70%,#fff 100%);
+            font-size:1.2rem;
+            background:linear-gradient(90deg,#bc823f 50%,green 55%);
             background-size:300% auto;
             -webkit-background-clip:text;
             -webkit-text-fill-color:transparent;
             background-clip:text;
             filter:drop-shadow(0 0 6px rgba(188,130,63,.6));
-            animation:shimmerCA 3s linear infinite;
+        }
+        .ca-epics2 {
+            font-weight:900;
+            font-size:1.2rem;
+            background:linear-gradient(90deg,blue 100%);
+            background-size:300% auto;
+            -webkit-background-clip:text;
+            -webkit-text-fill-color:transparent;
+            background-clip:text;
+            filter:drop-shadow(0 0 6px rgba(188,130,63,.6));
+        }
+
+        .ca-epics3 {
+            font-weight:900;
+            font-size:1.2rem;
+            background:linear-gradient(90deg,green 100%);
+            background-size:300% auto;
+            -webkit-background-clip:text;
+            -webkit-text-fill-color:transparent;
+            background-clip:text;
+            filter:drop-shadow(0 0 6px rgba(188,130,63,.6));
         }
         @keyframes shimmerCA {
             0%{ background-position:0% center; }
@@ -423,19 +499,28 @@
         table tbody tr:hover { background:var(--cream); }
 
         /* arbiochem-card sizing */
-        .arbiochem-card { width:35.1rem; }
+        .arbiochem-card { width:50%; }
         @media(max-width:768px){ .arbiochem-card{ width:100%; } }
 
-        .toparbiochem { height:22.5rem; }
-        @media(max-width:768px){ .toparbiochem{ width:auto !important; height:auto !important; } }
+        /* ───────────────────────────────────────────────────────
+           ZONE GRAPHIQUES — CORRIGÉ
+           Chaque conteneur de canvas a désormais une hauteur fixe,
+           position:relative propre (sans décalages bottom/left
+           aberrants), ce qui permet à Chart.js de calculer une
+           taille correcte avec maintainAspectRatio:false.
+        ─────────────────────────────────────────────────────── */
+        .toparbiochem { max-height:27rem; }
+        @media(max-width:768px){ .toparbiochem{ width:auto !important; min-height:auto !important; } }
 
-        .f_analakely {
-            position:relative; left:3rem;
-            width:400px; height:400px;
-            margin-top:1rem; bottom:3rem;
+        .chart-box {
+            position: relative;
+            width: 100%;
+            height: 260px;
+            margin-top: 1rem;
         }
-        @media(max-width:768px){
-            .f_analakely{ position:relative; right:2rem; width:400px; height:400px; margin-top:1rem; bottom:3rem; }
+        .chart-box canvas {
+            width: 100% !important;
+            height: 100% !important;
         }
 
         /* KPI trend */
@@ -467,7 +552,7 @@
     <header class="header" id="mainHeader">
         <div class="header-container">
 
-             <div class="logo-img-box">
+            <div class="logo-img-box">
                 <div class="logo-img"><img src="{% static 'dashboard/logo.jpeg' %}" alt="Logo Société" class="logo"></div>
             </div>
 
@@ -478,17 +563,17 @@
                         <span class="menu-text">État personnalisé</span>
                     </a>
                 {% else %}
-                    <a href="{% url 'validation' %}" class="menu-item active" data-section="validation" style="display:none">
+                    <a href="{% url 'validation' %}" class="menu-item active" data-section="validation">
                         <span class="menu-icon-nav material-icons" style="font-size:16px">check_circle</span>
                         <span class="menu-text">Validation Achat</span>
                         <span class="menu-count">0</span>
                     </a>
                     <a href="{% url 'etat' %}" class="menu-item" data-section="etat">
                         <span class="menu-icon-nav material-icons" style="font-size:16px">bar_chart</span>
-                        <span class="menu-text">État Global</span>
+                        <span class="menu-text">État Global CA</span>
                     </a>
 
-                    <a href="{% url 'etat_personnalise' %}" class="menu-item" data-section="etat_personnalise">
+                    <a href="{% url 'etat_personnalise_dg' %}" class="menu-item" data-section="etat_personnalise" style="display:none">
                         <span class="menu-icon-nav material-icons" style="font-size:16px">tune</span>
                         <span class="menu-text">État personnalisé</span>
                     </a>
@@ -522,6 +607,12 @@
                 <span class="menu-icon-nav material-icons" style="font-size:16px">tune</span>
                 <span class="menu-text">État personnalisé</span>
             </a>
+        {% elif  request.session.username == "antsa" %}
+            <a href="{% url 'validation' %}" class="menu-item active" data-section="validation">
+                <span class="menu-icon-nav material-icons" style="font-size:16px">check_circle</span>
+                <span class="menu-text">Validation Achat</span>
+                <span class="menu-count">0</span>
+            </a>
         {% else %}
             <a href="{% url 'validation' %}" class="menu-item active" data-section="validation">
                 <span class="menu-icon-nav material-icons" style="font-size:16px">check_circle</span>
@@ -530,10 +621,10 @@
             </a>
             <a href="{% url 'etat' %}" class="menu-item" data-section="etat">
                 <span class="menu-icon-nav material-icons" style="font-size:16px">bar_chart</span>
-                <span class="menu-text">État Global</span>
+                <span class="menu-text">État Global CA</span>
             </a>
 
-            <a href="{% url 'etat_personnalise_DG' %}" class="menu-item" data-section="etat_personnalise_DG">
+            <a href="{% url 'etat_personnalise_dg' %}" style="display:none" class="menu-item" data-section="etat_personnalise_DG" >
                 <span class="menu-icon-nav material-icons" style="font-size:16px">tune</span>
                 <span class="menu-text">État personnalisé</span>
             </a>
@@ -568,51 +659,147 @@
         </div>
 
         <div class="etat-body">
-            <div class="max-w-7xl mx-auto">
+            <div style="width:100%; max-width:none; margin:0;">
 
                 <!-- Graphique global -->
-                <div class="col-12 col-md-8 col-lg-6 mb-4" style="width:100%; max-width:70.1rem;">
+                <div class="col-12 mb-4" style="width:100%; margin-left:0; margin-right:0;">
                     <div class="card shadow h-100">
-                        <div style="position:relative; background:var(--cream); padding:1.2rem; text-align:center;">
+                        <div class="wm-bg" style="position:relative; background: linear-gradient(135deg, #f8f9fa 0%, #ffffff 100%); padding:1.8rem; text-align:center; border-radius: var(--r-xl);">
 
-                            <!-- KPI Cards -->
-                            <div class="d-flex justify-content-around gap-2 mb-3 flex-wrap">
-                                <div style="background:var(--white); border:1.5px solid var(--cream-deep); border-radius:var(--r-lg); padding:0.6rem 1rem; min-width:100px; flex:1; box-shadow:0 2px 8px rgba(0,0,0,.06);">
-                                    <div style="font-size:0.7rem; font-weight:600; color:var(--ink-muted); text-transform:uppercase; letter-spacing:.5px; margin-bottom:4px;">
-                                        {{date_deb|date:"d/m/Y"}} – {{date_f|date:"d/m/Y"}}
-                                    </div>
-                                    <span class="ca-epics1" style="font-size:clamp(0.75rem,2.5vw,1.2rem); word-break:break-all;">
-                                        {{ ca_totals|floatformat:2 }}
-                                    </span>
-                                </div>
-                                <div style="background:var(--white); border:1.5px solid var(--cream-deep); border-radius:var(--r-lg); padding:0.6rem 1rem; min-width:100px; flex:1; box-shadow:0 2px 8px rgba(0,0,0,.06);">
-                                    <div style="font-size:0.7rem; color:var(--ink-muted); text-transform:uppercase; font-weight:600; letter-spacing:.5px; margin-bottom:4px;">
-                                        {{date_debut_prec|date:"d/m/Y"}} – {{date_fin_prec|date:"d/m/Y"}}
-                                    </div>
-                                    <span class="ca-epics1" style="font-size:clamp(0.75rem,2.5vw,1.2rem); word-break:break-all;">
-                                        {{ ca_total_prec|floatformat:2 }}
-                                    </span>
-                                </div>
-                                <div style="background:var(--white); border:1.5px solid var(--cream-deep); border-radius:var(--r-lg); padding:0.6rem 1rem; min-width:100px; flex:1; box-shadow:0 2px 8px rgba(0,0,0,.06);">
-                                    <div style="font-size:0.7rem; color:var(--ink-muted); text-transform:uppercase; font-weight:600; letter-spacing:.5px; margin-bottom:4px;">KPI</div>
-                                    <div style="font-size:1.1rem; font-weight:700; display:flex; align-items:center; justify-content:center; gap:4px;">
-                                        {% if evolution_pct < 0 %}
-                                            <span style="color:var(--danger)">{{evolution_pct}} %</span>
-                                            <svg width="20" height="20" fill="none" stroke="var(--danger)" viewBox="0 0 24 24">
-                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 17h8m0 0v-8m0 8l-8-8-4 4-6-6"/>
-                                            </svg>
-                                        {% else %}
-                                            <span style="color:var(--green)">{{evolution_pct}} %</span>
-                                            <svg width="20" height="20" fill="none" stroke="var(--green)" viewBox="0 0 24 24">
-                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6"/>
-                                            </svg>
-                                        {% endif %}
-                                    </div>
-                                </div>
+                            <!-- Titre général -->
+                            <div style="margin-bottom:1.5rem; border-bottom:2px solid #e0e0e0; padding-bottom:1rem;">
+                                <h2 style="font-size:1.1rem; font-weight:700; color:#1a1a2e; text-transform:uppercase; letter-spacing:1.5px; margin:0;">
+                                    📊 Chiffre d'Affaires — Analyse Comparative
+                                </h2>
+                                <p style="font-size:0.78rem; color:#6c757d; margin:4px 0 0;">Unité : Ariary (MGA)</p>
                             </div>
 
-                            <div style="position:relative; width:100%; height:300px;">
-                                <canvas id="caVenteCharts"></canvas>
+                            <!-- KPI Cards -->
+                            <div class="d-flex justify-content-around gap-3 mb-3 flex-wrap">
+
+                                <!-- Période précédente -->
+                                <div class="kpi-panel" style="min-width:200px; flex:1; background:#fff; border:1.5px solid #e0e0e0; border-radius:14px; padding:1.2rem; box-shadow:0 2px 8px rgba(0,0,0,0.06);">
+                                    <div style="font-size:0.7rem; font-weight:700; color:#9e9e9e; text-transform:uppercase; letter-spacing:1px; margin-bottom:6px;">Période N-2</div>
+                                    <div class="periode-badge" style="background:#fff8e1; border:1px solid #ffe082; border-radius:20px; padding:4px 12px; display:inline-flex; align-items:center; gap:6px; margin-bottom:12px;">
+                                        <span class="material-icons" style="font-size:13px;color:#f9a825">history</span>
+                                        <span style="font-size:0.72rem; font-weight:600; color:#795548;">{{date_debut_prec1|date:"d/m/Y"}} – {{date_fin_prec1|date:"d/m/Y"}}</span>
+                                    </div>
+
+                                    <div style="font-size:clamp(1.2rem,3vw,1.8rem); font-weight:800; color:#5d4037; letter-spacing:-0.5px; line-height:1.2;">
+                                        <span class="ca-epics1">{{ ca_total_precs2|floatformat:2 }}</span>
+                                    </div>
+                                    <div style="height:2px; background:linear-gradient(90deg,transparent,#ffe082,transparent); margin:12px 0;"></div>
+
+                                    <!-- CHART : conteneur stable avec hauteur fixe -->
+                                    <div class="chart-box">
+                                        <canvas id="caVenteCharts_prec1"></canvas>
+                                    </div>
+                                </div>
+
+                                <div class="kpi-panel" style="min-width:200px; flex:1; background:#fff; border:1.5px solid #e0e0e0; border-radius:14px; padding:1.2rem; box-shadow:0 2px 8px rgba(0,0,0,0.06);">
+                                    <div style="font-size:0.7rem; font-weight:700; color:#9e9e9e; text-transform:uppercase; letter-spacing:1px; margin-bottom:6px;">Période N-1</div>
+                                    <div class="periode-badge" style="background:#fff8e1; border:1px solid #ffe082; border-radius:20px; padding:4px 12px; display:inline-flex; align-items:center; gap:6px; margin-bottom:12px;">
+                                        <span class="material-icons" style="font-size:13px;color:#f9a825">history</span>
+                                        <span style="font-size:0.72rem; font-weight:600; color:#795548;">{{date_debut_prec|date:"d/m/Y"}} – {{date_fin_prec|date:"d/m/Y"}}</span>
+                                    </div>
+
+                                    <div style="font-size:clamp(1.2rem,3vw,1.8rem); font-weight:800; color:#5d4037; letter-spacing:-0.5px; line-height:1.2;">
+                                        <span class="ca-epics1">{{ ca_total_precs1|floatformat:2 }}</span>
+                                    </div>
+                                    <div style="height:2px; background:linear-gradient(90deg,transparent,#ffe082,transparent); margin:12px 0;"></div>
+                                    <div style="margin:10px 0 14px;">
+                                        <div style="font-size:0.68rem; font-weight:700; color:#9e9e9e; text-transform:uppercase; letter-spacing:.8px; margin-bottom:8px;">Évolution vs période N-2</div>
+                                        {% if evolution_pct1 < 0 %}
+                                            <span class="evo-badge negative" style="display:inline-flex; align-items:center; gap:5px; background:#ffebee; color:#c62828; border:1px solid #ef9a9a; border-radius:20px; padding:6px 16px; font-size:1rem; font-weight:800;">
+                                                {{evolution_pct1}} %
+                                                <svg width="16" height="16" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M11 17h8m0 0v-8m0 8l-8-8-4 4-6-6"/>
+                                                </svg>
+                                            </span>
+                                        {% else %}
+                                            <span class="evo-badge positive" style="display:inline-flex; align-items:center; gap:5px; background:#e8f5e9; color:#2e7d32; border:1px solid #a5d6a7; border-radius:20px; padding:6px 16px; font-size:1rem; font-weight:800;">
+                                                +{{evolution_pct1}} %
+                                                <svg width="16" height="16" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6"/>
+                                                </svg>
+                                            </span>
+                                        {% endif %}
+                                    </div>
+
+                                    <!-- CHART : conteneur stable avec hauteur fixe -->
+                                    <div class="chart-box">
+                                        <canvas id="caVenteCharts_prec"></canvas>
+                                    </div>
+                                </div>
+
+                                <!-- Période actuelle -->
+                                <div class="kpi-panel" style="min-width:200px; flex:1; background:#fff; border:2px solid #1565c0; border-radius:14px; padding:1.2rem; box-shadow:0 4px 16px rgba(21,101,192,0.12);">
+                                    <div style="font-size:0.7rem; font-weight:700; color:#9e9e9e; text-transform:uppercase; letter-spacing:1px; margin-bottom:6px;">Période N</div>
+
+                                    <div class="periode-badge" style="background:#e3f2fd; border:1px solid #90caf9; border-radius:20px; padding:4px 12px; display:inline-flex; align-items:center; gap:6px; margin-bottom:12px;">
+                                        <span class="material-icons" style="font-size:13px;color:#1565c0">today</span>
+                                        <span style="font-size:0.72rem; font-weight:600; color:#1565c0;">{{date_deb|date:"d/m/Y"}} – {{date_f|date:"d/m/Y"}}</span>
+                                    </div>
+                                    
+                                    <div style="font-size:clamp(1.2rem,3vw,1.8rem); font-weight:800; color:#1565c0; letter-spacing:-0.5px; line-height:1.2;">
+                                        <span class="ca-epics2">{{ca_totals|floatformat:2 }}</span>
+                                    </div>
+                                    <div style="height:2px; background:linear-gradient(90deg,transparent,#90caf9,transparent); margin:12px 0;"></div>
+
+                                    <!-- Évolution badge -->
+                                    <div style="margin:10px 0 14px;">
+                                        <div style="font-size:0.68rem; font-weight:700; color:#9e9e9e; text-transform:uppercase; letter-spacing:.8px; margin-bottom:8px;">Évolution vs période N-1</div>
+                                        {% if evolution_pct < 0 %}
+                                            <span class="evo-badge negative" style="display:inline-flex; align-items:center; gap:5px; background:#ffebee; color:#c62828; border:1px solid #ef9a9a; border-radius:20px; padding:6px 16px; font-size:1rem; font-weight:800;">
+                                                {{evolution_pct}} %
+                                                <svg width="16" height="16" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M11 17h8m0 0v-8m0 8l-8-8-4 4-6-6"/>
+                                                </svg>
+                                            </span>
+                                        {% else %}
+                                            <span class="evo-badge positive" style="display:inline-flex; align-items:center; gap:5px; background:#e8f5e9; color:#2e7d32; border:1px solid #a5d6a7; border-radius:20px; padding:6px 16px; font-size:1rem; font-weight:800;">
+                                                +{{evolution_pct}} %
+                                                <svg width="16" height="16" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6"/>
+                                                </svg>
+                                            </span>
+                                        {% endif %}
+                                    </div>
+
+                                    <!-- CHART : conteneur stable avec hauteur fixe -->
+                                    <div class="chart-box">
+                                        <canvas id="caVenteCharts"></canvas>
+                                    </div>
+                                </div>
+
+                                <!-- Prédiction -->
+                                <div class="kpi-panel" style="min-width:200px; flex:1; background:#fff; border:1.5px solid #a5d6a7; border-radius:14px; padding:1.2rem; box-shadow:0 2px 8px rgba(46,125,50,0.08);">
+                                    <div style="font-size:0.7rem; font-weight:700; color:#9e9e9e; text-transform:uppercase; letter-spacing:1px; margin-bottom:6px;">Prédiction</div>
+
+                                    <div class="periode-badge" style="background:#f1f8e9; border:1px solid #c5e1a5; border-radius:20px; padding:4px 12px; display:inline-flex; align-items:center; gap:6px; margin-bottom:12px;">
+                                        <span class="material-icons" style="font-size:13px;color:#388e3c">auto_graph</span>
+                                        <span style="font-size:0.72rem; font-weight:600; color:#2e7d32;">{{date_debut_pred|date:"d/m/Y"}} – {{date_fin_pred|date:"d/m/Y"}}</span>
+                                    </div>
+                                    
+                                    <div style="font-size:clamp(1.2rem,3vw,1.8rem); font-weight:800; color:#2e7d32; letter-spacing:-0.5px; line-height:1.2;">
+                                        {% if val_prediction_negative %}
+                                            <span class="evo-badge negative" style="display:inline-flex; align-items:center; gap:5px; background:#ffebee; color:#c62828; border:1px solid #ef9a9a; border-radius:20px; padding:6px 16px; font-size:1rem; font-weight:800;">
+                                                {{ val_prediction }}
+                                            </span>
+                                        {% else %}
+                                            <span class="evo-badge positive" style="display:inline-flex; align-items:center; gap:5px; background:#e8f5e9; color:#2e7d32; border:1px solid #a5d6a7; border-radius:20px; padding:6px 16px; font-size:1rem; font-weight:800;">
+                                                {{ val_prediction }}
+                                            </span>
+                                        {% endif %}
+                                    
+                                    </div>
+                                    <div style="height:2px; background:linear-gradient(90deg,transparent,#a5d6a7,transparent); margin:12px 0;"></div>
+                                    <div style="font-size:0.72rem; color:#558b2f; background:#f9fbe7; border-radius:8px; padding:8px 12px; margin-top:10px; text-align:left;">
+                                        <span class="material-icons" style="font-size:13px; vertical-align:middle; margin-right:4px;">info_outline</span>
+                                        Projection basée sur la tendance actuelle
+                                    </div>
+                                </div>
+
                             </div>
                         </div>
                     </div>
@@ -621,16 +808,16 @@
                 <br>
 
                 <!-- Cartes détaillées -->
-                <div class="container" style="position:relative;">
-                    <div class="row">
+                <div class="container-fluid" style="position:relative; width:100%; max-width:none; padding:0;" >
+                    <div class="row justify-content-center g-0">
 
                         <!-- ARBIOCHEM -->
-                        <div class="col-4 arbiochem-card" style="position:relative; bottom:1rem; right:1rem;">
+                        <div class="col-4 arbiochem-card">
                             <div class="card shadow h-100" style="margin:1rem;">
                                 <div class="card-header bg-success">
                                     <h5>ARBIOCHEM : <span class="ca-epic">{{ ca_total|floatformat:2 }}</span></h5>
                                 </div>
-                                <div class="card-body d-flex flex-column flex-md-row gap-3">
+                                <div class="card-body d-flex flex-column flex-md-row gap-3" style="padding-bottom:0;">
                                     <div class="d-flex flex-column align-items-start" style="min-width:150px; font-size:0.7rem; line-height:1.8; color:var(--ink-mid);">
                                         AMBOHIMANGAKELY : <strong class="montant">{{ ca_vente|default:"0" }}</strong><br>
                                         ANALAKELY : <strong class="montant">{{ ca_vente1|default:"0" }}</strong><br>
@@ -657,11 +844,11 @@
                                                 {% endfor %}
                                             </tbody>
                                         </table>
-                                    </div>
-                                </div>
-                                <div style="position:relative; width:100%; overflow-x:auto; padding:8px 0; bottom:457rem;">
-                                    <div style="min-width:500px; height:250px;">
-                                        <canvas id="caVenteChart"></canvas>
+
+                                        <!-- CHART ARBIOCHEM : positionné juste sous le tableau -->
+                                        <div class="chart-box" style="height:280px; padding:0; margin-top:8px;">
+                                            <canvas id="caVenteChart"></canvas>
+                                        </div>
                                     </div>
                                 </div>
                             </div>
@@ -670,7 +857,7 @@
                         <div class="d-block d-md-none"><br></div>
 
                         <!-- ACTIVO & ACTIVOFEED -->
-                        <div class="col-4" style="width:35.1rem">
+                        <div class="col-4 arbiochem-card" style="width:50%">
                             <div class="card shadow h-100">
                                 <div class="card-header bg-success">
                                     <h5>ACTIVO & ACTIVOFEED : <span class="ca-epic">{{ ca_total1|floatformat:2 }}</span></h5>
@@ -706,7 +893,9 @@
                                             </table>
                                         </div>
                                     </div>
-                                    <div class="f_analakely">
+
+                                    <!-- CHART ACTIVOFEED (boucle) : conteneur stable -->
+                                    <div class="chart-box" style="height:280px; padding:0 12px 16px;">
                                         <canvas id="{{ site_data.chart_id }}"></canvas>
                                     </div>
                                 </div>
@@ -730,7 +919,7 @@
                                             <tbody>{% for item in top_articles %}<tr><td class="text-start">{{ item.article }}</td><td class="text-end"><strong class="montant">{{ item.total_ca|floatformat:0 }}</strong></td></tr>{% endfor %}</tbody></table>
                                         </div>
                                     </div>
-                                    <div class="f_analakely"><canvas id="caVenteChart1"></canvas></div>
+                                    <div class="chart-box" style="height:280px; padding:0 12px 16px;"><canvas id="caVenteChart1"></canvas></div>
                                 </div>
 
                                 <div class="card shadow h-100" style="margin:1rem;">
@@ -748,7 +937,7 @@
                                             <tbody>{% for item in top_articles_analakely %}<tr><td class="text-start">{{ item.article }}</td><td class="text-end"><strong class="montant">{{ item.total_ca|floatformat:0 }}</strong></td></tr>{% endfor %}</tbody></table>
                                         </div>
                                     </div>
-                                    <div style="position:relative;left:3rem;width:400px;height:400px;margin-top:1rem;bottom:3rem"><canvas id="caVenteChart2"></canvas></div>
+                                    <div class="chart-box" style="height:280px; padding:0 12px 16px;"><canvas id="caVenteChart2"></canvas></div>
                                 </div>
 
                                 <div class="card shadow h-100" style="margin:1rem;">
@@ -766,7 +955,7 @@
                                             <tbody>{% for item in top_articles_antanimora %}<tr><td class="text-start">{{ item.article }}</td><td class="text-end"><strong class="montant">{{ item.total_ca|floatformat:0 }}</strong></td></tr>{% endfor %}</tbody></table>
                                         </div>
                                     </div>
-                                    <div style="position:relative;left:3rem;width:400px;height:400px;margin-top:1rem;bottom:3rem"><canvas id="caVenteChart3"></canvas></div>
+                                    <div class="chart-box" style="height:280px; padding:0 12px 16px;"><canvas id="caVenteChart3"></canvas></div>
                                 </div>
 
                                 <div class="card shadow h-100" style="margin:1rem;">
@@ -784,7 +973,7 @@
                                             <tbody>{% for item in top_articles_diego %}<tr><td class="text-start">{{ item.article }}</td><td class="text-end"><strong class="montant">{{ item.total_ca|floatformat:0 }}</strong></td></tr>{% endfor %}</tbody></table>
                                         </div>
                                     </div>
-                                    <div style="position:relative;left:3rem;width:400px;height:400px;margin-top:1rem;bottom:3rem"><canvas id="caVenteChart4"></canvas></div>
+                                    <div class="chart-box" style="height:280px; padding:0 12px 16px;"><canvas id="caVenteChart4"></canvas></div>
                                 </div>
 
                                 <div class="card shadow h-100" style="margin:1rem;">
@@ -802,7 +991,7 @@
                                             <tbody>{% for item in top_articles_imerintsiatosika %}<tr><td class="text-start">{{ item.article }}</td><td class="text-end"><strong class="montant">{{ item.total_ca|floatformat:0 }}</strong></td></tr>{% endfor %}</tbody></table>
                                         </div>
                                     </div>
-                                    <div style="position:relative;left:3rem;width:400px;height:400px;margin-top:1rem;bottom:3rem"><canvas id="caVenteChart5"></canvas></div>
+                                    <div class="chart-box" style="height:280px; padding:0 12px 16px;"><canvas id="caVenteChart5"></canvas></div>
                                 </div>
 
                                 <div class="card shadow h-100" style="margin:1rem;">
@@ -820,7 +1009,7 @@
                                             <tbody>{% for item in top_articles_mahitsy %}<tr><td class="text-start">{{ item.article }}</td><td class="text-end"><strong class="montant">{{ item.total_ca|floatformat:0 }}</strong></td></tr>{% endfor %}</tbody></table>
                                         </div>
                                     </div>
-                                    <div style="position:relative;left:3rem;width:400px;height:400px;margin-top:1rem;bottom:3rem"><canvas id="caVenteChart6"></canvas></div>
+                                    <div class="chart-box" style="height:280px; padding:0 12px 16px;"><canvas id="caVenteChart6"></canvas></div>
                                 </div>
 
                                 <div class="card shadow h-100" style="margin:1rem;">
@@ -838,7 +1027,7 @@
                                             <tbody>{% for item in top_articles_majunga %}<tr><td class="text-start">{{ item.article }}</td><td class="text-end"><strong class="montant">{{ item.total_ca|floatformat:0 }}</strong></td></tr>{% endfor %}</tbody></table>
                                         </div>
                                     </div>
-                                    <div style="position:relative;left:3rem;width:400px;height:400px;margin-top:1rem;bottom:3rem"><canvas id="caVenteChart7"></canvas></div>
+                                    <div class="chart-box" style="height:280px; padding:0 12px 16px;"><canvas id="caVenteChart7"></canvas></div>
                                 </div>
 
                                 <div class="card shadow h-100" style="margin:1rem;">
@@ -856,7 +1045,7 @@
                                             <tbody>{% for item in top_articles_tmm %}<tr><td class="text-start">{{ item.article }}</td><td class="text-end"><strong class="montant">{{ item.total_ca|floatformat:0 }}</strong></td></tr>{% endfor %}</tbody></table>
                                         </div>
                                     </div>
-                                    <div style="position:relative;left:3rem;width:400px;height:400px;margin-top:1rem;bottom:3rem"><canvas id="caVenteChart8"></canvas></div>
+                                    <div class="chart-box" style="height:280px; padding:0 12px 16px;"><canvas id="caVenteChart8"></canvas></div>
                                 </div>
 
                                 {% endif %}
@@ -903,71 +1092,85 @@
         const sites1 = ['FEED','FISH','POUSSIN','GRANULE'];
         const sites2 = ['ARBIOCHEM','ACTIVO & FEED'];
 
+        // Fonction utilitaire pour parser des nombres formatés (espaces, virgules)
+        function toNumber(raw) {
+            const cleaned = String(raw).replace(/\s/g, '').replace(',', '.');
+            const n = parseFloat(cleaned);
+            return isNaN(n) ? 0 : n;
+        }
+
         const caValues  = [
-            parseFloat("{{ ca_vente|default:0 }}".replace(/\s/g,'').replace(',','.')),
-            parseFloat("{{ ca_vente1|default:0 }}".replace(/\s/g,'').replace(',','.')),
-            parseFloat("{{ ca_vente2|default:0 }}".replace(/\s/g,'').replace(',','.')),
-            parseFloat("{{ ca_vente3|default:0 }}".replace(/\s/g,'').replace(',','.')),
-            parseFloat("{{ ca_vente4|default:0 }}".replace(/\s/g,'').replace(',','.')),
-            parseFloat("{{ ca_vente5|default:0 }}".replace(/\s/g,'').replace(',','.')),
-            parseFloat("{{ ca_vente6|default:0 }}".replace(/\s/g,'').replace(',','.')),
-            parseFloat("{{ ca_vente7|default:0 }}".replace(/\s/g,'').replace(',','.'))
+            toNumber("{{ ca_vente|default:0 }}"),
+            toNumber("{{ ca_vente1|default:0 }}"),
+            toNumber("{{ ca_vente2|default:0 }}"),
+            toNumber("{{ ca_vente3|default:0 }}"),
+            toNumber("{{ ca_vente4|default:0 }}"),
+            toNumber("{{ ca_vente5|default:0 }}"),
+            toNumber("{{ ca_vente6|default:0 }}"),
+            toNumber("{{ ca_vente7|default:0 }}")
         ];
         const caValues1 = [
-            parseFloat("{{ ca_vente_activo_feed|default:0 }}".replace(/\s/g,'').replace(',','.')),
-            parseFloat("{{ ca_vente_activo_fish|default:0 }}".replace(/\s/g,'').replace(',','.')),
-            parseFloat("{{ ca_vente_activo_poussin|default:0 }}".replace(/\s/g,'').replace(',','.')),
-            parseFloat("{{ ca_vente_activo_granule|default:0 }}".replace(/\s/g,'').replace(',','.'))
+            toNumber("{{ ca_vente_activo_feed|default:0 }}"),
+            toNumber("{{ ca_vente_activo_fish|default:0 }}"),
+            toNumber("{{ ca_vente_activo_poussin|default:0 }}"),
+            toNumber("{{ ca_vente_activo_granule|default:0 }}")
         ];
         const caValues2 = [
-            parseFloat("{{ ca_vente_activo_feed_analakely|default:0 }}".replace(/\s/g,'').replace(',','.')),
-            parseFloat("{{ ca_vente_activo_fish_analakely|default:0 }}".replace(/\s/g,'').replace(',','.')),
-            parseFloat("{{ ca_vente_activo_poussin_analakely|default:0 }}".replace(/\s/g,'').replace(',','.')),
-            parseFloat("{{ ca_vente_activo_granule_analakely|default:0 }}".replace(/\s/g,'').replace(',','.'))
+            toNumber("{{ ca_vente_activo_feed_analakely|default:0 }}"),
+            toNumber("{{ ca_vente_activo_fish_analakely|default:0 }}"),
+            toNumber("{{ ca_vente_activo_poussin_analakely|default:0 }}"),
+            toNumber("{{ ca_vente_activo_granule_analakely|default:0 }}")
         ];
         const caValues3 = [
-            parseFloat("{{ ca_vente_activo_feed_antanimora|default:0 }}".replace(/\s/g,'').replace(',','.')),
-            parseFloat("{{ ca_vente_activo_fish_antanimora|default:0 }}".replace(/\s/g,'').replace(',','.')),
-            parseFloat("{{ ca_vente_activo_poussin_antanimora|default:0 }}".replace(/\s/g,'').replace(',','.')),
-            parseFloat("{{ ca_vente_activo_granule_antanimora|default:0 }}".replace(/\s/g,'').replace(',','.'))
+            toNumber("{{ ca_vente_activo_feed_antanimora|default:0 }}"),
+            toNumber("{{ ca_vente_activo_fish_antanimora|default:0 }}"),
+            toNumber("{{ ca_vente_activo_poussin_antanimora|default:0 }}"),
+            toNumber("{{ ca_vente_activo_granule_antanimora|default:0 }}")
         ];
         const caValues4 = [
-            parseFloat("{{ ca_vente_activo_feed_diego|default:0 }}".replace(/\s/g,'').replace(',','.')),
-            parseFloat("{{ ca_vente_activo_fish_diego|default:0 }}".replace(/\s/g,'').replace(',','.')),
-            parseFloat("{{ ca_vente_activo_poussin_diego|default:0 }}".replace(/\s/g,'').replace(',','.')),
-            parseFloat("{{ ca_vente_activo_granule_diego|default:0 }}".replace(/\s/g,'').replace(',','.'))
+            toNumber("{{ ca_vente_activo_feed_diego|default:0 }}"),
+            toNumber("{{ ca_vente_activo_fish_diego|default:0 }}"),
+            toNumber("{{ ca_vente_activo_poussin_diego|default:0 }}"),
+            toNumber("{{ ca_vente_activo_granule_diego|default:0 }}")
         ];
         const caValues5 = [
-            parseFloat("{{ ca_vente_activo_feed_imerintsiatosika|default:0 }}".replace(/\s/g,'').replace(',','.')),
-            parseFloat("{{ ca_vente_activo_fish_imerintsiatosika|default:0 }}".replace(/\s/g,'').replace(',','.')),
-            parseFloat("{{ ca_vente_activo_poussin_imerintsiatosika|default:0 }}".replace(/\s/g,'').replace(',','.')),
-            parseFloat("{{ ca_vente_activo_granule_imerintsiatosika|default:0 }}".replace(/\s/g,'').replace(',','.'))
+            toNumber("{{ ca_vente_activo_feed_imerintsiatosika|default:0 }}"),
+            toNumber("{{ ca_vente_activo_fish_imerintsiatosika|default:0 }}"),
+            toNumber("{{ ca_vente_activo_poussin_imerintsiatosika|default:0 }}"),
+            toNumber("{{ ca_vente_activo_granule_imerintsiatosika|default:0 }}")
         ];
         const caValues6 = [
-            parseFloat("{{ ca_vente_activo_feed_mahitsy|default:0 }}".replace(/\s/g,'').replace(',','.')),
-            parseFloat("{{ ca_vente_activo_fish_mahitsy|default:0 }}".replace(/\s/g,'').replace(',','.')),
-            parseFloat("{{ ca_vente_activo_poussin_mahitsy|default:0 }}".replace(/\s/g,'').replace(',','.')),
-            parseFloat("{{ ca_vente_activo_granule_mahitsy|default:0 }}".replace(/\s/g,'').replace(',','.'))
+            toNumber("{{ ca_vente_activo_feed_mahitsy|default:0 }}"),
+            toNumber("{{ ca_vente_activo_fish_mahitsy|default:0 }}"),
+            toNumber("{{ ca_vente_activo_poussin_mahitsy|default:0 }}"),
+            toNumber("{{ ca_vente_activo_granule_mahitsy|default:0 }}")
         ];
         const caValues7 = [
-            parseFloat("{{ ca_vente_activo_feed_majunga|default:0 }}".replace(/\s/g,'').replace(',','.')),
-            parseFloat("{{ ca_vente_activo_fish_majunga|default:0 }}".replace(/\s/g,'').replace(',','.')),
-            parseFloat("{{ ca_vente_activo_poussin_majunga|default:0 }}".replace(/\s/g,'').replace(',','.')),
-            parseFloat("{{ ca_vente_activo_granule_majunga|default:0 }}".replace(/\s/g,'').replace(',','.'))
+            toNumber("{{ ca_vente_activo_feed_majunga|default:0 }}"),
+            toNumber("{{ ca_vente_activo_fish_majunga|default:0 }}"),
+            toNumber("{{ ca_vente_activo_poussin_majunga|default:0 }}"),
+            toNumber("{{ ca_vente_activo_granule_majunga|default:0 }}")
         ];
         const caValues8 = [
-            parseFloat("{{ ca_vente_activo_feed_tmm|default:0 }}".replace(/\s/g,'').replace(',','.')),
-            parseFloat("{{ ca_vente_activo_fish_tmm|default:0 }}".replace(/\s/g,'').replace(',','.')),
-            parseFloat("{{ ca_vente_activo_poussin_tmm|default:0 }}".replace(/\s/g,'').replace(',','.')),
-            parseFloat("{{ ca_vente_activo_granule_tmm|default:0 }}".replace(/\s/g,'').replace(',','.'))
+            toNumber("{{ ca_vente_activo_feed_tmm|default:0 }}"),
+            toNumber("{{ ca_vente_activo_fish_tmm|default:0 }}"),
+            toNumber("{{ ca_vente_activo_poussin_tmm|default:0 }}"),
+            toNumber("{{ ca_vente_activo_granule_tmm|default:0 }}")
         ];
         const caValues9 = [
-            parseFloat("{{ ca_total|default:0 }}".replace(/\s/g,'').replace(',','.')),
-            parseFloat("{{ ca_total1|default:0 }}".replace(/\s/g,'').replace(',','.'))
+            toNumber("{{ ca_total|default:0 }}"),
+            toNumber("{{ ca_total1|default:0 }}")
+        ];
+        
+        const caValues10 = [
+            toNumber("{{ ca_total_prec|default:0 }}"),
+            toNumber("{{ ca_total_precs|default:0 }}")
         ];
 
-        // ── DÉSACTIVE ChartDataLabels GLOBALEMENT ────────────────
-        Chart.unregister(ChartDataLabels);
+        const caValues11 = [
+            toNumber("{{ ca_total_prec1|default:0 }}"),
+            toNumber("{{ ca_total_precs10|default:0 }}")
+        ];
 
         // ── PLUGIN FLÈCHES + LABELS EXTÉRIEURS ───────────────────
         const pieLineLabels = {
@@ -976,6 +1179,7 @@
                 const { ctx, data } = chart;
                 const meta  = chart.getDatasetMeta(0);
                 const total = data.datasets[0].data.reduce((a, b) => a + b, 0);
+                if (!total) return; // évite division par zéro si toutes les valeurs sont à 0
                 meta.data.forEach((arc, i) => {
                     const value   = data.datasets[0].data[i];
                     const percent = ((value / total) * 100).toFixed(1);
@@ -1008,7 +1212,7 @@
             callbacks: {
                 label: function(context) {
                     const total   = context.dataset.data.reduce((a, b) => a + b, 0);
-                    const percent = ((context.raw / total) * 100).toFixed(1);
+                    const percent = total ? ((context.raw / total) * 100).toFixed(1) : '0.0';
                     return context.label + ': ' + context.raw.toLocaleString() + ' (' + percent + '%)';
                 }
             }
@@ -1017,46 +1221,66 @@
         function makeOptions(paddingLarge = false) {
             return {
                 responsive: true,
+                maintainAspectRatio: false,
                 layout: {
                     padding: paddingLarge
-                        ? { top:50, bottom:50, left:100, right:120 }
-                        : { top:40, bottom:40, left:80, right:120 }
+                        ? { top:30, bottom:30, left:60, right:80 }
+                        : { top:30, bottom:30, left:60, right:80 }
                 },
                 plugins: { legend: { display: false }, tooltip: commonTooltip }
             };
         }
 
-        // ── CHART GRAND TOTAL ─────────────────────────────────────
-        new Chart(document.getElementById('caVenteCharts'), {
-            type: 'pie',
-            data: {
-                labels: sites2,
-                datasets: [{ data: caValues9, backgroundColor: ['rgba(9,150,70,.7)','rgba(188,130,63,.7)'], borderColor:'#fff', borderWidth:2 }]
-            },
-            options: { ...makeOptions(true), responsive:true, maintainAspectRatio:false, plugins:{ legend:{display:false}, tooltip:commonTooltip } },
-            plugins: [pieLineLabels]
-        });
+        // Fonction utilitaire : ne crée le chart que si le canvas existe ET qu'il y a au moins une valeur > 0
+        function renderPieIfPossible(canvasId, labels, values, colors) {
+            const el = document.getElementById(canvasId);
+            if (!el) return;
+
+            // Filtrer les paires label/valeur avec valeur > 0
+            const filteredLabels = [];
+            const filteredValues = [];
+            const filteredColors = [];
+            labels.forEach((lab, i) => {
+                if (values[i] && values[i] > 0) {
+                    filteredLabels.push(lab);
+                    filteredValues.push(values[i]);
+                    filteredColors.push(colors[i % colors.length]);
+                }
+            });
+
+            // Si aucune donnée, afficher un message au lieu d'un chart vide invisible
+            if (filteredValues.length === 0) {
+                const ctx2d = el.getContext('2d');
+                ctx2d.save();
+                ctx2d.font = '12px sans-serif';
+                ctx2d.fillStyle = '#9e9e9e';
+                ctx2d.textAlign = 'center';
+                ctx2d.fillText('Aucune donnée pour cette période', el.width / 2 || 150, el.height / 2 || 100);
+                ctx2d.restore();
+                return;
+            }
+
+            new Chart(el, {
+                type: 'pie',
+                data: { labels: filteredLabels, datasets: [{ data: filteredValues, backgroundColor: filteredColors, borderColor:'#fff', borderWidth:2 }] },
+                options: makeOptions(true),
+                plugins: [pieLineLabels]
+            });
+        }
+
+        const totalColors = ['rgba(9,150,70,.7)','rgba(188,130,63,.7)'];
+        const siteColors  = ['rgba(9,150,70,.7)','rgba(188,130,63,.7)','rgba(54,162,235,.7)','rgba(255,99,132,.7)','rgba(255,205,86,.7)','rgba(153,102,255,.7)','rgba(255,159,64,.7)','rgba(99,255,132,.7)'];
+        const feedColors  = ['rgba(9,150,70,.7)','rgba(188,130,63,.7)','rgba(54,162,235,.7)','rgba(255,0,0,1)'];
+
+        // ── CHARTS GRAND TOTAL ─────────────────────────────────────
+        renderPieIfPossible('caVenteCharts_prec1', sites2, caValues11, totalColors);
+        renderPieIfPossible('caVenteCharts_prec',  sites2, caValues10, totalColors);
+        renderPieIfPossible('caVenteCharts',       sites2, caValues9,  totalColors);
 
         // ── CHART ARBIOCHEM ───────────────────────────────────────
-        const filtered = sites.reduce((acc, site, i) => {
-            if (caValues[i]) {
-                acc.sites.push(site);
-                acc.values.push(caValues[i]);
-                acc.colors.push(['rgba(9,150,70,.7)','rgba(188,130,63,.7)','rgba(54,162,235,.7)','rgba(255,99,132,.7)','rgba(255,205,86,.7)','rgba(153,102,255,.7)','rgba(255,159,64,.7)','rgba(99,255,132,.7)'][i]);
-            }
-            return acc;
-        }, { sites:[], values:[], colors:[] });
+        renderPieIfPossible('caVenteChart', sites, caValues, siteColors);
 
-        new Chart(document.getElementById('caVenteChart'), {
-            type: 'pie',
-            data: { labels: filtered.sites, datasets: [{ data: filtered.values, backgroundColor: filtered.colors, borderColor:'#fff', borderWidth:2 }] },
-            options: { ...makeOptions(true), responsive:true, maintainAspectRatio:false, plugins:{ legend:{display:false}, tooltip:commonTooltip } },
-            plugins: [pieLineLabels]
-        });
-
-        // ── CHARTS 1→8 ────────────────────────────────────────────
-        const feedColors = ['rgba(9,150,70,.7)','rgba(188,130,63,.7)','rgba(54,162,235,.7)','rgba(255,0,0,1)'];
-
+        // ── CHARTS ACTIVOFEED 1→8 (fallback, hors boucle Django) ──
         [
             ['caVenteChart1', caValues1],
             ['caVenteChart2', caValues2],
@@ -1067,18 +1291,7 @@
             ['caVenteChart7', caValues7],
             ['caVenteChart8', caValues8],
         ].forEach(([id, values]) => {
-            const f = sites1.reduce((acc, site, i) => {
-                if (values[i]) { acc.labels.push(site); acc.data.push(values[i]); acc.colors.push(feedColors[i % feedColors.length]); }
-                return acc;
-            }, { labels:[], data:[], colors:[] });
-            const el = document.getElementById(id);
-            if (!el) return;
-            new Chart(el, {
-                type: 'pie',
-                data: { labels: f.labels, datasets: [{ data: f.data, backgroundColor: f.colors, borderColor:'#fff', borderWidth:2 }] },
-                options: makeOptions(false),
-                plugins: [pieLineLabels]
-            });
+            renderPieIfPossible(id, sites1, values, feedColors);
         });
 
         const menuValidation = document.querySelector('.menu-item[data-section="validation"]');

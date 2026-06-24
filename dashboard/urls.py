@@ -8,7 +8,7 @@ urlpatterns = [
     path('entete_count/', views.entete_count, name='entete_count'),
     path('etat/', views.etat, name='etat'),
     path('etat_personnalise/', views.etat_personnalise, name='etat_personnalise'),
-    path('etat_personnalise_DG/', views.etat_personnalise_dg, name='etat_personnalise_DG'),
+    path('etat_personnalise_dg/', views.etat_personnalise_dg, name='etat_personnalise_dg'),
     path('afficher/', views.afficher, name='afficher'),
     path('validation/', views.validation, name='validation'),
 

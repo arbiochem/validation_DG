@@ -28,6 +28,7 @@
     <!-- Buttons -->
     <script src="https://cdn.datatables.net/buttons/2.4.1/js/dataTables.buttons.min.js"></script>
     <script src="https://cdn.datatables.net/buttons/2.4.1/js/buttons.html5.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <style>
         /* ─── TOKENS ─────────────────────────────────────── */
         :root {
@@ -661,10 +662,51 @@
         @keyframes spin {
             100% { transform: rotate(360deg); }
         }
+
+        body {font-family:Arial;background:#f4f6f9;padding:20px;}
+
+        .tabs {
+            display:flex;
+            gap:10px;
+            margin-bottom:20px;
+        }
+
+        .tab {
+            padding:10px 20px;
+            background:#ddd;
+            cursor:pointer;
+            border-radius:5px;
+        }
+
+        .tab.active {
+            background:#0d6efd;
+            color:white;
+        }
+
+        .kpi {
+            display:grid;
+            grid-template-columns:repeat(3,1fr);
+            gap:10px;
+        }
+
+        .card {
+            background:white;
+            padding:15px;
+            border-radius:10px;
+            text-align:center;
+        }
+
+        .section {
+            background:white;
+            margin-top:15px;
+            padding:15px;
+            border-radius:10px;
+        }
     </style>
 </head>
 
 <body>
+    <div>Le goat</div>
     <div class="floating-orb orb1"></div>
     <div class="floating-orb orb2"></div>
     <div class="floating-orb orb3"></div>
@@ -739,149 +781,82 @@
             </div>
         </div>
         <!-- Filtres -->
-        <div id="filtersSection">
-            <form id="filterForm" method="GET" action="{% url 'afficher' %}">
-                {% csrf_token %}
-                <div class="d-flex flex-wrap align-items-end gap-3">
+        <div class="tabs">
+    <div class="tab active" onclick="loadTab('arbio', this)">ARBIOCHEM</div>
+        <div class="tab" onclick="loadTab('activo', this)">ACTIVO</div>
+        <div class="tab" onclick="loadTab('feed', this)">ACTIVOFEED</div>
+    </div>
 
-                    <!-- Date début -->
-                    <div>
-                        <label>📅 Date début</label>
-                        <input type="date" name="date_debut" id="dateDebut" value="{{ date_debut }}">
-                    </div>
+    <!-- KPI -->
+    <div class="kpi">
+        <div class="card">Articles <h2 id="nb_articles">0</h2></div>
+        <div class="card">Valeur <h2 id="valeur_stock">0</h2></div>
+        <div class="card">Ruptures <h2 id="ruptures">0</h2></div>
+    </div>
 
-                    <!-- Date fin -->
-                    <div>
-                        <label>📅 Date fin</label>
-                        <input type="date" name="date_fin" id="dateFin" value="{{ date_fin }}">
-                    </div>
+    <!-- CHART -->
+    <div class="section">
+        <h3>Stock par Dépôt</h3>
+        <canvas id="chart"></canvas>
+    </div>
 
-                    <!-- Select Site (label flottant) -->
-                    <div class="field">
-                        <select id="site" name="site"
-                            class="{% if site %}has-value{% endif %}"
-                            onchange="this.classList.toggle('has-value', this.value !== '')">
-                            <option value=""></option>
-                            <option value="ARBIOCHEM"   {% if site == "ARBIOCHEM" %}selected{% endif %}>ARBIOCHEM</option>
-                            <option value="ACTIVO_FEED" {% if site == "ACTIVO_FEED" %}selected{% endif %}>ACTIVO FEED</option>
-                        </select>
-                        <label for="site">Site</label>
-                        <span class="chevron">▾</span>
-                    </div>
+    <!-- TOP -->
+    <div class="section">
+        <h3>Top Articles</h3>
+        <ul id="top"></ul>
+    </div>
 
-                    <!-- Multiselect Dépôt -->
-                    <div class="ms-wrapper" id="ms-wrapper">
-                        <div class="ms-box" id="ms-box">
-                            <div id="ms-tags"></div>
-                            <span id="ms-placeholder" class="ms-placeholder">Dépôt</span>
-                            <span class="ms-arrow" id="ms-arrow">▼</span>
-                        </div>
-                        <label class="ms-floating-label" id="ms-label">Dépôt</label>
+    <script>
 
-                        <div class="ms-dropdown" id="ms-dropdown">
-                            <div class="ms-options" id="ms-options"></div>
-                            <div class="ms-footer">
-                                <span class="ms-count" id="ms-count">0 sélectionné</span>
-                                <button type="button" class="ms-clear" id="ms-clear" disabled>Tout effacer</button>
-                            </div>
-                        </div>
-                    </div>
+    let chart;
+    let currentTab = "arbio";
 
-                    <!-- Multiselect Clients -->
-                    <div class="ms-wrapper" id="ms-wrapper-clients">
-                        <div class="ms-box" id="ms-box-clients">
-                            <div id="ms-tags-clients"></div>
-                            <span class="ms-placeholder" id="ms-placeholder-clients">Clients</span>
-                            <span class="ms-arrow" id="ms-arrow-clients">▼</span>
-                        </div>
-                        <label class="ms-floating-label" id="ms-label-clients">Clients</label>
+    function loadTab(societe, el=null){
 
-                        <div class="ms-dropdown" id="ms-dropdown-clients">
-                            <div class="ms-options" id="ms-options-clients"></div>
-                        </div>
-                    </div>
+        currentTab = societe;
 
-                    <!-- Multiselect Produits -->
-                    <div class="ms-wrapper" id="ms-wrapper-produits">
-                        <div class="ms-box" id="ms-box-produits">
-                            <div id="ms-tags-produits"></div>
-                            <span class="ms-placeholder" id="ms-placeholder-produits">Produits</span>
-                            <span class="ms-arrow" id="ms-arrow-produits">▼</span>
-                        </div>
-                        <label class="ms-floating-label" id="ms-label-produits">Produits</label>
+        if(el){
+            document.querySelectorAll(".tab").forEach(t=>t.classList.remove("active"));
+            el.classList.add("active");
+        }
 
-                        <div class="ms-dropdown" id="ms-dropdown-produits">
-                            <div class="ms-options" id="ms-options-produits"></div>
-                        </div>
-                    </div>
+        fetch(`/api/dashboard/${societe}/`)
+        .then(r=>r.json())
+        .then(data=>{
 
-                    <!-- Hidden inputs pour envoyer les dépôts au serveur -->
-                    <div id="ms-hidden-inputs"></div>
-                    <div id="ms-hidden-inputs-clients"></div>
+            // KPI
+            document.getElementById("nb_articles").innerText = data.nb_articles;
+            document.getElementById("valeur_stock").innerText = data.valeur_stock.toFixed(0);
+            document.getElementById("ruptures").innerText = data.ruptures;
 
-                    <div>
-                        <button id="btnAfficher" class="btn btn-success">Afficher</button>
-                    </div>
-                </div>
-            </form>
-        </div>
+            // CHART
+            let labels = data.stock_depots.map(x=>x[0]);
+            let values = data.stock_depots.map(x=>x[1]);
 
-        <div class="etat-body">
-            <div class="container-fluid mt-4">
+            if(chart) chart.destroy();
 
-                <div class="card shadow">
-                    <div class="card-header bg-primary text-white">
-                        <h5>Résultat des ventes</h5>
-                    </div>
+            chart = new Chart(document.getElementById("chart"),{
+                type:"bar",
+                data:{
+                    labels:labels,
+                    datasets:[{label:"Stock", data:values}]
+                }
+            });
 
-                    <div class="card-body">
+            // TOP
+            let html="";
+            data.top_articles.forEach(a=>{
+                html += `<li>${a[0]} - ${a[1]} (${parseFloat(a[2]).toFixed(0)})</li>`;
+            });
 
-                        <div class="table-responsive">
-                            <table id="tableVente" class="table table-bordered table-striped">
-                                <thead class="table-dark">
-                                    <tr>
-                                        <th>NUMERO DOCUMENT</th>
-                                        <th>Date</th>
-                                        <th>N° SEMAINE</th>
-                                        <th>N° CLIENT</th>
-                                        <th>INTITULE CLIENT</th>
-                                        <th>REFERENCE DOCUMENT</th>
-                                        <th>REFERENCE ARTICLE</th>
-                                        <th>LIBELLE ARTICLE</th>
-                                        <th>PU TTC</th>
-                                        <th>Qtés vendues</th>
-                                        <th>CA HT Net</th>
-                                        <th>CA TTC Net</th>
-                                        <th>Dépot</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    {% for row in rows %}
-                                    <tr>
-                                        <td>{{ row.1 }}</td>
-                                        <td>{{ row.2 |date:"j F Y" }}</td>
-                                        <td>{{ row.3 }}</td>
-                                        <td>{{ row.4 }}</td>
-                                        <td>{{ row.5 }}</td>
-                                        <td>{{ row.6 }}</td>
-                                        <td>{{ row.7 }}</td>
-                                        <td>{{ row.8 }}</td>
-                                        <td>{{ row.9 |floatformat:2 }}</td>
-                                        <td>{{ row.10 |floatformat:2 }}</td>
-                                        <td>{{ row.11 |floatformat:2 }}</td>
-                                        <td>{{ row.12 |floatformat:2 }}</td>
-                                        <td>{{ row.13 }}</td>
-                                    </tr>
-                                    {% endfor %}
-                                </tbody>
-                            </table>
-                        </div>
+            document.getElementById("top").innerHTML = html;
+        });
+    }
 
-                    </div>
-                </div>
+    // INIT
+    loadTab("arbio");
 
-            </div>
-        </div>
+    </script>
 
     </main>
 
